@@ -71,10 +71,10 @@ td.c{font-weight:600;min-width:3.4rem;background:var(--head)}tr.max th{font-weig
 #toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.55rem 1rem;border-radius:10px;display:none;z-index:50}
 .ph{display:none}
 @media(max-width:899px){body{display:block}.dk{display:none!important}select.mo{display:inline-block}button.mo{display:inline-flex}header{padding:.5rem .7rem}main{padding:.6rem .6rem 6.5rem}.form{grid-template-columns:1fr}.em,.lb{display:none}
-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;overflow:visible;padding:.25rem .3rem calc(.25rem + env(safe-area-inset-bottom));border:0;border-top:1px solid var(--line);box-shadow:0 -4px 16px #0003}
+nav{position:fixed;top:auto;max-height:none;bottom:0;left:0;right:0;z-index:20;display:flex;overflow:visible;padding:.25rem .3rem calc(.25rem + env(safe-area-inset-bottom));border:0;border-top:1px solid var(--line);box-shadow:0 -4px 16px #0003}
 .grp{flex:1;min-width:0}nav .mt{flex-direction:column;justify-content:center;gap:.1rem;font-size:.62rem;padding:.35rem .1rem;border-radius:10px}nav .mt .i{width:1.35rem;height:1.35rem}
 .grp.open .subs{display:none}.grp.pop .subs{display:block;position:fixed;left:.6rem;right:.6rem;bottom:4.7rem;max-height:60vh;overflow:auto;margin:0;padding:.6rem;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 30px #0006}
-.subs button{padding:.6rem .8rem;font-size:.95rem}.fab{bottom:5.6rem}#tp{top:3.8rem;width:auto;left:.8rem}}
+.subs button{padding:.6rem .8rem;font-size:.95rem}.mini{padding:.4rem .7rem;min-height:2.2rem}.fab{bottom:5.6rem}#tp{top:3.8rem;width:auto;left:.8rem}}
 @media print{body{display:block}header,nav,.bar,#toast,.noprint,.fab{display:none!important}.ph{display:block;text-align:center;margin-bottom:1rem}body{background:#fff}.wrap{border:0}}
 .wrap td:has(>input),.wrap th:has(>input),.grid td:has(>.ab){padding:0}
 .wrap td>input,.wrap th>input{width:100%;min-width:4.2rem;border:0;border-radius:0;background:transparent;text-align:center;padding:.5rem .35rem}
@@ -145,10 +145,10 @@ const tpHtml=()=>{const m=localStorage.theme||'system',g=k=>localStorage[k]||DEF
 function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening',n=localStorage.gn;
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>Choose a class to open.</p></div>
  <div class=cards>${live().map(x=>`<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(x.meta.course)} · ${esc(x.meta.section)}</b><small>${esc(x.meta.title)}</small><small>${esc(x.meta.sched)}</small><small>${x.students.length} students</small></button>`).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 11</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 12</span></div>`}
 /* ---------- views ---------- */
 function render(){
- if(!U&&!localStorage.guest){$('#hd').innerHTML='';$('#tabs').innerHTML='';$('#main').innerHTML=`<div class=login><img src=logo.png alt="Talisay City College"><h1>Class Record</h1><p class=mut>Talisay City College · Department of Business Management &amp; Entrepreneurship</p><p>Sign in with Google. Your records stay on this device and sync to your Google Drive whenever you're online.</p><p><button class=pri data-a=signin>${I('login')}Sign in with Google</button></p><p class=mut>No connection right now?</p><button data-a=guest>Continue offline on this device</button></div>`;return}
+ if(!U&&!localStorage.guest){$('#hd').innerHTML='';$('#tabs').innerHTML='';$('#main').innerHTML=`<div class=login><img src=logo.png alt="Talisay City College"><h1>Class Record</h1><p class=mut>Talisay City College · Department of Business Management &amp; Entrepreneurship</p><p>Sign in with Google. Your records stay on this device and sync to your Google Drive whenever you're online.</p><p><button class=pri data-a=signin>${I('login')}Sign in with Google</button></p><p class=mut>No connection right now?</p><button data-a=guest>Continue offline on this device</button><p><button data-a=cid>Change Client ID</button></p></div>`;return}
  if(!C()&&live().length)cur=live()[0].id;localStorage.cur=cur;const c=C();
  $('#hd').innerHTML=`<div class=brand><img src=logo.png alt=""><div><small>Talisay City College</small><b>Class Record</b></div></div><select class=mo data-a=pick>${live().map(x=>`<option value="${x.id}" ${x.id==cur?'selected':''}>${esc(x.meta.course)} · ${esc(x.meta.section)}</option>`).join('')}</select><button class=mo data-a=addclass title="New class">${I('plus')}<span class=lb>New class</span></button><span class=sp></span><span id=st>${esc(st.m||'')}</span><button data-a=tp title=Theme>${I('palette')}</button>${U?`<span class=em>${esc(U)}</span><button data-a=sync title=Sync>${I('refresh')}<span class=lb>Sync</span></button><button data-a=signout title="Sign out">${I('logout')}</button>`:`<button data-a=signin>${I('login')}Sign in</button>`}${tp?tpHtml():''}`;
  if(!c){$('#tabs').innerHTML='';$('#main').innerHTML='<div class=empty><h2>No classes yet</h2><p>Create a class, then add your students.</p><button class=pri data-a=addclass>Create class</button></div>';return}
@@ -236,7 +236,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'upd':{for(const r of await navigator.serviceWorker.getRegistrations())await r.unregister();for(const k of await caches.keys())await caches.delete(k);return location.reload()}
  case'tp':tp=tp?0:1;return render();
  case'theme':localStorage.theme=d.val;applyTheme();return render();
- case'sch':case'sec':case'ter':localStorage[d.a]=d.val;applyTheme();return render();  case'rstc':['sch','sec','ter'].forEach(k=>delete localStorage[k]);applyTheme();return render();
+ case'sch':case'sec':case'ter':localStorage[d.a]=d.val;applyTheme();return render();  case'cid':if(setCid())goAuth();return;  case'rstc':['sch','sec','ter'].forEach(k=>delete localStorage[k]);applyTheme();return render();
  case'att':{const o=((c.terms[view].sc[d.sid]??={})[d.sub]??=[]),cu=o[d.i];o[d.i]=d.v?(cu==d.v?null:d.v):{P:'L',L:'A'}[cu]||(cu?null:'P');mark(c);return keep()}
  case'allp':{const T=c.terms[view],al=c.students.length&&c.students.every(u=>(((T.sc[u.id]||{})[d.sub]||[])[d.i])=='P');
  if(al)return ask('Unselect all?','This clears the attendance of every student for this session.','Unselect all',()=>{c.students.forEach(u=>{const o=(T.sc[u.id]||{})[d.sub];if(o)o[d.i]=null});mark(c);keep()});
@@ -266,8 +266,9 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'print':return print()}});
 const dl=(t,n,ty)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:ty}));a.download=n;a.click()};
 /* ---------- Google sign-in + Drive sync ---------- */
-const CID=()=>localStorage.cid||window.CLIENT_ID||'',RU=()=>location.origin+location.pathname.replace(/index\.html$/,'');
-function goAuth(silent){if(!CID()){const v=prompt('Paste your Google OAuth Client ID (see the setup steps).');if(!v)return;localStorage.cid=v.trim()}
+const OKC=v=>/^\d+-[\w]+\.apps\.googleusercontent\.com$/.test(v||''),CID=()=>OKC(window.CLIENT_ID)?window.CLIENT_ID:OKC(localStorage.cid)?localStorage.cid:'',
+setCid=()=>{const v=(prompt('Paste your Google OAuth Client ID.\nIt looks like 123456789-abc123.apps.googleusercontent.com',localStorage.cid||'')||'').replace(/\s+/g,'');if(!v)return 0;if(!OKC(v)){alert('That is not a valid Client ID. It must end with .apps.googleusercontent.com (do not paste the client secret).');return 0}localStorage.cid=v;return 1},RU=()=>location.origin+location.pathname.replace(/index\.html$/,'');
+function goAuth(silent){if(!CID()){delete localStorage.cid;if(silent||!setCid())return}
  const s=uid()+uid(),pr=silent?'none':U?'':'select_account';sessionStorage.oas=s;if(silent)sessionStorage.silent=1;
  location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:CID(),redirect_uri:RU(),response_type:'token',scope:SC,state:s,include_granted_scopes:'true',...(pr?{prompt:pr}:{}),...(U?{login_hint:U}:{})})}
 const signin=()=>navigator.onLine?goAuth():toast('You need a connection to sign in.');
