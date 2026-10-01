@@ -186,7 +186,7 @@ header button.mo .cl{max-width:9.5rem;overflow:hidden;text-overflow:ellipsis;whi
 .md.cf{max-width:38rem;max-height:92vh;max-height:92dvh;overflow:auto}.md.cf .form{margin-top:.3rem}.badf{border-color:var(--bad)!important;background:#c93a3a14!important}
 .md.pk{max-height:90vh;max-height:90dvh;overflow:auto}.ao.on{border-color:var(--pri);background:color-mix(in srgb,var(--pri) 10%,transparent)}
 .req{box-shadow:inset 0 0 0 2px var(--bad)!important;background:#c93a3a14!important}
-input:disabled{opacity:.45;cursor:not-allowed}
+input:disabled{opacity:.45;cursor:not-allowed}.cd input:disabled,.cd select:disabled{opacity:1;cursor:default;color:var(--ink);-webkit-text-fill-color:var(--ink);background:color-mix(in srgb,var(--mut) 8%,transparent)}
 .qd{display:flex;gap:.7rem;flex-wrap:wrap;align-items:flex-end;padding:.7rem}.qd label{flex:1;min-width:9rem;color:var(--ink);font-weight:600}.qd input{margin-top:.2rem;padding:.55rem .6rem;font-size:1.05rem}.qi2{flex:1;min-width:9rem;display:grid}
 .sr{display:grid;grid-template-columns:minmax(9rem,1fr) 6rem 8.5rem auto;gap:.4rem;align-items:end;margin:.3rem 0 .6rem}.sr .eff{grid-column:1/-1;margin-top:-.15rem}.sr button{padding:.5rem .6rem}.sr input{padding:.45rem .5rem}
 .sc2{text-align:left;white-space:normal}
@@ -225,8 +225,35 @@ body.nonav main{grid-column:1/3}.ce{padding:0!important}
 @media(max-width:899px){.grp.nd{display:none!important}.grp.nm2{display:block}}
 #pa table.pt{width:100%;border-collapse:collapse;font-size:9pt;margin:.04in 0 .1in}#pa table.pt th,#pa table.pt td{border:1px solid #000;padding:2px 5px;text-align:center;background:transparent;color:#000;white-space:normal}#pa table.pt th{font-weight:700;background:#eee}#pa table.pt th.l,#pa table.pt td.l{text-align:left}#pa table.pt td.l span,#pa table.pt td span{text-align:left}
 #pa h4.ph2{font-size:11pt;margin:.14in 0 .03in;text-transform:uppercase;letter-spacing:.03em;break-after:avoid}#pa p.pn{font-size:8.5pt;margin:.03in 0}#pa table.pt{break-inside:auto}
+/* ---- mobile header laid out on a tidy grid: row 1 = logo + icon buttons, row 2 = Choose class | New class, row 3 = status ---- */
+.hc{display:contents}
+@media(max-width:899px){
+ header{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand hb" "hc hc" "hl hl";gap:.5rem .6rem;align-items:center}
+ header .brand{grid-area:brand;min-width:0}header .brand>div{min-width:0}
+ header .brand small,header .brand b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ header .sp{display:none}
+ header .hr{display:contents}
+ header .hb{grid-area:hb;justify-self:end;gap:.35rem}
+ header .hb button{justify-content:center;min-width:2.6rem;min-height:2.6rem;padding:.4rem .55rem}
+ header .hc{grid-area:hc;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+ header .hc button.mo{width:100%;min-height:2.6rem;justify-content:center;min-width:0}
+ header .hc button.mo .lb{display:inline}
+ header .hc button.mo .cl{max-width:none;flex:1;min-width:0;text-align:left}
+ header .hl{grid-area:hl;justify-content:center}header .hl:has(#st:empty){display:none}
+ #tp{top:calc(3.9rem + env(safe-area-inset-top,0px))}
+}
+/* ---- student records ---- */
+.sx{display:grid;grid-template-columns:minmax(11rem,1.1fr) minmax(12rem,1.5fr) auto;gap:.6rem .9rem;align-items:center;padding:.7rem 1rem}
+.sx .chip{margin-top:.3rem}.sx label{margin:0}.sx .ac{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:899px){.sx{grid-template-columns:1fr}.sx .ac{justify-content:flex-start}}
+.srv h3,.srv h4{margin:.5rem 0 .3rem}.srv h4{color:var(--pri)}
+.srh{display:flex;align-items:center;gap:.8rem;text-align:center;border-bottom:3px solid var(--pri);padding-bottom:.6rem;margin-bottom:.6rem}.srh>div{flex:1;min-width:0}
+.srh img{width:3.4rem;height:3.4rem;object-fit:contain;background:#fff;border-radius:50%;flex:none;margin:0!important;display:block}
+.srh b{display:block;font-size:1.05rem;color:var(--pri);text-transform:uppercase}.srh small{display:block;color:var(--mut)}
+.sri{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.4rem .8rem;background:var(--head);padding:.6rem .8rem;border-radius:10px;margin:.5rem 0}
+.sri small{display:block;color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
 </style></head><body>
-<svg width=0 height=0 style="position:absolute" aria-hidden=true><symbol id=i-users viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol><symbol id=i-book viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol><symbol id=i-layers viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 12 10 5 10-5"/><path d="m2 17 10 5 10-5"/></symbol><symbol id=i-flag viewBox="0 0 24 24"><path d="M4 22V3M4 4h13l-2 4 2 4H4"/></symbol><symbol id=i-award viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></symbol><symbol id=i-sliders viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol><symbol id=i-plus viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id=i-minus viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id=i-sort viewBox="0 0 24 24"><path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M14 6h7M14 12h5M14 18h3"/></symbol><symbol id=i-shuffle viewBox="0 0 24 24"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22M18 2l4 4-4 4M2 6h1.9c1.5 0 2.9.9 3.6 2.2M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8M18 14l4 4-4 4"/></symbol><symbol id=i-left viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id=i-right viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol><symbol id=i-refresh viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-15-6.7L3 8M3 3v5h5M3 12a9 9 0 0 0 15 6.7L21 16M21 21v-5h-5"/></symbol><symbol id=i-download viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol><symbol id=i-printer viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></symbol><symbol id=i-trash viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></symbol><symbol id=i-grid viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></symbol><symbol id=i-phone viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol><symbol id=i-login viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></symbol><symbol id=i-logout viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol><symbol id=i-home viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-7h6v7"/></symbol><symbol id=i-palette viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="10" r="1"/></symbol><symbol id=i-sun viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol><symbol id=i-moon viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol><symbol id=i-monitor viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol><symbol id=i-check viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol><symbol id=i-x viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id=i-note viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></symbol><symbol id=i-clip viewBox="0 0 24 24"><path d="m21.4 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol><symbol id=i-file viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></symbol><symbol id=i-quiz viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol><symbol id=i-form viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></symbol><symbol id=i-cal viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol><symbol id=i-chat viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol><symbol id=i-task viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></symbol><symbol id=i-present viewBox="0 0 24 24"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></symbol><symbol id=i-dots viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></symbol><symbol id=i-filec viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></symbol><symbol id=i-tasks viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/></symbol><symbol id=i-pencil viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol><symbol id=i-trophy viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.7V17c0 .6-.5 1-1 1.2-1.2.6-2 2-2 3.8M14 14.7V17c0 .6.5 1 1 1.2 1.2.6 2 2 2 3.8"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></symbol><symbol id=i-folder viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id=i-chart viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></symbol><symbol id=i-dot viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></symbol></svg>
+<svg width=0 height=0 style="position:absolute" aria-hidden=true><symbol id=i-mail viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol><symbol id=i-users viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol><symbol id=i-book viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol><symbol id=i-layers viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 12 10 5 10-5"/><path d="m2 17 10 5 10-5"/></symbol><symbol id=i-flag viewBox="0 0 24 24"><path d="M4 22V3M4 4h13l-2 4 2 4H4"/></symbol><symbol id=i-award viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></symbol><symbol id=i-sliders viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol><symbol id=i-plus viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id=i-minus viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id=i-sort viewBox="0 0 24 24"><path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M14 6h7M14 12h5M14 18h3"/></symbol><symbol id=i-shuffle viewBox="0 0 24 24"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22M18 2l4 4-4 4M2 6h1.9c1.5 0 2.9.9 3.6 2.2M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8M18 14l4 4-4 4"/></symbol><symbol id=i-left viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id=i-right viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol><symbol id=i-refresh viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-15-6.7L3 8M3 3v5h5M3 12a9 9 0 0 0 15 6.7L21 16M21 21v-5h-5"/></symbol><symbol id=i-download viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol><symbol id=i-printer viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></symbol><symbol id=i-trash viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></symbol><symbol id=i-grid viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></symbol><symbol id=i-phone viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol><symbol id=i-login viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></symbol><symbol id=i-logout viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol><symbol id=i-home viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-7h6v7"/></symbol><symbol id=i-palette viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="10" r="1"/></symbol><symbol id=i-sun viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol><symbol id=i-moon viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol><symbol id=i-monitor viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol><symbol id=i-check viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol><symbol id=i-x viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id=i-note viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></symbol><symbol id=i-clip viewBox="0 0 24 24"><path d="m21.4 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol><symbol id=i-file viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></symbol><symbol id=i-quiz viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol><symbol id=i-form viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></symbol><symbol id=i-cal viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol><symbol id=i-chat viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol><symbol id=i-task viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/></symbol><symbol id=i-present viewBox="0 0 24 24"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></symbol><symbol id=i-dots viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></symbol><symbol id=i-filec viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></symbol><symbol id=i-tasks viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/></symbol><symbol id=i-pencil viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol><symbol id=i-trophy viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.7V17c0 .6-.5 1-1 1.2-1.2.6-2 2-2 3.8M14 14.7V17c0 .6.5 1 1 1.2 1.2.6 2 2 2 3.8"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></symbol><symbol id=i-folder viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id=i-chart viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></symbol><symbol id=i-dot viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></symbol></svg>
 <header id="hd"></header><nav id="tabs"></nav><main id="main"></main><div id="toast"></div><div id=pa></div><div id=mq role=marquee aria-label="Powered by Mr. and Mrs. Condes"><span>Powered by Mr. &amp; Mrs. Condes</span></div>
 <script>
 /* storage fallback for web-views that block localStorage / sessionStorage */
@@ -308,6 +335,11 @@ function viewFile(u,name,ty,bl){const o=dlg(`<h3>${esc(name)}</h3><div id=vw_b><
  if(/^image\//.test(ty)){const im=new Image();im.src=u;im.alt=name;b.appendChild(im)}else bl.text().then(x=>{const p=document.createElement('pre');p.textContent=x;b.appendChild(p)});
  o.onclick=e=>{if(o.classList.contains('out'))return;const x=e.target.dataset.x;if(x=='1')return saveBlob(u,name,0);if(x=='0'||e.target===o){closeMdl(o);setTimeout(()=>URL.revokeObjectURL(u),300)}}}
 document.addEventListener('keydown',e=>{if(e.key!='Escape')return;const o=document.querySelector('#mdl:not(.out)');if(o&&o.onclick)o.onclick({target:o})});
+function askDate(t,m,ok,fn){
+ const o=dlg(`<h3>${t}</h3><p>${m}</p><label>Date *<input id=ad_v type=date required></label><small class=bad id=ad_e></small><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${ok}</button></div>`),inp=o.querySelector('#ad_v');
+ const go=()=>{if(!inp.value){o.querySelector('#ad_e').textContent='Please pick a date. A date is required for every new column.';inp.classList.add('badf');return}const v=inp.value;closeMdl(o);fn(v)};
+ o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-x]'),x=b?b.dataset.x:null;if(x=='1')return go();if(x=='0'||e.target===o)closeMdl(o)};
+ inp.oninput=inp.onchange=()=>{inp.classList.remove('badf');o.querySelector('#ad_e').textContent=''}}
 function classForm(){const F=[['school','School'],['dept','Department'],['instructor','Instructor'],['course','Course no.'],['title','Descriptive title'],['sched','Schedule'],['section','Year and section'],['head','Checked by (department head)'],['pres','Noted by (college president)']];
  const o=document.createElement('div');o.id='mdl';
  o.innerHTML=`<div class="md cf"><h3>New class</h3><p class=mut>All fields are required. The class is only created when you press Save.</p><div class=form><label>School *<input data-f=school value="Talisay City College" autocomplete=off></label><label>Semester *<select data-f=sem><option value="">Select semester</option>${SEMS.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Academic year *<select data-f=ay><option value="">Select academic year</option>${ayList().map(x=>`<option>${x}</option>`).join('')}</select></label><label>Sessions per week *<select data-f=spw><option value="">Select sessions per week</option>${SPO.map(k=>`<option value=${k}>${k} session${k>1?'s':''} per week (${SPW[k][2]}, ${SPW[k][3]})</option>`).join('')}</select></label><label>Class type *<select data-f=type><option value="">Select class type</option>${TYP.map(x=>`<option>${x}</option>`).join('')}</select></label>${F.filter(x=>x[0]!='school').map(([k,l])=>`<label>${l} *<input data-f=${k} autocomplete=off></label>`).join('')}</div><p class=mut style="margin:.5rem 0 0">Sessions per week set the attendance points (Present / Late / Absent). The class type sets the weight distribution: Non-Laboratory is Attendance 15%, Course works 35%, Major performance 25%, Major exam 25%; Laboratory is 5%, 25%, 40%, 30%. You can review everything under Rules.</p><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${I('check')}Save class</button></div></div>`;
@@ -338,8 +370,8 @@ const NKS=['open','on','op','pri'];
 const navSnap=r=>{const m=new Map();document.querySelectorAll(r+' [data-nk]').forEach(e=>m.set(e.dataset.nk,NKS.filter(k=>e.classList.contains(k))));return m};
 function navAnim(r,prev){document.querySelectorAll(r+' [data-nk]').forEach(e=>{const p=prev.get(e.dataset.nk);if(!p)return;const n=NKS.filter(k=>e.classList.contains(k));if(p.join()==n.join())return;NKS.forEach(k=>e.classList.toggle(k,p.includes(k)));void e.offsetHeight;NKS.forEach(k=>e.classList.toggle(k,n.includes(k)))})}
 const AB=(cp,k,ci)=>cp.id=='cw'||cp.id=='mp'?(k===undefined?1:`<button class=ib data-a=addsub2 data-t=${k} data-ci=${ci} title="Add sub-section" aria-label="Add sub-section">${I('plus')}</button>`):'';
-function navHtml(c){const M=c?[['home','Home','home'],['compare','Compare','grid'],['students','Students','users'],['notes','Notes','note'],...TERMS.map(([t,l],i)=>[t,l,['book','layers','flag'][i]]),['perf','Performance','chart'],['grades','Grades','award'],['set','Rules','sliders']]:[['home','Home','home'],['compare','Compare','grid']];
- const ND=c?['compare','notes','perf','grades','set']:[];
+function navHtml(c){const M=c?[['home','Home','home'],['compare','Compare','grid'],['students','Students','users'],['notes','Notes','note'],...TERMS.map(([t,l],i)=>[t,l,['book','layers','flag'][i]]),['perf','Performance','chart'],['grades','Grades','award'],['srec','Student records','mail'],['set','Rules','sliders']]:[['home','Home','home'],['compare','Compare','grid']];
+ const ND=c?['compare','notes','perf','grades','srec','set']:[];
  const a=M.map(([k,l,ic])=>{const tm=isT(k),on=view==k;let sb='';
   if(tm)sb=`<div class="subs ${on?'open':''}" data-nk="t:${k}"><div class=in>${c.terms[k].comps.map((cp,ci)=>{const has=on&&cp.subs.some(s=>s.id==comp);
    if(cp.subs.length==1){const s=cp.subs[0],b=`<button data-v=${k} data-sb=${s.id} data-nk="s:${k}:${s.id}" class="cb ${on&&comp==s.id?'on':''}"><span class=ci>${I(SIC(cp,s))}${esc(cp.name)} (${pc(cp.w)})</span></button>`;return AB(cp)?`<div class=crow>${b}${AB(cp,k,ci)}</div>`:b}
@@ -347,7 +379,7 @@ function navHtml(c){const M=c?[['home','Home','home'],['compare','Compare','grid
    return `<div class=crow><button data-v=${k} data-cpid=${ci} data-nk="h:${k}:${ci}" class="cb ${has?'on':''} ${op?'op':''}"><span class=ci>${I(CIC(cp))}${esc(cp.name)} (${pc(cp.w)})</span>${I('right')}</button>${AB(cp,k,ci)}</div><div class="subs sub ${op?'open':''}" data-nk="c:${k}:${ci}"><div class=in>${cp.subs.map(s=>`<button data-v=${k} data-sb=${s.id} data-nk="s:${k}:${s.id}" class="sbn ${on&&comp==s.id?'on':''}">${I(SIC(cp,s))}${esc(s.name)} (${pc(s.w)})</button>`).join('')}</div></div>`}).join('')}<button data-v=${k} data-sb=sum data-nk="s:${k}:sum" class="cb ${on&&comp=='sum'?'on':''}"><span class=ci>${I('chart')}Summary</span></button></div></div>`;
   return `<div class="grp ${ND.includes(k)?'nd':''} ${tm&&on?'open':''} ${pop==k?'pop':''}"><button data-v=${k} data-nk="m:${k}" class="mt ${on?'on':''}">${I(ic)}<span>${l}</span></button>${sb}</div>`});
  a.splice(2,0,`<div class="grp dk"><button data-a=addclass class=mt>${I('plus')}<span>New class</span></button></div><div class="cs dk"><small>Class</small><button data-a=choose class=chs title="Choose class">${I('book')}<span>${c?esc(cname(c)):'Choose class'}</span>${I('right')}</button></div>`);
- if(c){const G2=[['stats','chart','Stats',[['compare','Compare','grid'],['perf','Performance','chart']]],['more','dots','More',[['notes','Notes','note'],['grades','Grades','award'],['set','Rules','sliders']]]];
+ if(c){const G2=[['stats','chart','Stats',[['compare','Compare','grid'],['perf','Performance','chart']]],['more','dots','More',[['notes','Notes','note'],['grades','Grades','award'],['srec','Student records','mail'],['set','Rules','sliders']]]];
   G2.forEach(([id,ic,l,it])=>a.push(`<div class="grp nm2 ${pop==id?'pop':''}"><button data-a=mpop data-val=${id} class="mt ${it.some(x=>x[0]==view)?'on':''}">${I(ic)}<span>${l}</span></button><div class=subs><div class=in>${it.map(([k,n,i2])=>`<button data-v=${k} class="cb ${view==k?'on':''}"><span class=ci>${I(i2)}${n}</span></button>`).join('')}</div></div></div>`))}
  return a.join('')}
 const PAL=[['blue','#1b4fa8'],['navy','#12377a'],['sky','#0284c7'],['teal','#0e8f9c'],['green','#1e8a5a'],['lime','#65a30d'],['gold','#f2b705'],['orange','#ea7a0c'],['crimson','#c0334d'],['rose','#db2777'],['purple','#6d4ac9'],['indigo','#4338ca'],['brown','#8a5a3b'],['slate','#475569']],DEF={sch:'brown',sec:'gold',ter:'teal'};
@@ -358,24 +390,24 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 26</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 30</span></div>`}
 /* ---------- views ---------- */
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
  if(!U&&!localStorage.guest){$('#hd').innerHTML='';$('#tabs').innerHTML='';$('#main').innerHTML=`<div class=login><img src=logo.png alt="Talisay City College"><h1>Class Record</h1><p class=mut>Talisay City College · Department of Business Management &amp; Entrepreneurship</p><p>Sign in with Google. Your records stay on this device and sync to your Google Drive whenever you're online.</p><p><button class=pri data-a=signin>${I('login')}Sign in with Google</button></p>${WV?'<p class=bad>Google sign-in is blocked inside in-app browsers. Open this page in Chrome or Safari to sign in, or continue offline.</p>':''}<p class=mut>No connection right now?</p><button data-a=guest>Continue offline on this device</button><p><button data-a=cid>Change Client ID</button></p></div>`;return}
  const c=C();if(c)fixSubs(c);if(!c){cur='';if(view!='compare')view='home'}
- const pt=navSnap('#tp');$('#hd').innerHTML=`<div class=brand><img src=logo.png alt=""><div><small>Talisay City College</small><b>Class Record</b></div></div><button class=mo data-a=choose title="Choose class">${I('book')}<span class=cl>${c?esc(cname(c)):'Choose class'}</span></button><button class=mo data-a=addclass title="New class">${I('plus')}<span class=lb>New class</span></button><span class=sp></span><div class=hr><div class=hl>${U?`<span class=em>${esc(U)}</span>`:''}<span id=st>${esc(st.m||'')}</span></div><div class=hb><button data-a=tp title=Theme>${I('palette')}</button>${U?`<button data-a=sync title=Sync>${I('refresh')}<span class=lb>Sync</span></button><button data-a=signout title="Sign out">${I('logout')}</button>`:`<button data-a=signin>${I('login')}Sign in</button>`}</div></div>${tp?tpHtml():''}`;navAnim('#tp',pt);tpNew=0;
+ const pt=navSnap('#tp');$('#hd').innerHTML=`<div class=brand><img src=logo.png alt=""><div><small>Talisay City College</small><b>Class Record</b></div></div><div class=hc><button class=mo data-a=choose title="Choose class">${I('book')}<span class=cl>${c?esc(cname(c)):'Choose class'}</span></button><button class=mo data-a=addclass title="New class">${I('plus')}<span class=lb>New class</span></button></div><span class=sp></span><div class=hr><div class=hl>${U?`<span class=em>${esc(U)}</span>`:''}<span id=st>${esc(st.m||'')}</span></div><div class=hb><button data-a=tp title=Theme>${I('palette')}</button>${U?`<button data-a=sync title=Sync>${I('refresh')}<span class=lb>Sync</span></button><button data-a=signout title="Sign out">${I('logout')}</button>`:`<button data-a=signin>${I('login')}Sign in</button>`}</div></div>${tp?tpHtml():''}`;navAnim('#tp',pt);tpNew=0;
  if(!c){$('#tabs').innerHTML=navHtml(null);$('#main').innerHTML=view=='compare'?cmpV():homeV();return}
  if(gf&&gf!='__none'&&!GR(c).includes(gf))gf='';if(isT(view)&&comp!='sum'&&!subOf(c,view,comp))comp=c.terms[view].comps[0].subs[0].id;const ps=navSnap('#tabs');$('#tabs').innerHTML=navHtml(c);navAnim('#tabs',ps);
- const en=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|')!=render.k;render.k=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|');const MN=$('#main');MN.classList.remove('enter');MN.innerHTML=view=='home'?homeV():view=='students'?stuV(c):view=='notes'?notesV(c):view=='grades'?gradV(c):view=='set'?setV(c):view=='perf'?statV(c):view=='compare'?cmpV():termV(c,view);if(en){void MN.offsetWidth;MN.classList.add('enter');clearTimeout(render.t);render.t=setTimeout(()=>MN.classList.remove('enter'),600)}fit();
+ const en=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|')!=render.k;render.k=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|');const MN=$('#main');MN.classList.remove('enter');MN.innerHTML=view=='home'?homeV():view=='students'?stuV(c):view=='notes'?notesV(c):view=='grades'?gradV(c):view=='set'?setV(c):view=='srec'?srecV(c):view=='perf'?statV(c):view=='compare'?cmpV():termV(c,view);if(en){void MN.offsetWidth;MN.classList.add('enter');clearTimeout(render.t);render.t=setTimeout(()=>MN.classList.remove('enter'),600)}fit();
  if(isT(view)&&comp!='sum')recalcAll();updChk();if(view=='notes')nthumbs();
  document.querySelectorAll('.wrap td>input,.wrap th>input,.wrap td>select,.grid td>.ab').forEach(e=>e.parentNode.classList.add('ce'));
 }
-function stuV(c){if(fixG(c))mark(c);const m=c.meta,GA=GS(c);if(m.head===undefined)m.head=HEAD;if(m.pres===undefined)m.pres=PRES;const F=[['school','School'],['dept','Department'],['instructor','Instructor'],['course','Course no.'],['title','Descriptive title'],['sched','Schedule'],['section','Year and section'],['head','Checked by (department head)'],['pres','Noted by (college president)']];
- return `<div class=card><h2>Class details</h2><div class=form><label>Semester<select data-m=sem><option value="">Select semester</option>${SEMS.map(x=>`<option ${x==sOf(c)?'selected':''}>${x}</option>`).join('')}</select></label><label>Academic year<select data-m=ay><option value="">Select academic year</option>${ayList(aOf(c)).map(x=>`<option ${x==aOf(c)?'selected':''}>${x}</option>`).join('')}</select></label><label>Sessions per week<select data-m=spw><option value="">Select sessions per week</option>${SPO.map(k=>`<option value=${k} ${k==spwOf(c)?'selected':''}>${k} session${k>1?'s':''} per week (${SPW[k][2]})</option>`).join('')}</select></label><label>Class type<select data-m=type>${TYP.map(x=>`<option ${x==typOf(c)?'selected':''}>${x}</option>`).join('')}</select></label>${F.map(([k,l])=>`<label>${l}<input data-m=${k} value="${esc(m[k])}"></label>`).join('')}</div></div>
+function stuV(c){if(fixG(c))mark(c);const m=c.meta,GA=GS(c);if(m.head===undefined)m.head=HEAD;if(m.pres===undefined)m.pres=PRES;const ed=cde==c.id,dis=ed?'':'disabled',F=[['school','School'],['dept','Department'],['instructor','Instructor'],['course','Course no.'],['title','Descriptive title'],['sched','Schedule'],['section','Year and section'],['head','Checked by (department head)'],['pres','Noted by (college president)']];
+ return `<div class=card><div class=bar style="margin:0 0 .5rem"><h2 style="margin:0">Class details</h2><span class=sp></span><button data-a=cde class="${ed?'pri':''}" title="${ed?'Done editing':'Edit class details'}" aria-label="${ed?'Done editing':'Edit class details'}">${I(ed?'check':'pencil')}<span class=lb>${ed?'Done':'Edit'}</span></button></div><div class="form cd"><label>Semester<select ${dis} data-m=sem><option value="">Select semester</option>${SEMS.map(x=>`<option ${x==sOf(c)?'selected':''}>${x}</option>`).join('')}</select></label><label>Academic year<select ${dis} data-m=ay><option value="">Select academic year</option>${ayList(aOf(c)).map(x=>`<option ${x==aOf(c)?'selected':''}>${x}</option>`).join('')}</select></label><label>Sessions per week<select ${dis} data-m=spw><option value="">Select sessions per week</option>${SPO.map(k=>`<option value=${k} ${k==spwOf(c)?'selected':''}>${k} session${k>1?'s':''} per week (${SPW[k][2]})</option>`).join('')}</select></label><label>Class type<select ${dis} data-m=type>${TYP.map(x=>`<option ${x==typOf(c)?'selected':''}>${x}</option>`).join('')}</select></label>${F.map(([k,l])=>`<label>${l}<input ${dis} data-m=${k} value="${esc(m[k])}"></label>`).join('')}</div></div>
  ${gsetCard(c)}
  <div class=card><h2>Students (${c.students.length}) <small class=mut style="font-weight:400">Male ${c.students.filter(s=>s.g!='F').length} · Female ${c.students.filter(s=>s.g=='F').length}</small></h2><div class=bar><button class=pri data-a=addstu>${I('plus')}Add student</button><button data-a=sortstu title="Sort students" aria-label="Sort students">${I('sort')}</button><button class=dng data-a=delclass>${I('trash')}Delete class</button></div>
- <div class=wrap><table><tr><th>#</th><th>Last name</th><th>First name</th><th>M.I.</th><th>Gender</th>${GA.map(x=>`<th class="gh${es(c)&&x.id==es(c).id?' on':''}" data-a=pickgset data-id=${x.id} title="Click to edit this group set">${esc(x.name)}</th>`).join('')}<th></th></tr>${c.students.map((s,i)=>`<tr><td>${i+1}</td>${['last','first','mi'].map(k=>`<td><input data-s="${s.id}|${k}" value="${esc(s[k])}" ${k=='mi'?'style="width:4rem"':''}></td>`).join('')}<td><select data-s="${s.id}|g" title="Gender"><option value=M ${s.g!='F'?'selected':''}>Male</option><option value=F ${s.g=='F'?'selected':''}>Female</option></select></td>${GA.map(x=>`<td class=gc>${gsel(x,s)}</td>`).join('')}<td><button class=dng data-a=delstu title=Remove data-id=${s.id}>${I('trash')}</button></td></tr>`).join('')||`<tr><td colspan=${6+GA.length} class=mut>No students yet. Add one, or paste a list below.</td></tr>`}</table></div>
+ <div class=wrap><table><tr><th>#</th><th>Last name</th><th>First name</th><th>M.I.</th><th>Gender</th>${GA.map(x=>`<th class="gh${es(c)&&x.id==es(c).id?' on':''}" data-a=pickgset data-id=${x.id} title="Click to edit this group set">${esc(x.name)}</th>`).join('')}<th>Email</th><th></th></tr>${c.students.map((s,i)=>`<tr><td>${i+1}</td>${['last','first','mi'].map(k=>`<td><input data-s="${s.id}|${k}" value="${esc(s[k])}" ${k=='mi'?'style="width:4rem"':''}></td>`).join('')}<td><select data-s="${s.id}|g" title="Gender"><option value=M ${s.g!='F'?'selected':''}>Male</option><option value=F ${s.g=='F'?'selected':''}>Female</option></select></td>${GA.map(x=>`<td class=gc>${gsel(x,s)}</td>`).join('')}<td><input type=email inputmode=email autocomplete=off data-s="${s.id}|email" value="${esc(s.email)}" placeholder="student@email.com" style="min-width:13rem"></td><td><button class=dng data-a=delstu title=Remove data-id=${s.id}>${I('trash')}</button></td></tr>`).join('')||`<tr><td colspan=${7+GA.length} class=mut>No students yet. Add one, or paste a list below.</td></tr>`}</table></div>
  <label style="margin-top:1rem">Paste a list, one student per line: LAST NAME, FIRST NAME M.I. <small>List the males first (A–Z), then the females (starting again from A). Gender is set automatically from the order.</small><textarea id=bulk rows=4 placeholder="BACALSO, HELEN S."></textarea></label><div class=bar><button data-a=import>Import list</button></div></div>
  <div class="card mut">Data lives on this device and syncs to the file “${FN}” in your Google Drive.</div>`}
 const tod=()=>addD(new Date().toISOString().slice(0,10),0),pd=n=>String(n).padStart(2,'0'),addD=(x,n)=>{const t=new Date(x+'T00:00:00');t.setDate(t.getDate()+n);return t.getFullYear()+'-'+pd(t.getMonth()+1)+'-'+pd(t.getDate())},
@@ -389,7 +421,7 @@ ens=c=>{let e=es(c);if(!e){e={id:uid(),name:'Group set 1',t:[],groups:[],asg:{}}
 const vis=(u,g)=>!gf||(gf=='__none'?!ug(g,u):ug(g,u)==gf);
 const gsel=(g,u)=>{const G=g.groups,cu=ug(g,u);return `<select data-ga="${g.id}|${u.id}">${['',...G,...(cu&&!G.includes(cu)?[cu]:[])].map(x=>`<option value="${esc(x)}" ${x==cu?'selected':''}>${x===''?'—':esc(x)}</option>`).join('')}</select>`};
 const gBar=(c,s,i,lb)=>{const g=gset(c),cd=gcand(c,view);return `${cd.length>1?`<select class=gf data-a=gsetpick title="Group set">${cd.map(x=>`<option value="${x.id}" ${g&&x.id==g.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:''}<select class=gf data-a=gfilt title="Filter by group"><option value="">All groups</option>${GR(c).map(x=>`<option value="${esc(x)}" ${gf==x?'selected':''}>Group ${esc(x)}</option>`).join('')}<option value="__none" ${gf=='__none'?'selected':''}>No group</option></select><button data-a=gscore data-sub=${s.id} data-i=${i||0}>${I('users')}${lb?'Group score':'<span class=lb>Group score</span>'}</button>`};
-let nt='prelim',ges='',nid='',rt='prelim';
+let nt='prelim',ges='',nid='',rt='prelim',cde='';
 function gsetCard(c){const A=GS(c),e=es(c);
  return `<div class=card><h2>Group sets (${A.length})</h2><p class=mut style="margin:.2rem 0 .5rem">A group set is one way of splitting the class into groups. Make as many as you need, for example a different set for Prelim, Midterm and Final, or two different sets for Prelim. Tick the periods each set is used for; on that period's score pages you choose which set to use.</p>
  <div class=bar><input id=gsname placeholder="New set name, e.g. Prelim groups" style="width:16rem"><button class=pri data-a=addgset>${I('plus')}New group set</button></div>
@@ -416,11 +448,26 @@ const nsum=x=>{const a=x.items||[],n=(x.files||[]).length,p=[];
  else if(x.type=='form')p.push(nq(x));
  if(n||x.type=='file')p.push(n+' file'+(n==1?'':'s'));
  return p.join(' · ')};
-/* attachments are kept on this device (IndexedDB); only their names and sizes sync */
+/* attachments are cached on this device (IndexedDB) and uploaded to Google Drive (f.r = Drive file id) so other devices can download them */
 const FDB=()=>new Promise((res,rej)=>{if(FDB.p)return res(FDB.p);const r=indexedDB.open('eclass-files',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(FDB.p=r.result);r.onerror=()=>rej(r.error)});
 const fput=async(id,b)=>{const d=await FDB();return new Promise((res,rej)=>{const q=d.transaction('f','readwrite');q.objectStore('f').put(b,id);q.oncomplete=res;q.onerror=()=>rej(q.error)})};
-const fget=async id=>{const d=await FDB();return new Promise((res,rej)=>{const r=d.transaction('f').objectStore('f').get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})};
-const fdel=async id=>{try{const d=await FDB();d.transaction('f','readwrite').objectStore('f').delete(id)}catch(_){}};
+const fget=async(id,r2,ty)=>{const d=await FDB();let b=await new Promise((res,rej)=>{const r=d.transaction('f').objectStore('f').get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+ /* not on this device yet: download it from Google Drive and keep a local copy */
+ if(!b&&r2&&U&&navigator.onLine){try{await tk();const rs=await dr(G+`drive/v3/files/${r2}?alt=media`);b=await rs.blob();if(ty&&!b.type)b=new Blob([b],{type:ty});await fput(id,b)}catch(e){console.error(e)}}
+ return b};
+/* upload one attachment to Google Drive (small files: one request, big files: resumable) */
+async function fup(f){const b=await fget(f.id);if(!b)return false;await tk();const ty=f.type||b.type||'application/octet-stream',meta={name:'eclass-'+f.id+'-'+f.name};let j;
+ if(b.size<=5242880){const bd='b'+uid();j=await(await dr(G+'upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body:new Blob([`--${bd}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: ${ty}\r\n\r\n`,b,`\r\n--${bd}--`])})).json()}
+ else{const ss=await dr(G+'upload/drive/v3/files?uploadType=resumable&fields=id',{method:'POST',headers:{'Content-Type':'application/json; charset=UTF-8','X-Upload-Content-Type':ty},body:JSON.stringify(meta)}),loc=ss.headers.get('Location');if(!loc)throw Error('no upload url');
+  const up=await fetch(loc,{method:'PUT',headers:{'Content-Type':ty},body:b});if(!up.ok)throw Object.assign(Error('drive'),{status:up.status});j=await up.json()}
+ f.r=j.id;return true}
+/* upload every attachment that is not on Drive yet */
+async function pushFiles(){let n=0;
+ for(const c of live())for(const[t]of TERMS)for(const x of secs(c,t))for(const f of(x.files||[])){if(f.r)continue;
+  try{st('Uploading '+f.name+'…');if(await fup(f)){c.u=Date.now();D.dirty=1;save();n++}}catch(e){console.error(e);if(e.status==401||e.auth)throw e}}
+ return n}
+const fdel=async(id,r2)=>{try{const d=await FDB();d.transaction('f','readwrite').objectStore('f').delete(id)}catch(_){}
+ if(r2&&U&&tok&&Date.now()<exp&&navigator.onLine)dr(G+'drive/v3/files/'+r2,{method:'DELETE'}).catch(()=>{})};
 const fsz=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB',fview=f=>/^(image\/|text\/)|pdf$/.test(f.type||''),fext=f=>(f.name.split('.').pop()||'').slice(0,5).toUpperCase();
 async function addFiles(c,sid,L){const x=secOf(c,sid);if(!x)return;let n=0;
  for(const F of L){if(F.size>52428800){toast(F.name+' is over 50 MB and was skipped');continue}
@@ -428,7 +475,7 @@ async function addFiles(c,sid,L){const x=secOf(c,sid);if(!x)return;let n=0;
  if(n){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}mark(c);toast(n+' file'+(n==1?'':'s')+' added')}
  render()}
 const TU={};
-function nthumbs(){document.querySelectorAll('img[data-fid]').forEach(async im=>{const id=im.dataset.fid;if(TU[id]){im.src=TU[id];return}try{const b=await fget(id);if(b)im.src=TU[id]=URL.createObjectURL(b)}catch(_){}})}
+function nthumbs(){document.querySelectorAll('img[data-fid]').forEach(async im=>{const id=im.dataset.fid;if(TU[id]){im.src=TU[id];return}try{const b=await fget(id,im.dataset.r,im.dataset.t);if(b)im.src=TU[id]=URL.createObjectURL(b)}catch(_){}})}
 function secBody(x){let b='';const rm=i=>`<button class=dng data-a=delitem data-sid=${x.id} data-iid=${i} title=Remove>${I('trash')}</button>`;
  if(x.type=='text')b=`<textarea rows=9 data-nt="${x.id}|text" placeholder="Write your notes here…">${esc(x.text)}</textarea>`;
  else if(x.type=='tasks')b=`${(x.items||[]).map(y=>`<div class=ni><input type=checkbox data-ni="${x.id}|${y.id}|ok" ${y.ok?'checked':''} title=Done><input data-ni="${x.id}|${y.id}|t" value="${esc(y.t)}" placeholder="Assessment task"><input type=date data-ni="${x.id}|${y.id}|d" value="${esc(y.d||'')}" style="width:9.5rem">${rm(y.id)}</div>`).join('')}<div class=bar><button data-a=additem data-sid=${x.id}>${I('plus')}Add task</button></div>`;
@@ -436,7 +483,7 @@ function secBody(x){let b='';const rm=i=>`<button class=dng data-a=delitem data-
  else if(x.type=='form')b=`${(x.items||[]).map((y,i)=>`<div class="ni q"><b class=qn>${i+1}.</b><div class=qf><textarea rows=2 data-ni="${x.id}|${y.id}|q" placeholder="Question">${esc(y.q)}</textarea></div>${rm(y.id)}</div>`).join('')}<div class=bar><button data-a=additem data-sid=${x.id}>${I('plus')}Add question</button><span class=mut>${nq(x)}</span></div>`;
  return b}
 function filesHtml(x){const F=x.files||[];
- return `<div class=card><h3 style="margin:0 0 .4rem">Attachments (${F.length})</h3>${F.map(f=>`<div class=nf>${/^image\//.test(f.type||'')?`<img class=nth data-fid=${f.id} alt="">`:`<span class=fi>${I('file')}</span>`}<div class=fm><b>${esc(f.name)}</b><small>${fext(f)} · ${fsz(f.size)}</small></div>${fview(f)?`<button data-a=nfopen data-sid=${x.id} data-fid=${f.id}>Open</button>`:''}<button data-a=nfdl data-sid=${x.id} data-fid=${f.id} title=Download>${I('download')}</button><button class=dng data-a=nfrm data-sid=${x.id} data-fid=${f.id} title=Remove>${I('trash')}</button></div>`).join('')}<label class=dz data-dz=${x.id}><input type=file multiple hidden data-nf=${x.id}>${I('clip')}<span>Choose files or drop them here</span></label><p class=mut style="margin:.5rem 0 0">Any file type works: PowerPoint, PDF, Word, Excel, images and more (up to 50 MB each). Files stay on this device; the item and file names sync with your records.</p></div>`}
+ return `<div class=card><h3 style="margin:0 0 .4rem">Attachments (${F.length})</h3>${F.map(f=>`<div class=nf>${/^image\//.test(f.type||'')?`<img class=nth data-fid=${f.id} data-r="${f.r||''}" data-t="${esc(f.type||'')}" alt="">`:`<span class=fi>${I('file')}</span>`}<div class=fm><b>${esc(f.name)}</b><small>${fext(f)} · ${fsz(f.size)}</small></div>${fview(f)?`<button data-a=nfopen data-sid=${x.id} data-fid=${f.id}>Open</button>`:''}<button data-a=nfdl data-sid=${x.id} data-fid=${f.id} title=Download>${I('download')}</button><button class=dng data-a=nfrm data-sid=${x.id} data-fid=${f.id} title=Remove>${I('trash')}</button></div>`).join('')}<label class=dz data-dz=${x.id}><input type=file multiple hidden data-nf=${x.id}>${I('clip')}<span>Choose files or drop them here</span></label><p class=mut style="margin:.5rem 0 0">Any file type works: PowerPoint, PDF, Word, Excel, images and more (up to 50 MB each). Files upload to your Google Drive when you are signed in and online, so you can open them on your other devices.</p></div>`}
 function noteEd(c,x){
  return `<div class=bar><button data-a=nback>${I('left')}All items</button><span class=sp></span><span class=mut>Saved automatically</span></div>
  <div class=card><div class=bar style="margin-top:0"><input data-nt="${x.id}|name" value="${esc(x.name)}" style="flex:1;min-width:10rem;font-weight:600"><span class=chip>${STY[x.type]}</span><button class=dng data-a=delsec data-id=${x.id} title="Delete item">${I('trash')}</button></div>${x.type=='file'?'<span class=mut>Add the files for this item below.</span>':secBody(x)}</div>${filesHtml(x)}`}
@@ -473,8 +520,8 @@ function quickV(c,t,cp,s){const T=c.terms[t],cols=s.items,A=AT(c);qi=Math.max(0,
  <div class=bar><b>${esc(s.name)} · ${esc(clb(cols,qi,s))}</b><span class=sp></span>${gr?gBar(c,s,qi,1):''}${s.att?`<button data-a=allp data-sub=${s.id} data-i=${qi}>${I(al?'x':'check')}${al?'Unselect all':'All present'}</button>`:''}<button data-a=sortstu title="Sort students" aria-label="Sort students">${I('sort')}</button><button data-a=addcol data-sub=${s.id} title="Add column">${I('plus')}</button><button data-a=delcol data-sub=${s.id} title="Delete column">${I('minus')}</button><button data-a=mode>${I('grid')}Full grid</button></div><div class="wrap free">${rows}</div><button class="pri fab" data-a=qnext title="Next column">${I('right')}</button>`}
 function qmove(d){const c=C(),T=c.terms[view],all=T.comps.flatMap(x=>x.subs),i=all.findIndex(x=>x.id==comp);if(i<0)return;const n=all[i].items.length;
  if(qi+d>=0&&qi+d<n){qi+=d;return render()}
- const j=i+d;if(j<0||j>=all.length){toast(d>0?'This is the last column':'This is the first column');return}
- comp=all[j].id;qi=d>0?0:all[j].items.length-1;cx=-1;render();scrollTo(0,0)}
+ /* stay in this section: use the section menu to change sections on purpose */
+ toast(d>0?'This is the last column. Tap + to add a new one.':'This is the first column.')}
 function recalc(sid){const c=C(),tr=$(`tr[data-sid="${sid}"]`),s=subOf(c,view,comp);if(!tr||!s)return;const r=sb(c,view,sid,s),td=tr.querySelectorAll('td.c');td[0].textContent=f(r&&r.to);td[1].textContent=f(r&&r.p)}
 const recalcAll=()=>C().students.forEach(s=>recalc(s.id));
 function sumV(c,t){const T=c.terms[t],i=TERMS.findIndex(x=>x[0]==t),tot=sum(T.comps.map(x=>x.w)),pr=i&&T.prev,last=t=='final';
@@ -509,7 +556,7 @@ function termSet(c,t,l){const T=c.terms[t],i0=TERMS.findIndex(x=>x[0]==t);
  ${T.comps.map((cp,ci)=>`<tr><td class=nm data-l="Component">${esc(cp.name)}</td><td data-l="Weight">${pc(cp.w)}</td><td class=sc2 data-l="Sub-sections">${cp.subs.map(s=>`<div>${esc(s.name)}${cp.subs.length>1?` <b>${pc(s.w)}</b>`:''}${+s.red>0?` <span class=mut>· total reduced by ${pc(s.red)}</span>`:''}</div>`).join('')}${cp.subs.length>1?`<span class=chk data-chk="${t}|${ci}"></span>`:''}</td></tr>`).join('')}
  <tr><td class=nm data-l="Total"><b>Total</b></td><td data-l="Weights"><span class=chk data-chk="${t}"></span></td><td></td></tr></table></div>
  <p class=mut style="margin:.5rem 0 0">Term grade = ${pc(T.own)} of this term's score${i0&&T.prev?` + ${pc(T.prev)} of the previous term's grade`:''}.</p></div>`}
-function updChk(){const c=C();document.querySelectorAll('.chk').forEach(e=>{const[t,ci]=e.dataset.chk.split('|'),T=c.terms[t],s=ci==null?sum(T.comps.map(x=>x.w)):sum(T.comps[ci].subs.map(x=>x.w));e.textContent='Total '+s+'%'+(Math.round(s)==100?'':' — should be 100%');e.className='chk '+(Math.round(s)==100?'ok':'bad')});
+function updChk(){const c=C();document.querySelectorAll('.chk').forEach(e=>{const[t,ci]=e.dataset.chk.split('|'),T=c.terms[t];let s=ci==null?sum(T.comps.map(x=>x.w)):sum(T.comps[ci].subs.map(x=>x.w));s=+s.toFixed(2);const ok=Math.round(s)==100;let tx='Total '+s+'%';if(!ok){if(ci!=null&&s>0)tx+=' — not 100%, so the weights are recomputed to 100%: '+T.comps[ci].subs.map(x=>x.name+' '+(+(x.w/s*100).toFixed(2))+'%').join(', ');else tx+=' — should be 100%'}e.textContent=tx;e.className='chk '+(ok?'ok':ci!=null&&s>0?'mut':'bad')});
  document.querySelectorAll('.eff').forEach(e=>{const[t,ci,si]=e.dataset.eff.split('|'),s=c.terms[t].comps[ci].subs[si],m=mx(s),r=+s.red||0;e.textContent=s.att?'Attendance points are set above.':!m?'No total entered yet in the grid.':r>0?`Total ${m} counts as ${+(m*(1-r/100)).toFixed(2)} after the ${r}% reduction.`:`Total ${m}.`})}
 /* ---------- printing: same layout as the e-class workbook ---------- */
 const fx=(v,d)=>v==null||v===''||isNaN(v)?'':(+v).toFixed(d),tn=(v,d)=>v==null||v===''||isNaN(v)?'':String(+(+v).toFixed(d));
@@ -777,6 +824,7 @@ document.addEventListener('input',e=>{const t=e.target,c=C(),d=t.dataset;if(!c)r
  else if(d.ni){const[sid,iid,k]=d.ni.split('|'),x=secOf(c,sid),y=x&&(x.items||[]).find(z=>z.id==iid);if(y){y[k]=t.type=='checkbox'?+t.checked:k=='p'?+t.value||0:t.value;mark(c);if(k=='p'){const e=$(`[data-tot="${sid}"]`);if(e)e.textContent=qtot(x)}}}
  else if(d.tf){const p=d.tf.split('|');let o=c.terms[p[0]];if(p.length>2)o=o.comps[p[1]];if(p.length>3)o=o.subs[p[2]];const k=p[p.length-1];o[k]=k=='name'||k=='scale'?t.value:k=='red'?Math.min(90,Math.max(0,+t.value||0)):+t.value||0;mark(c);updChk()}});
 document.addEventListener('change',e=>{const t=e.target,d=t.dataset,c=C();if(d.a=='cksel'){ck=t.value;return render()}
+ if(d.a=='srterm'){srt=t.value;return keep()}
  if(c&&d.nf){const L=[...t.files];t.value='';addFiles(c,d.nf,L);return}
  if(c&&d.m=='type'){applyType(c);mark(c);return render()}
  if(c&&d.tf&&/\|(name|w)$/.test(d.tf)){const ps=navSnap('#tabs');$('#tabs').innerHTML=navHtml(c);navAnim('#tabs',ps);return}
@@ -836,7 +884,7 @@ function tsv(t){const R=[];let r=[],v='',q=0;for(let i=0;i<t.length;i++){const c
 const pn=s=>{s=String(s).replace(/[,\s%]/g,'');return s===''?'':isFinite(s)?s:null},
 pa=s=>{s=s.trim().toLowerCase();if(!s||s=='-'||s=='·')return null;return /^(p|✓|y|1$)/.test(s)?'P':/^l/.test(s)?'L':/^(a|x|0$)/.test(s)?'A':undefined},
 setGA=(e,id,v)=>{v=v.trim();if(!v){delete e.asg[id];return}const m=e.groups.find(g=>g.toLowerCase()==v.toLowerCase());if(!m)e.groups.push(v);e.asg[id]=m||v};
-function pasteStu(c,el,R){const GA=GS(c),cols=['last','first','mi','g',...GA.map(x=>'a:'+x.id)],d=el.dataset;let id,k;
+function pasteStu(c,el,R){const GA=GS(c),cols=['last','first','mi','g',...GA.map(x=>'a:'+x.id),'email'],d=el.dataset;let id,k;
  if(d.s)[id,k]=d.s.split('|');else{const[sid,u]=d.ga.split('|');id=u;k='a:'+sid}
  const r0=c.students.findIndex(x=>x.id==id),c0=cols.indexOf(k);if(r0<0||c0<0)return;let rows=R;
  /* one column of "LAST, FIRST M.I." pasted into Last name -> split it into the name columns */
@@ -868,6 +916,10 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  const cp=d.t&&c&&c.terms[d.t].comps[d.ci];
  switch(d.a){
  case'mode':localStorage.mode=mode()=='quick'?'grid':'quick';return render();
+ case'srprev':return srPrev(c,d.id);
+ case'srpdf':return srPdfDl(c,d.id);
+ case'srpub':return srPub(c,d.id);
+ case'srall':return srAll(c);
  case'qprev':return qmove(-1);
  case'qnext':return qmove(1);
  case'open':cur=d.id;gf='';view='students';return render();
@@ -888,6 +940,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'addclass':return classForm();
  case'choose':return classPicker();
  case'delclass':return ask('Delete this class?','<b>'+esc(cname(c))+'</b> and all of its records will be deleted. This also removes it from Drive on the next sync.','Delete class',()=>{c.d=1;mark(c);view='home';render()});
+ case'cde':cde=cde==c.id?'':c.id;return keep();
  case'addstu':{c.students.push({id:uid(),last:'',first:'',mi:'',g:(c.students.length&&c.students[c.students.length-1].g)||'M'});mark(c);render();const r=document.querySelectorAll('[data-s$="|last"]');r[r.length-1].focus();return}
  case'delstu':{const id=d.id,u=c.students.find(x=>x.id==id);return ask('Remove student?','<b>'+esc(u?nm(u)||'This student':'This student')+'</b> and all of their scores will be removed.','Remove',()=>{c.students=c.students.filter(s=>s.id!=id);TERMS.forEach(([t])=>delete c.terms[t].sc[id]);GS(c).forEach(g=>delete g.asg[id]);mark(c);render()})}
  case'addgrp':{const e=ens(c),G=e.groups;let n=$('#gname')?$('#gname').value.trim():'';if(!n){let k=1;while(G.includes(String(k)))k++;n=String(k)}if(G.includes(n)){toast('That group already exists');return}G.push(n);mark(c);return render()}
@@ -900,7 +953,12 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'import':{const L=$('#bulk').value.split('\n').map(x=>x.trim()).filter(Boolean);fixG(c);const z=c.students[c.students.length-1]||{};let pg=z.g||'',pl=(z.last||'').trim(),nM=0,nF=0;
   L.forEach(l=>{const[last,...r]=l.split(','),p=r.join(',').trim().split(/\s+/);let mi='';if(p.length>1&&/^[A-Za-z]\.?$/.test(p[p.length-1]))mi=p.pop();const ln=last.trim().toUpperCase(),g=nextG(pg,pl,ln);pg=g;if(ln)pl=ln;g=='F'?nF++:nM++;c.students.push({id:uid(),last:ln,first:p.join(' ').toUpperCase(),mi,g})});
   mark(c);toast(`${L.length} students added (${nM} male, ${nF} female)`);return render()}
- case'addcol':{const s=subOf(c,view,d.sub),l=s.items[s.items.length-1];s.items.push(s.att?{n:'',m:'',d:l&&l.d?addD(l.d,7):tod()}:{n:'',d:'',m:''});if(mode()=='quick')qi=s.items.length-1;mark(c);return render()}
+ case'addcol':{const t=view,s0=subOf(c,t,d.sub);if(!s0)return;
+  /* the date is never guessed: ask for it, and do not continue until one is picked */
+  return askDate('New column','Pick the date of this '+(s0.att?'attendance session':'column')+'. A date is required.','Add column',v=>{
+   const s=subOf(c,t,d.sub);if(!s)return;
+   s.items.push(s.att?{n:'',m:'',d:v}:{n:'',d:v,m:''});
+   if(mode()=='quick')qi=s.items.length-1;mark(c);render()})}
  case'delcol':return delCol(c,d.sub);
  case'addsub2':{const co=c.terms[d.t].comps[d.ci],mp=co.id=='mp';let n=(mp?co.subs.filter(x=>/^Assessment Task/i.test(x.name)).length:co.subs.filter(x=>x.ed&&x.name!='Others'&&/^Sub-section/i.test(x.name)).length)+1,nm_;do{nm_=(mp?'Assessment Task ':'Sub-section ')+n++}while(co.subs.some(x=>x.name.toLowerCase()==nm_.toLowerCase()));
   const s=Object.assign(mkSub(uid(),nm_,0,1,'',''),{ed:1});co.subs.push(s);view=d.t;comp=s.id;cx=-1;qi=0;pop=null;mark(c);render();scrollTo(0,0);toast(nm_+' added. Set its name and weight above the grid.');return}
@@ -919,14 +977,14 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'nadd':return addMenu(c);
  case'nopen':nid=d.id;render();scrollTo(0,0);return;
  case'nback':nid='';return render();
- case'delsec':{const S=secs(c,nt),x=S.find(y=>y.id==d.id);if(!x)return;return ask('Delete this item?','“'+esc(x.name)+'” and its attachments will be removed.','Delete',()=>{(x.files||[]).forEach(f=>fdel(f.id));S.splice(S.indexOf(x),1);nid='';mark(c);render()})}
+ case'delsec':{const S=secs(c,nt),x=S.find(y=>y.id==d.id);if(!x)return;return ask('Delete this item?','“'+esc(x.name)+'” and its attachments will be removed.','Delete',()=>{(x.files||[]).forEach(f=>fdel(f.id,f.r));S.splice(S.indexOf(x),1);nid='';mark(c);render()})}
  case'additem':{const x=secOf(c,d.sid);if(!x)return;(x.items||(x.items=[])).push(x.type=='quiz'?{id:uid(),q:'',a:'',p:1}:x.type=='form'?{id:uid(),q:''}:{id:uid(),t:'',d:'',ok:0});mark(c);keep();const z=[...document.querySelectorAll(`[data-ni^="${d.sid}|"]`)].filter(e=>/\|[tq]$/.test(e.dataset.ni));if(z.length)z[z.length-1].focus();return}
- case'nfopen':case'nfdl':{const x=secOf(c,d.sid),f=x&&(x.files||[]).find(y=>y.id==d.fid);if(!f)return;let bl;try{bl=await fget(f.id)}catch(_){}
-  if(!bl)return toast('This file is not on this device. Files stay on the device where they were added.');
+ case'nfopen':case'nfdl':{const x=secOf(c,d.sid),f=x&&(x.files||[]).find(y=>y.id==d.fid);if(!f)return;let bl;if(!f.r&&U&&navigator.onLine)toast('Getting file…');try{bl=await fget(f.id,f.r,f.type)}catch(_){}
+  if(!bl)return toast(f.r?(U?'Could not download the file. Check your connection and try again.':'Sign in with Google to open this file on this device.'):'This file has not been uploaded yet. Open the app on the device where it was added and tap Sync.');
   const u=URL.createObjectURL(bl),ty=bl.type||f.type||'';
   if(d.a=='nfopen'){if(/^(image\/|text\/)/.test(ty))return viewFile(u,f.name,ty,bl);let w=null;try{w=window.open(u,'_blank')}catch(_){}if(w)return}
   return saveBlob(u,f.name)}
- case'nfrm':{const x=secOf(c,d.sid),f=x&&(x.files||[]).find(y=>y.id==d.fid);if(!f)return;return ask('Remove file?','“'+esc(f.name)+'” will be removed from this item.','Remove',()=>{fdel(f.id);x.files=x.files.filter(y=>y.id!=f.id);mark(c);render()})}
+ case'nfrm':{const x=secOf(c,d.sid),f=x&&(x.files||[]).find(y=>y.id==d.fid);if(!f)return;return ask('Remove file?','“'+esc(f.name)+'” will be removed from this item.','Remove',()=>{fdel(f.id,f.r);x.files=x.files.filter(y=>y.id!=f.id);mark(c);render()})}
  case'delitem':{const x=secOf(c,d.sid);if(!x)return;x.items=(x.items||[]).filter(y=>y.id!=d.iid);mark(c);return keep()}
  case'pprint':return prs(pstat(c));
  case'pcsv':return pcsv(c);
@@ -942,12 +1000,274 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'prn':return prn(d.pt,d.k)}});
 const saveBlob=(u,n,rv=1)=>{const a=document.createElement('a');a.href=u;a.download=n;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();if(rv)URL.revokeObjectURL(u)},4000)},
 dl=(t,n,ty)=>saveBlob(URL.createObjectURL(new Blob([t],{type:ty})),n);
+/* =====================================================================
+   STUDENT RECORDS: build each student's record, make a PDF, email it
+   (written in a plain, commented style so it is easy to study)
+   ===================================================================== */
+let srt='';                                   // "release up to" period chosen on the Student records screen
+const MAILRE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;     // simple check that an email address looks valid
+const GMS='https://www.googleapis.com/auth/gmail.send';   // Google permission to send email
+const tlab=t=>TERMS.find(x=>x[0]==t)[1];       // 'midterm' -> 'Midterm'
+const okMail=s=>MAILRE.test((s.email||'').trim());
+/* BACALSO, HELEN -> Bacalso, Helen */
+const tcase=s=>String(s||'').toLowerCase().replace(/(^|[\s\-.'(])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
+/* default period = the latest term that already has grades */
+const srUpto=c=>{if(TERMS.some(x=>x[0]==srt))return srt;
+ for(let i=TERMS.length-1;i>=0;i--){const t=TERMS[i][0];if(c.students.some(s=>grades(c,s.id)[t].g!=null))return t}
+ return 'prelim'};
+const passNote=c=>c.hi?`Passing grade: ${c.pass} or higher.`:`Passing grade: ${c.pass} or better (a lower number is a better grade).`;
+
+/* ---------- 1. the data of one student's record ---------- */
+function srData(c,s,upto){
+ const m=c.meta,g=grades(c,s.id),last=TERMS.findIndex(x=>x[0]==upto),num=v=>+(+v).toFixed(2);
+ const terms=TERMS.slice(0,last+1).map(([t,lab])=>{
+  const T=c.terms[t],rows=[];
+  T.comps.forEach(cp=>{
+   const r=cmp(c,t,s.id,cp),one=cp.subs.length==1?r.subs[0]:null;
+   /* one row for the component (Attendance, Course works, ...) */
+   rows.push({name:cp.name,sub:0,wt:cp.w+'%',raw:one?num(one.to)+' / '+num(one.mx):'',p:r.p,ge:r.g,w:r.w});
+   /* and one smaller row for each sub-part (Quiz, Assignment, ...) */
+   if(cp.subs.length>1)cp.subs.forEach((sx,i)=>{const b=r.subs[i];
+    rows.push({name:sx.name,sub:1,wt:sx.w+'%',raw:b?num(b.to)+' / '+num(b.mx):'',p:b?b.p:null,ge:null,w:null})})});
+  const rule=T.prev?`Term grade = ${T.own}% of this term's score + ${T.prev}% of the previous term's grade`:`Term grade = ${T.own}% of this term's score`;
+  return{t,lab,rows,score:g[t].x,grade:g[t].g,rule}});
+ return{name:nm(s),first:s.first||'',last:s.last||'',email:(s.email||'').trim(),terms,rem:upto=='final'?g.rem:'',
+  info:[['Student',nm(s)],['Course',[m.course,m.title].filter(Boolean).join(' - ')],['Instructor',m.instructor],['Schedule',m.sched],
+        ['Year & section',m.section],['Semester',sOf(c)],['Academic year',aOf(c)]]}}
+const pcs=v=>v==null?'—':f(v,1)+'%';          // percent text; f() is the app's number formatter
+
+/* ---------- 2. the on-screen preview (HTML) ---------- */
+function srHtml(c,s,upto){
+ const R=srData(c,s,upto),m=c.meta;
+ return `<div class=srv><div class=srh><img src=logo.png alt=""><div><b>${esc(m.school||'')}</b><small>${esc(m.dept||'')}</small><h3>Individual Student Record</h3></div><img src=city-seal.jpg alt=""></div>
+ <div class=sri>${R.info.map(([k,v])=>`<span><small>${k}</small>${esc(v||'—')}</span>`).join('')}</div>
+ <h4>Summary of grades</h4><div class=wrap><table><tr><th>Period</th><th>Term score</th><th>Term grade</th></tr>${R.terms.map(t=>`<tr><td>${t.lab}</td><td>${f(t.score,2)}</td><td><b>${f(t.grade,2)}</b></td></tr>`).join('')}</table></div>
+ ${R.rem?`<p>Final remarks: <span class="chip ${R.rem=='PASSED'?'ok':'bad'}">${R.rem}</span></p>`:''}
+ ${R.terms.map(t=>`<h4>${t.lab}</h4><div class=wrap><table><tr><th>Component</th><th>Weight</th><th>Score</th><th>Percent</th><th>GE</th><th>Weighted</th></tr>${t.rows.map(r=>`<tr${r.sub?'':' style="font-weight:600"'}><td>${r.sub?'&nbsp;&nbsp;':''}${esc(r.name)}</td><td>${r.wt}</td><td>${r.raw}</td><td>${pcs(r.p)}</td><td>${r.ge==null?'':f(r.ge,1)}</td><td>${r.w==null?'':f(r.w,2)}</td></tr>`).join('')}<tr><td colspan=5><b>Term score</b></td><td><b>${f(t.score,2)}</b></td></tr></table></div><p class=mut>${t.rule}.</p>`).join('')}
+ <p class=mut>${passNote(c)}</p></div>`}
+
+/* ---------- 3. the PDF ---------- */
+/* width of each character in Helvetica (per 1000 units), for ASCII 32..126 - used to align and shorten text */
+const PW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const pdfTw=(s,sz,b)=>{let w=0;for(const ch of String(s)){const k=ch.charCodeAt(0);w+=k>=32&&k<=126?PW[k-32]:556}return w*sz/1000*(b?1.07:1)};
+/* turn text into the single-byte encoding PDF expects (keeps n-tilde, accents, dashes) and escape ( ) \ */
+const PWA={'—':'\x97','–':'\x96','‘':'\x91','’':'\x92','“':'\x93','”':'\x94','•':'\x95','…':'\x85'};
+const pdfWa=s=>String(s).replace(/[\r\n\t]+/g,' ').replace(/[^\x00-\xff]/g,ch=>PWA[ch]||'?').replace(/[\\()]/g,'\\$&');
+/* shorten text so it fits in a width, adding ... */
+const pdfFit=(s,w,sz,b)=>{s=String(s??'');if(pdfTw(s,sz,b)<=w)return s;while(s.length&&pdfTw(s+'...',sz,b)>w)s=s.slice(0,-1);return s+'...'};
+/* load an image file and convert it to JPEG data (so any PNG/JPG can go in the PDF) */
+const jimg=url=>new Promise(res=>{const im=new Image();
+ im.onload=()=>{try{const k=Math.min(1,300/Math.max(im.width,im.height)),w=Math.round(im.width*k),h=Math.round(im.height*k),cv=document.createElement('canvas');
+  cv.width=w;cv.height=h;const g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.drawImage(im,0,0,w,h);
+  res({d:atob(cv.toDataURL('image/jpeg',.92).split(',')[1]),w,h,cs:'DeviceRGB'})}catch(_){res(null)}};
+ im.onerror=()=>res(null);setTimeout(()=>res(null),4000);im.src=url});   // give up after 4 seconds so a missing image never blocks the PDF
+/* a tiny PDF writer: add pages, draw text / lines / boxes / pictures, then done() returns the file */
+function mkPdf(imgs){
+ const W=595,H=842,pages=[];let ops;
+ const rgb=h=>{h=String(h).replace('#','');return[0,2,4].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(' ')};
+ const P={W,H,
+  add(){ops=[];pages.push(ops)},
+  text(x,y,s,sz,o={}){const w=pdfTw(s,sz,o.b);let X=x;if(o.al=='c')X=x-w/2;else if(o.al=='r')X=x-w;
+   ops.push(`BT ${rgb(o.c||'#000000')} rg /F${o.b?2:1} ${sz} Tf ${X.toFixed(2)} ${(H-y).toFixed(2)} Td (${pdfWa(s)}) Tj ET`)},
+  rect(x,y,w,h,fill){ops.push(`${rgb(fill)} rg ${x} ${H-y-h} ${w} ${h} re f`)},
+  line(x1,y1,x2,y2,c,w){ops.push(`${rgb(c||'#000000')} RG ${w||.5} w ${x1} ${H-y1} m ${x2} ${H-y2} l S`)},
+  img(i,x,y,w,h){if(imgs[i])ops.push(`q ${w} 0 0 ${h} ${x} ${H-y-h} cm /Im${i+1} Do Q`)},
+  each(fn){pages.forEach((p,i)=>{ops=p;fn(i+1,pages.length)})},
+  done(){
+   const o=[];                                   // o[0] is PDF object 1, and so on
+   o.push('<</Type/Catalog/Pages 2 0 R>>');
+   o.push(`<</Type/Pages/Kids[${pages.map((_,i)=>`${7+2*i} 0 R`).join(' ')}]/Count ${pages.length}>>`);
+   o.push('<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>');
+   o.push('<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Bold/Encoding/WinAnsiEncoding>>');
+   imgs.forEach(im=>o.push(im?`<</Type/XObject/Subtype/Image/Width ${im.w}/Height ${im.h}/ColorSpace/${im.cs}/BitsPerComponent 8/Filter/DCTDecode/Length ${im.d.length}>>\nstream\n${im.d}\nendstream`:'null'));
+   const xo=imgs.map((im,i)=>im?`/Im${i+1} ${5+i} 0 R`:'').join('');
+   pages.forEach((p,i)=>{const s=p.join('\n');
+    o.push(`<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${W} ${H}]/Resources<</Font<</F1 3 0 R/F2 4 0 R>>${xo?`/XObject<<${xo}>>`:''}>>/Contents ${8+2*i} 0 R>>`);
+    o.push(`<</Length ${s.length}>>\nstream\n${s}\nendstream`)});
+   let out='%PDF-1.4\n%\xe2\xe3\xcf\xd3\n';const off=[];
+   o.forEach((b,i)=>{off.push(out.length);out+=`${i+1} 0 obj\n${b}\nendobj\n`});
+   const xr=out.length;
+   out+=`xref\n0 ${o.length+1}\n0000000000 65535 f \n`+off.map(x=>String(x).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<</Size ${o.length+1}/Root 1 0 R>>\nstartxref\n${xr}\n%%EOF`;
+   return out}};                                 // the PDF as a "binary string" (1 character = 1 byte)
+ return P}
+
+/* draw one student's record. Returns the PDF as a binary string */
+async function srPdf(c,s,upto){
+ const R=srData(c,s,upto),m=c.meta,brand=pcol('sch'),gold=pcol('sec'),mut='#6b6b6b',soft='#f5efe9',rule='#cfc4ba';
+ const imgs=await Promise.all([jimg('logo.png'),jimg('city-seal.jpg')]);
+ const P=mkPdf(imgs),L=40,RT=555,CW=RT-L,BOT=790;let y=0;
+ /* start a new page. The first page gets the full letterhead, later pages a small running header */
+ const page=full=>{P.add();
+  if(full){
+   P.img(0,L,24,60,60);P.img(1,RT-60,24,60,60);
+   P.text(297.5,46,(m.school||'').toUpperCase(),17,{b:1,c:brand,al:'c'});
+   P.text(297.5,62,m.dept||'',10,{c:mut,al:'c'});
+   P.text(297.5,76,[sOf(c),aOf(c)&&'A.Y. '+aOf(c)].filter(Boolean).join(' | '),9,{c:mut,al:'c'});
+   P.line(L,92,RT,92,brand,1.8);P.line(L,95.5,RT,95.5,gold,.8);y=100
+  }else{P.text(L,34,R.name,10,{b:1,c:brand});P.text(RT,34,[m.course,sOf(c)].filter(Boolean).join(' | '),9,{c:mut,al:'r'});P.line(L,40,RT,40,brand,.8);y=54}};
+ const need=h=>{if(y+h>BOT)page(false)};
+ /* a table: cols=[{w,al,h}], rows=[{c:[...],b,fill,sz,col,ind}] */
+ const table=(cols,rows)=>{const rh=15;
+  const hdr=()=>{P.rect(L,y,CW,rh+2,brand);let x=L;cols.forEach(k=>{P.text(k.al=='r'?x+k.w-6:k.al=='c'?x+k.w/2:x+6,y+12,k.h,9,{b:1,c:'#ffffff',al:k.al});x+=k.w});y+=rh+2};
+  need(rh*3);hdr();
+  rows.forEach((r,i)=>{if(y+rh>BOT){page(false);hdr()}
+   if(r.fill)P.rect(L,y,CW,rh,r.fill);else if(i%2)P.rect(L,y,CW,rh,'#faf7f4');
+   let x=L;cols.forEach((k,j)=>{const ind=j==0?(r.ind||0):0,sz=r.sz||9,t=pdfFit(r.c[j]??'',k.w-12-ind,sz,r.b);
+    P.text(k.al=='r'?x+k.w-6:k.al=='c'?x+k.w/2:x+6+ind,y+11,t,sz,{b:r.b,c:r.col,al:k.al});x+=k.w});
+   P.line(L,y+rh,RT,y+rh,rule,.4);y+=rh});
+  P.line(L,y,RT,y,brand,.8);y+=6};
+ const head=t=>{need(40);P.text(L,y+10,t,10.5,{b:1,c:brand});y+=16};
+
+ page(true);
+ P.text(297.5,y+16,'INDIVIDUAL STUDENT RECORD',14,{b:1,al:'c'});
+ P.text(297.5,y+30,'Grades covered: '+R.terms.map(t=>t.lab).join(', '),9,{c:mut,al:'c'});y+=42;
+ /* student and class details box */
+ const left=R.info.slice(0,4),right=R.info.slice(4),bh=Math.max(left.length,right.length)*16+12;
+ P.rect(L,y,CW,bh,soft);
+ left.forEach(([k,v],i)=>{P.text(L+10,y+17+i*16,k+':',9,{b:1,c:mut});P.text(L+78,y+17+i*16,pdfFit(v||'-',215,i?10:11,i==0),i?10:11,{b:i==0})});
+ right.forEach(([k,v],i)=>{P.text(L+310,y+17+i*16,k+':',9,{b:1,c:mut});P.text(L+385,y+17+i*16,pdfFit(v||'-',160,10),10)});
+ y+=bh+14;
+ /* summary */
+ head('SUMMARY OF GRADES');
+ table([{w:215,h:'Period'},{w:150,h:'Term score',al:'r'},{w:150,h:'Term grade',al:'r'}],
+  R.terms.map(t=>({c:[t.lab,f(t.score,2),f(t.grade,2)],b:1})));
+ if(R.rem){need(24);P.text(L,y+10,'Final remarks:',10,{b:1});P.text(L+72,y+10,R.rem,10,{b:1,c:R.rem=='PASSED'?'#1e8a5a':'#c93a3a'});y+=18}
+ need(20);P.text(L,y+8,passNote(c),8.5,{c:mut});y+=22;
+ /* breakdown of every period */
+ R.terms.forEach(t=>{
+  need((t.rows.length+2)*15+60);   // keep a period's table together on one page when it fits
+  head(t.lab.toUpperCase()+' - BREAKDOWN');
+  const rows=t.rows.map(r=>r.sub?{c:[r.name,r.wt,r.raw,pcs(r.p),'',''],ind:10,sz:8.5,col:'#555555'}
+                              :{c:[r.name,r.wt,r.raw,pcs(r.p),r.ge==null?'':f(r.ge,1),r.w==null?'':f(r.w,2)],b:1,fill:soft});
+  rows.push({c:['Term score','','','','',f(t.score,2)],b:1});
+  rows.push({c:['Term grade','','','','',f(t.grade,2)],b:1,fill:soft});
+  table([{w:205,h:'Component'},{w:55,h:'Weight',al:'r'},{w:90,h:'Score',al:'r'},{w:75,h:'Percent',al:'r'},{w:40,h:'GE',al:'r'},{w:50,h:'Weighted',al:'r'}],rows);
+  P.text(L,y+6,t.rule+'.',8,{c:mut});y+=18});
+ /* signatures */
+ need(90);y+=14;
+ [[m.instructor,'Instructor'],[m.head,'Checked by: Department Head'],[m.pres,'Noted by: College President']].forEach(([nme,role],i)=>{
+  const x=L+i*(CW/3)+8,w=CW/3-16;P.line(x,y+30,x+w,y+30,'#444444',.6);
+  P.text(x+w/2,y+42,pdfFit(nme||'',w,9,1),9,{b:1,al:'c'});P.text(x+w/2,y+54,role,8,{c:mut,al:'c'})});
+ /* footer on every page */
+ const day=new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
+ P.each((i,n)=>{P.line(L,806,RT,806,rule,.5);P.text(L,820,'Generated on '+day+' | Confidential: for the student named above only',7.5,{c:mut});P.text(RT,820,`Page ${i} of ${n}`,7.5,{c:mut,al:'r'})});
+ return P.done()}
+const pdfBytes=bin=>Uint8Array.from(bin,ch=>ch.charCodeAt(0)&255);        // binary string -> bytes
+/* file name without spaces or accents, e.g. Student-Record_Bacalso_Helen_Midterm.pdf */
+const srFile=(s,upto)=>('Student-Record_'+[s.last,s.first,tlab(upto)].filter(Boolean).join('_')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9_-]+/g,'_').replace(/_+/g,'_')+'.pdf';
+
+/* ---------- 4. the email ---------- */
+function srMail(c,s,upto){
+ const m=c.meta,R=srData(c,s,upto),who=tcase(s.first||s.last||'Student'),course=[m.course,m.title].filter(Boolean).join(' - '),
+  period=R.terms.length>1?R.terms[0].lab+' to '+R.terms[R.terms.length-1].lab:R.terms[0].lab,
+  term=`${sOf(c)}${aOf(c)?', A.Y. '+aOf(c):''}`,
+  subject=`Individual Student Record - ${[m.course,m.section].filter(Boolean).join(' ')} - ${tlab(upto)} (${term})`,
+  sum=R.terms.map(t=>`${t.lab}: ${f(t.grade,2)}`).join('  |  ');
+ const text=`Dear ${who},
+
+Good day!
+
+Attached is your individual student record for ${course}${m.section?' ('+m.section+')':''}, ${term}. It covers your ${period} grades.
+
+Summary of grades
+${R.terms.map(t=>`  ${t.lab}: ${f(t.grade,2)}`).join('\n')}${R.rem?`\n  Final remarks: ${R.rem}`:''}
+
+Please review the attached PDF carefully. If you notice any error or have a question about your record, kindly reply to this email or see me during consultation hours.
+
+Thank you.
+
+Sincerely,
+${m.instructor||''}
+${m.school||''}
+${m.dept||''}
+
+This record is confidential and meant only for you. Please do not share it.`;
+ const html=`<div style="font-family:Arial,Helvetica,sans-serif;color:#222;max-width:600px;margin:auto;border:1px solid #e3d9d0;border-radius:8px;overflow:hidden">
+ <div style="background:${pcol('sch')};color:#fff;padding:16px 20px;border-bottom:4px solid ${pcol('sec')}"><div style="font-size:18px;font-weight:bold;letter-spacing:.5px">${esc((m.school||'').toUpperCase())}</div><div style="font-size:12px;opacity:.9">${esc(m.dept||'')}</div></div>
+ <div style="padding:20px;font-size:14px;line-height:1.55">
+ <p style="margin:0 0 12px;font-size:16px;font-weight:bold">Individual Student Record</p>
+ <p style="margin:0 0 12px">Dear ${esc(who)},</p><p style="margin:0 0 12px">Good day!</p>
+ <p style="margin:0 0 12px">Attached is your individual student record for <b>${esc(course)}</b>${m.section?' ('+esc(m.section)+')':''}, ${esc(term)}. It covers your <b>${esc(period)}</b> grades.</p>
+ <table style="border-collapse:collapse;width:100%;margin:0 0 14px;font-size:13px"><tr><th style="text-align:left;background:#f5efe9;padding:6px 10px;border:1px solid #e3d9d0">Period</th><th style="text-align:right;background:#f5efe9;padding:6px 10px;border:1px solid #e3d9d0">Term grade</th></tr>
+ ${R.terms.map(t=>`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0">${t.lab}</td><td style="padding:6px 10px;border:1px solid #e3d9d0;text-align:right"><b>${f(t.grade,2)}</b></td></tr>`).join('')}
+ ${R.rem?`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0">Final remarks</td><td style="padding:6px 10px;border:1px solid #e3d9d0;text-align:right;font-weight:bold;color:${R.rem=='PASSED'?'#1e8a5a':'#c93a3a'}">${R.rem}</td></tr>`:''}</table>
+ <p style="margin:0 0 12px">Please review the attached PDF carefully. If you notice any error or have a question about your record, kindly reply to this email or see me during consultation hours.</p>
+ <p style="margin:0 0 12px">Thank you.</p>
+ <p style="margin:0">Sincerely,<br><b>${esc(m.instructor||'')}</b><br>${esc(m.school||'')}<br>${esc(m.dept||'')}</p></div>
+ <div style="background:#faf7f4;color:#777;font-size:11px;padding:10px 20px;border-top:1px solid #e3d9d0">This record is confidential and meant only for you. Please do not share it.</div></div>`;
+ return{subject,text,html}}
+const b64u=s=>btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');       // base64 that is safe in a web address
+const u8b=s=>{let r='';new TextEncoder().encode(s).forEach(x=>r+=String.fromCharCode(x));return btoa(r)};   // text (with any letters) -> base64
+const fold=s=>s.replace(/(.{76})/g,'$1\r\n');                                       // email lines must be short
+/* put it all together as a real email message (headers + text + html + PDF attachment) */
+function srMsg(to,mail,fname,pdf){
+ const A='a'+uid(),B='b'+uid();
+ return['To: '+to,'Subject: =?UTF-8?B?'+u8b(mail.subject)+'?=','MIME-Version: 1.0',`Content-Type: multipart/mixed; boundary="${B}"`,'',
+  '--'+B,`Content-Type: multipart/alternative; boundary="${A}"`,'',
+  '--'+A,'Content-Type: text/plain; charset="UTF-8"','Content-Transfer-Encoding: base64','',fold(u8b(mail.text)),
+  '--'+A,'Content-Type: text/html; charset="UTF-8"','Content-Transfer-Encoding: base64','',fold(u8b(mail.html)),
+  '--'+A+'--',
+  '--'+B,`Content-Type: application/pdf; name="${fname}"`,`Content-Disposition: attachment; filename="${fname}"`,'Content-Transfer-Encoding: base64','',fold(btoa(pdf)),
+  '--'+B+'--',''].join('\r\n')}
+async function gmailSend(raw){await tk();
+ const r=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({raw})});
+ if(!r.ok){let d='';try{d=(await r.json()).error.message||''}catch(_){}throw Object.assign(Error('gmail'),{status:r.status,detail:d})}}
+/* build + send one record, then mark the student as published */
+async function srSend(c,s,upto){
+ if(!okMail(s))throw Object.assign(Error('noemail'),{noemail:1});
+ const pdf=await srPdf(c,s,upto);
+ await gmailSend(b64u(srMsg(s.email.trim(),srMail(c,s,upto),srFile(s,upto),pdf)));
+ s.pub={t:Date.now(),to:s.email.trim(),upto};mark(c)}
+/* explain what went wrong in plain words */
+function srFail(e){
+ if(e.noemail)return toast('This student has no valid email address.');
+ if(e.auth||e.status==401)return ask('Sign in again','Your Google sign-in has expired. Sign in again, then press Publish again.','Sign in',()=>goAuth());
+ if(e.status==403){if(/not been used|disabled/i.test(e.detail||''))return tell('Turn on the Gmail API','The Gmail API is not turned on for your Google project. In Google Cloud Console open APIs &amp; Services, Library, search Gmail API and press Enable. Then try again.');
+  return ask('Permission needed','To email records, the app needs your permission to send email from your Google account. Allow it now? You will return here afterwards.','Allow',()=>goAuth(0,GMS))}
+ console.error(e);toast('Could not send'+(e.detail?': '+e.detail:'. Check your connection and try again.'))}
+const srReady=()=>!U||!tok?(toast('Sign in with Google to send email.'),0):!navigator.onLine?(toast('You need a connection to send email.'),0):1;
+function srPub(c,id){const s=c.students.find(x=>x.id==id);if(!s||!srReady())return;
+ if(!okMail(s))return toast('Type a valid email address for this student first.');
+ const upto=srUpto(c);
+ ask('Publish this record?',`Email <b>${esc(nm(s))}</b>'s <b>${tlab(upto)}</b> record as a PDF attachment to <b>${esc(s.email.trim())}</b>?<br><small>It is sent from your Google account (${esc(U)}).</small>`,'Publish &amp; email',async()=>{
+  try{st('Sending…');await srSend(c,s,upto);toast('Sent to '+s.email.trim())}catch(e){srFail(e)}
+  st('');keep()})}
+function srAll(c){if(!srReady())return;const upto=srUpto(c),
+  todo=c.students.filter(s=>okMail(s)&&!(s.pub&&s.pub.upto==upto)),noMail=c.students.filter(s=>!okMail(s)).length,done=c.students.filter(s=>okMail(s)&&s.pub&&s.pub.upto==upto).length;
+ if(!todo.length)return toast(done?'Every student with an email already has this record. Use Re-send for one student.':'No student has an email address yet.');
+ ask('Publish to all?',`Send the <b>${tlab(upto)}</b> record to <b>${todo.length}</b> student${todo.length==1?'':'s'}? Each student gets their own email and PDF.${noMail?`<br><small>${noMail} without an email address will be skipped.</small>`:''}${done?`<br><small>${done} already published for this period will be skipped.</small>`:''}`,'Publish all',async()=>{
+  let n=0;
+  for(const s of todo){st(`Sending ${n+1} of ${todo.length}…`);
+   try{await srSend(c,s,upto);n++}catch(e){st('');keep();toast(n+' sent before the problem.');return srFail(e)}
+   await new Promise(r=>setTimeout(r,400))}
+  st('');toast(`${n} record${n==1?'':'s'} sent`);keep()})}
+async function srPdfDl(c,id){const s=c.students.find(x=>x.id==id);if(!s)return;const upto=srUpto(c);
+ try{toast('Preparing PDF…');const bin=await srPdf(c,s,upto);saveBlob(URL.createObjectURL(new Blob([pdfBytes(bin)],{type:'application/pdf'})),srFile(s,upto))}catch(e){console.error(e);toast('Could not make the PDF.')}}
+function srPrev(c,id){const s=c.students.find(x=>x.id==id);if(!s)return;
+ const o=dlg(`${srHtml(c,s,srUpto(c))}<div class=bar><button data-x=0>Close</button><button data-x=1>${I('download')}PDF</button><button class=pri data-x=2>${I('mail')}Publish &amp; email</button></div>`,'vw');
+ o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-x]'),x=b?b.dataset.x:(e.target===o?'0':null);if(x===null)return;
+  closeMdl(o);if(x=='1')srPdfDl(c,id);if(x=='2')setTimeout(()=>srPub(c,id),220)}}
+/* the Student records screen */
+function srecV(c){
+ const upto=srUpto(c),nE=c.students.filter(okMail).length,nP=c.students.filter(s=>s.pub).length;
+ const rows=c.students.map((s,i)=>{
+  const chip=s.pub?`<span class="chip ok">Published ${new Date(s.pub.t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} · ${tlab(s.pub.upto||'final')}</span>`:okMail(s)?'<span class=chip>Ready to publish</span>':'<span class="chip bad">No email yet</span>';
+  return `<div class="card sx"><div><b>${i+1}. ${esc(nm(s))}</b><div>${chip}</div></div>
+   <label>Student email<input type=email inputmode=email autocomplete=off autocapitalize=off spellcheck=false data-s="${s.id}|email" value="${esc(s.email)}" placeholder="student@email.com"></label>
+   <div class=ac><button data-a=srprev data-id=${s.id}>${I('file')}Preview</button><button data-a=srpdf data-id=${s.id}>${I('download')}PDF</button><button class=pri data-a=srpub data-id=${s.id}>${I('mail')}${s.pub?'Re-send':'Publish'}</button></div></div>`}).join('');
+ return `<div class=bar><div><h2>Student records</h2><span class=mut>Each student gets their own record as a PDF, sent to their email.</span></div><span class=sp></span>
+  <label style="display:flex;align-items:center;gap:.4rem">Release up to<select data-a=srterm>${TERMS.map(([t,l])=>`<option value=${t} ${t==upto?'selected':''}>${l}</option>`).join('')}</select></label>
+  <button class=pri data-a=srall>${I('mail')}Publish to all</button></div>
+ <div class="card mut">${nE} of ${c.students.length} students have an email address · ${nP} published. Add emails here or in the Students tab. The record covers every period up to the one you choose.</div>
+ ${rows||'<div class="card empty"><h3>No students yet</h3><p class=mut>Add students in the Students tab first.</p></div>'}`}
+/* ---------- end of student records ---------- */
+
 /* ---------- Google sign-in + Drive sync ---------- */
 const OKC=v=>/^\d+-[\w]+\.apps\.googleusercontent\.com$/.test(v||''),CID=()=>OKC(window.CLIENT_ID)?window.CLIENT_ID:OKC(localStorage.cid)?localStorage.cid:'',
 setCid=()=>new Promise(res=>askInput('Google OAuth Client ID','Paste your Client ID. It looks like <code>123456789-abc123.apps.googleusercontent.com</code>',localStorage.cid||'','Save',v=>{v=v.replace(/\s+/g,'');if(!OKC(v))return 'That is not a valid Client ID. It must end with .apps.googleusercontent.com (do not paste the client secret).';localStorage.cid=v;res(1)},()=>res(0))),RU=()=>location.origin+location.pathname.replace(/index\.html$/,'');
-async function goAuth(silent){if(!CID()){delete localStorage.cid;if(silent||!(await setCid()))return}
+async function goAuth(silent,more){if(!CID()){delete localStorage.cid;if(silent||!(await setCid()))return}
  const s=uid()+uid(),pr=silent?'none':U?'':'select_account';sessionStorage.oas=s;if(silent)sessionStorage.silent=1;
- location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:CID(),redirect_uri:RU(),response_type:'token',scope:SC,state:s,include_granted_scopes:'true',...(pr?{prompt:pr}:{}),...(U?{login_hint:U}:{})})}
+ location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:CID(),redirect_uri:RU(),response_type:'token',scope:more?SC+' '+more:SC,state:s,include_granted_scopes:'true',...(pr?{prompt:pr}:{}),...(U?{login_hint:U}:{})})}
 const signin=()=>navigator.onLine?goAuth():toast('You need a connection to sign in.');
 const tk=()=>{if(tok&&Date.now()<exp)return Promise.resolve(tok);return Promise.reject(Object.assign(Error('auth'),{auth:1}))};
 (function(){const h=location.hash.slice(1);if(!/access_token|error=/.test(h))return;const p=new URLSearchParams(h);history.replaceState(null,'',location.pathname+location.search);
@@ -960,7 +1280,7 @@ function merge(rem){let push=false;const a={},b={};D.classes.forEach(x=>a[x.id]=
  D.classes=[...new Set([...Object.keys(a),...Object.keys(b)])].map(id=>{const x=a[id],y=b[id];if(!y||x&&x.u>y.u){push=true;return x}return y});return push}
 let busy=0;
 async function sync(manual){if(!U||busy)return;if(!navigator.onLine){st('Offline — saved on this device');return render()}
- busy=1;st('Syncing…');try{await tk();let r=null;
+ busy=1;st('Syncing…');try{await tk();await pushFiles();st('Syncing…');let r=null;
   if(!fid){const j=await(await dr(G+'drive/v3/files?fields=files(id)&q='+encodeURIComponent(`name='${FN}' and trashed=false`))).json();fid=j.files[0]?.id||''}
   if(fid)r=await(await dr(G+`drive/v3/files/${fid}?alt=media`)).json();
   const push=r?merge(r):true;
