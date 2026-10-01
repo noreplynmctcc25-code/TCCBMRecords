@@ -391,7 +391,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 31</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 32</span></div>`}
 /* ---------- views ---------- */
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
@@ -1027,21 +1027,27 @@ const passNote=c=>c.hi?`Passing grade: ${c.pass} or higher.`:`Passing grade: ${c
 
 /* ---------- 1. the data of one student's record ---------- */
 function srData(c,s,upto){
- const m=c.meta,g=grades(c,s.id),last=TERMS.findIndex(x=>x[0]==upto),num=v=>+(+v).toFixed(2);
- const terms=TERMS.slice(0,last+1).map(([t,lab])=>{
-  const T=c.terms[t],rows=[];
-  T.comps.forEach(cp=>{
-   const r=cmp(c,t,s.id,cp),one=cp.subs.length==1?r.subs[0]:null;
-   /* one row for the component (Attendance, Course works, ...) */
-   rows.push({name:cp.name,sub:0,wt:cp.w+'%',raw:one?num(one.to)+' / '+num(one.mx):'',p:r.p,ge:r.g,w:r.w});
-   /* and one smaller row for each sub-part (Quiz, Assignment, ...) */
-   if(cp.subs.length>1)cp.subs.forEach((sx,i)=>{const b=r.subs[i];
-    rows.push({name:sx.name,sub:1,wt:sx.w+'%',raw:b?num(b.to)+' / '+num(b.mx):'',p:b?b.p:null,ge:null,w:null})})});
-  const rule=T.prev?`Term grade = ${T.own}% of this term's score + ${T.prev}% of the previous term's grade`:`Term grade = ${T.own}% of this term's score`;
-  return{t,lab,rows,score:g[t].x,grade:g[t].g,rule}});
- return{name:nm(s),first:s.first||'',last:s.last||'',email:(s.email||'').trim(),terms,rem:upto=='final'?g.rem:'',
+ const m=c.meta,g=grades(c,s.id),last=TERMS.findIndex(x=>x[0]==upto),num=v=>+(+v).toFixed(2),TS=TERMS.slice(0,last+1);
+ const terms=TS.map(([t,lab])=>{const T=c.terms[t],rule=T.prev?`Term grade = ${T.own}% of this term's score + ${T.prev}% of the previous term's grade`:`Term grade = ${T.own}% of this term's score`;
+  return{t,lab,score:g[t].x,grade:g[t].g,rule}});
+ /* ONE table for every period: a row per component / sub-part, and a Max + Score cell for each period.
+    Gross figures only: the "reduce total by %" rule and the weights are never shown here. */
+ const comps=[],K={},sub=(k,name,ti,cell)=>{const key=String(name).trim().toLowerCase();let x=k.sk[key];if(!x){x=k.sk[key]={name,sub:1,cells:TS.map(()=>null)};k.subs.push(x)}x.cells[ti]=cell};
+ TS.forEach(([t],ti)=>c.terms[t].comps.forEach(cp=>{
+  let k=K[cp.id];if(!k){k=K[cp.id]={name:cp.name,sub:0,cells:TS.map(()=>null),subs:[],sk:{}};comps.push(k)}
+  if(cp.subs.length==1&&cp.subs[0].att){const sx=cp.subs[0],u=(c.terms[t].sc[s.id]||{})[sx.id]||[],
+    d=sx.items.filter((_,i)=>c.students.some(z=>((c.terms[t].sc[z.id]||{})[sx.id]||[])[i])).length;
+   if(d&&u.some(x=>x)){sub(k,'Times absent',ti,{mx:d,sc:u.filter(x=>x=='A').length});sub(k,'Times late',ti,{mx:d,sc:u.filter(x=>x=='L').length})}return}
+  const r=cmp(c,t,s.id,cp);
+  if(cp.subs.length==1){const b=r.subs[0];if(b)k.cells[ti]={mx:num(b.mx),sc:num(b.to)};return}
+  let tm=0,ts=0,any=0;
+  cp.subs.forEach((sx,i)=>{const b=r.subs[i];if(!b)return;sub(k,sx.name,ti,{mx:num(b.mx),sc:num(b.to)});tm+=b.mx;ts+=b.to;any=1});
+  if(any)k.cells[ti]={mx:num(tm),sc:num(ts)}}));
+ const rows=[];comps.forEach(k=>{rows.push(k,...k.subs)});
+ return{name:nm(s),first:s.first||'',last:s.last||'',email:(s.email||'').trim(),terms,rows,rem:upto=='final'?g.rem:'',
   info:[['Student',nm(s)],['Course',[m.course,m.title].filter(Boolean).join(' - ')],['Instructor',m.instructor],['Schedule',m.sched],
         ['Year & section',m.section],['Semester',sOf(c)],['Academic year',aOf(c)]]}}
+const SRNOTE='For attendance, Max is the number of class sessions held. All other scores are the actual points, out of the maximum.';
 const pcs=v=>v==null?'—':f(v,1)+'%';          // percent text; f() is the app's number formatter
 
 /* ---------- 2. the on-screen preview (HTML) ---------- */
@@ -1049,9 +1055,10 @@ function srHtml(c,s,upto){
  const R=srData(c,s,upto),m=c.meta;
  return `<div class=srv><div class=srh><img src=logo.png alt=""><div><b>${esc(m.school||'')}</b><small>${esc(m.dept||'')}</small><h3>Individual Student Record</h3></div><img src=city-seal.jpg alt=""></div>
  <div class=sri>${R.info.map(([k,v])=>`<span><small>${k}</small>${esc(v||'—')}</span>`).join('')}</div>
- <h4>Summary of grades</h4><div class=wrap><table><tr><th>Period</th><th>Term score</th><th>Term grade</th></tr>${R.terms.map(t=>`<tr><td>${t.lab}</td><td>${f(t.score,2)}</td><td><b>${f(t.grade,2)}</b></td></tr>`).join('')}</table></div>
+ <h4>Summary of grades</h4><div class=wrap><table><tr><th>Period</th><th>Term grade</th></tr>${R.terms.map(t=>`<tr><td>${t.lab}</td><td><b>${f(t.grade,2)}</b></td></tr>`).join('')}</table></div>
  ${R.rem?`<p>Final remarks: <span class="chip ${R.rem=='PASSED'?'ok':'bad'}">${R.rem}</span></p>`:''}
- ${R.terms.map(t=>`<h4>${t.lab}</h4><div class=wrap><table><tr><th>Component</th><th>Weight</th><th>Score</th><th>Percent</th><th>GE</th><th>Weighted</th></tr>${t.rows.map(r=>`<tr${r.sub?'':' style="font-weight:600"'}><td>${r.sub?'&nbsp;&nbsp;':''}${esc(r.name)}</td><td>${r.wt}</td><td>${r.raw}</td><td>${pcs(r.p)}</td><td>${r.ge==null?'':f(r.ge,1)}</td><td>${r.w==null?'':f(r.w,2)}</td></tr>`).join('')}<tr><td colspan=5><b>Term score</b></td><td><b>${f(t.score,2)}</b></td></tr></table></div><p class=mut>${t.rule}.</p>`).join('')}
+ <h4>Breakdown of scores</h4><div class=wrap><table><tr><th rowspan=2>Component</th>${R.terms.map(t=>`<th colspan=2 style="text-align:center">${t.lab}</th>`).join('')}</tr><tr>${R.terms.map(()=>'<th>Max</th><th>Score</th>').join('')}</tr>${R.rows.map(r=>`<tr${r.sub?'':' style="font-weight:600"'}><td>${r.sub?'&nbsp;&nbsp;':''}${esc(r.name)}</td>${r.cells.map(x=>x?`<td>${x.mx}</td><td>${x.sc}</td>`:'<td></td><td></td>').join('')}</tr>`).join('')}<tr style="font-weight:700"><td>Term grade</td>${R.terms.map(t=>`<td></td><td>${t.grade==null?'—':f(t.grade,2)}</td>`).join('')}</tr></table></div>
+ <p class=mut>${SRNOTE}</p>${R.terms.map(t=>`<p class=mut style="margin:.1rem 0">${t.lab}: ${t.rule}.</p>`).join('')}
  <p class=mut>${passNote(c)}</p></div>`}
 
 /* ---------- 3. the PDF ---------- */
@@ -1116,8 +1123,10 @@ async function srPdf(c,s,upto){
  const need=h=>{if(y+h>BOT)page(false)};
  /* a table: cols=[{w,al,h}], rows=[{c:[...],b,fill,sz,col,ind}] */
  const table=(cols,rows)=>{const rh=15;
-  const hdr=()=>{P.rect(L,y,CW,rh+2,brand);let x=L;cols.forEach(k=>{P.text(k.al=='r'?x+k.w-6:k.al=='c'?x+k.w/2:x+6,y+12,k.h,9,{b:1,c:'#ffffff',al:k.al});x+=k.w});y+=rh+2};
-  need(rh*3);hdr();
+  const hdr=()=>{if(cols.some(k=>k.g)){P.rect(L,y,CW,rh+2,brand);let x0=L,j=0;while(j<cols.length){const k=cols[j];let w=k.w,n=1;if(k.g)while(cols[j+n]&&cols[j+n].g==k.g){w+=cols[j+n].w;n++}
+    if(k.g){P.text(x0+w/2,y+12,k.g,9,{b:1,c:'#ffffff',al:'c'});P.line(x0+3,y+rh+1,x0+w-3,y+rh+1,'#ffffff',.5)}x0+=w;j+=n}y+=rh+2}
+  P.rect(L,y,CW,rh+2,brand);let x=L;cols.forEach(k=>{P.text(k.al=='r'?x+k.w-6:k.al=='c'?x+k.w/2:x+6,y+12,k.h,9,{b:1,c:'#ffffff',al:k.al});x+=k.w});y+=rh+2};
+  need(rh*5);hdr();
   rows.forEach((r,i)=>{if(y+rh>BOT){page(false);hdr()}
    if(r.fill)P.rect(L,y,CW,rh,r.fill);else if(i%2)P.rect(L,y,CW,rh,'#faf7f4');
    let x=L;cols.forEach((k,j)=>{const ind=j==0?(r.ind||0):0,sz=r.sz||9,t=pdfFit(r.c[j]??'',k.w-12-ind,sz,r.b);
@@ -1137,20 +1146,19 @@ async function srPdf(c,s,upto){
  y+=bh+14;
  /* summary */
  head('SUMMARY OF GRADES');
- table([{w:215,h:'Period'},{w:150,h:'Term score',al:'r'},{w:150,h:'Term grade',al:'r'}],
-  R.terms.map(t=>({c:[t.lab,f(t.score,2),f(t.grade,2)],b:1})));
+ table([{w:300,h:'Period'},{w:215,h:'Term grade',al:'r'}],
+  R.terms.map(t=>({c:[t.lab,f(t.grade,2)],b:1})));
  if(R.rem){need(24);P.text(L,y+10,'Final remarks:',10,{b:1});P.text(L+72,y+10,R.rem,10,{b:1,c:R.rem=='PASSED'?'#1e8a5a':'#c93a3a'});y+=18}
  need(20);P.text(L,y+8,passNote(c),8.5,{c:mut});y+=22;
- /* breakdown of every period */
- R.terms.forEach(t=>{
-  need((t.rows.length+2)*15+60);   // keep a period's table together on one page when it fits
-  head(t.lab.toUpperCase()+' - BREAKDOWN');
-  const rows=t.rows.map(r=>r.sub?{c:[r.name,r.wt,r.raw,pcs(r.p),'',''],ind:10,sz:8.5,col:'#555555'}
-                              :{c:[r.name,r.wt,r.raw,pcs(r.p),r.ge==null?'':f(r.ge,1),r.w==null?'':f(r.w,2)],b:1,fill:soft});
-  rows.push({c:['Term score','','','','',f(t.score,2)],b:1});
-  rows.push({c:['Term grade','','','','',f(t.grade,2)],b:1,fill:soft});
-  table([{w:205,h:'Component'},{w:55,h:'Weight',al:'r'},{w:90,h:'Score',al:'r'},{w:75,h:'Percent',al:'r'},{w:40,h:'GE',al:'r'},{w:50,h:'Weighted',al:'r'}],rows);
-  P.text(L,y+6,t.rule+'.',8,{c:mut});y+=18});
+ /* breakdown: ONE table, a Max and a Score column for each period */
+ {const nT=R.terms.length,wc=nT==1?275:nT==2?195:155,wv=(CW-wc)/(2*nT),cols=[{w:wc,h:'Component'}];
+  R.terms.forEach(t=>cols.push({w:wv,h:'Max',al:'r',g:t.lab},{w:wv,h:'Score',al:'r',g:t.lab}));
+  head('BREAKDOWN OF SCORES');
+  const rows=R.rows.map(r=>({c:[r.name,...r.cells.flatMap(x=>x?[String(x.mx),String(x.sc)]:['',''])],...(r.sub?{ind:10,sz:8.5,col:'#555555'}:{b:1,fill:soft})}));
+  rows.push({c:['Term grade',...R.terms.flatMap(t=>['',t.grade==null?'-':f(t.grade,2)])],b:1,fill:soft});
+  table(cols,rows);
+  need(14);P.text(L,y+6,SRNOTE,8,{c:mut});y+=14;
+  R.terms.forEach(t=>{need(12);P.text(L,y+6,t.lab+': '+t.rule+'.',8,{c:mut});y+=11});y+=6}
  /* signatures */
  need(90);y+=14;
  [[m.instructor,'Instructor'],[m.head,'Checked by: Department Head'],[m.pres,'Noted by: College President']].forEach(([nme,role],i)=>{
