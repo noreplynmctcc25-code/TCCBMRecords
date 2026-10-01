@@ -226,7 +226,8 @@ body.nonav main{grid-column:1/3}.ce{padding:0!important}
 #pa table.pt{width:100%;border-collapse:collapse;font-size:9pt;margin:.04in 0 .1in}#pa table.pt th,#pa table.pt td{border:1px solid #000;padding:2px 5px;text-align:center;background:transparent;color:#000;white-space:normal}#pa table.pt th{font-weight:700;background:#eee}#pa table.pt th.l,#pa table.pt td.l{text-align:left}#pa table.pt td.l span,#pa table.pt td span{text-align:left}
 #pa h4.ph2{font-size:11pt;margin:.14in 0 .03in;text-transform:uppercase;letter-spacing:.03em;break-after:avoid}#pa p.pn{font-size:8.5pt;margin:.03in 0}#pa table.pt{break-inside:auto}
 /* ---- mobile header laid out on a tidy grid: row 1 = logo + icon buttons, row 2 = Choose class | New class, row 3 = status ---- */
-.hc{display:contents}
+header .hc{display:contents}
+.cards .hc{display:flex;width:100%;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 @media(max-width:899px){
  header{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand hb" "hc hc" "hl hl";gap:.5rem .6rem;align-items:center}
  header .brand{grid-area:brand;min-width:0}header .brand>div{min-width:0}
@@ -390,7 +391,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 30</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 31</span></div>`}
 /* ---------- views ---------- */
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
@@ -896,6 +897,12 @@ function pasteStu(c,el,R){const GA=GS(c),cols=['last','first','mi','g',...GA.map
    else if(k.startsWith('a:')){const e=GA.find(x=>x.id==k.slice(2));if(e)setGA(e,s.id,v)}
    else s[k]=v})});
  mark(c);toast(`Pasted ${rows.length} row${rows.length==1?'':'s'}${add?` (${add} new student${add==1?'':'s'} added)`:''}`);keep()}
+const mailRe=/[^\s@,;<>()"'\t]+@[^\s@,;<>()"'\t]+\.[^\s@,;<>()"'\t]+/g,
+mailList=t=>{t=String(t).replace(/\r/g,'').replace(/\n+$/,'');const ln=t.split('\n');return ln.length>1?ln.map(l=>(l.match(mailRe)||[''])[0]):(t.match(mailRe)||[])};
+/* a list of emails pasted into one email box fills that student and the ones below it, in order */
+function pasteMail(c,el,L){const id=el.dataset.s.split('|')[0],r0=c.students.findIndex(x=>x.id==id);if(r0<0)return;let n=0,skip=0;
+ L.forEach((v,i)=>{if(!v)return;const u=c.students[r0+i];if(!u){skip++;return}u.email=v;n++});
+ mark(c);toast(`Pasted ${n} email${n==1?'':'s'}`+(skip?` · ${skip} left over (no student row for them)`:''));keep()}
 function pasteGrid(c,el,R){const row0=el.closest('tr,.qr'),ctl=r=>[...r.querySelectorAll('input:not([type=date]):not([type=checkbox]),select,button[data-a=att]')],
  c0=ctl(row0).indexOf(el);if(c0<0)return;let r=row0,n=0,mod=0;
  for(let ri=0;ri<R.length;ri++){if(ri){if(row0.classList.contains('max'))break;r=r.nextElementSibling;if(!r||!ctl(r).length)break}
@@ -906,7 +913,8 @@ function pasteGrid(c,el,R){const row0=el.closest('tr,.qr'),ctl=r=>[...r.querySel
    else{x.value=v.trim();x.dispatchEvent(new Event('input',{bubbles:true}));n++}})}
  if(mod){mark(c);keep()}if(n)toast(`Pasted ${n} cell${n==1?'':'s'}`)}
 document.addEventListener('paste',e=>{const c=C(),el=e.target;if(!c||!el||!el.matches)return;
- const t=(e.clipboardData||window.clipboardData||{getData:()=>''}).getData('text');if(!t||!/[\t\r\n]/.test(t))return;
+ const t=(e.clipboardData||window.clipboardData||{getData:()=>''}).getData('text');if(t&&el.matches('input[data-s$="|email"]')&&(view=='students'||view=='srec')){const L=mailList(t);if(L.length>1){e.preventDefault();return pasteMail(c,el,L)}}
+ if(!t||!/[\t\r\n]/.test(t))return;
  const x=el.closest('button[data-a=att]')||el;if(!x.matches('input:not([type=date]):not([type=checkbox]),select,button[data-a=att]')||!x.closest('tr,.qr'))return;
  const R=tsv(t);if(!R.length)return;e.preventDefault();
  if(view=='students'&&x.matches('[data-s],[data-ga]')&&!(R.length==1&&R[0].length==1&&x.tagName=='INPUT'))return pasteStu(c,x,R);
