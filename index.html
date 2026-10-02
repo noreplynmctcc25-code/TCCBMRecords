@@ -689,14 +689,14 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
   const lab=cp.id=='mp'?'MP':cp.id=='me'?'ST':'TOT';
   if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:mx(s)||'',val:u=>raw(u,s)}]}
   return[{lab,mx:cp.subs.some(s=>mx(s)>0)?100:'',val:u=>{const q=cmp(c,t,u.id,cp);return q.p==null?'':q.p}}]},
- cs=T.comps.map(cp=>({cp,cols:colsOf(cp),to:cp.id=='att'||(cp.id=='cw'&&!!cp.gross)||cp.subs.every(s=>s.att),tm:sum(cp.subs.map(smax))}));
+ cs=T.comps.map(cp=>{const wt=cp.id=='cw'&&!cp.gross;return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:cp.id=='mp'||cp.id=='me'?0:1,cols:colsOf(cp),to:cp.id=='att'||cp.id=='cw'||cp.subs.every(s=>s.att),tm:wt?(cp.subs.some(s=>mx(s)>0)?100:0):sum(cp.subs.map(smax))}});
  let h1='<th rowspan=2 colspan=5 class=nmh>NAME</th>',h2='',r4='<td>#</td><td class=nb>FAMILY NAME</td><td class=w></td><td class=nb>FIRST NAME</td><td>M.I.</td>';
- cs.forEach(({cp,cols,to,tm})=>{const ttl=cp.id=='cw'&&cp.name=='Course works'?'PARTICIPATION and OTHER COURSEWORK':cp.name.toUpperCase();
+ cs.forEach(({cp,cols,to,tm,dg})=>{const ttl=cp.id=='cw'&&cp.name=='Course works'?'PARTICIPATION and OTHER COURSEWORK':cp.name.toUpperCase();
   h1+=`<th colspan=${cols.length+(to?4:3)} class=ch>${esc(ttl)}<br>(${+cp.w}%)</th>`;
   cols.forEach(x=>{h2+=`<th>${x.lab}</th>`});
   h2+=`${to?'<th>TO</th>':''}<th>%EQ</th><th>GE</th><th class=c4>${(cp.w/100).toFixed(2)}</th>`;
-  cols.forEach(x=>{r4+=`<td>${x.mx===''?'':tn(x.mx,2)}</td>`});
-  const g100=ge(100,c,t);r4+=`${to?`<td class=c1>${tm||''}</td>`:''}<td class=c2>${tm?100:''}</td><td class=c3>${tm?fx(g100,1):''}</td><td class=c4>${tm?fx(g100*cp.w/100,2):''}</td>`});
+  cols.forEach(x=>{r4+=`<td>${x.mx===''?'':tn(x.mx,dg)}</td>`});
+  const g100=ge(100,c,t);r4+=`${to?`<td class=c1>${tm?tn(tm,dg==0?0:2):''}</td>`:''}<td class=c2>${tm?100:''}</td><td class=c3>${tm?fx(g100,1):''}</td><td class=c4>${tm?fx(g100*cp.w/100,2):''}</td>`});
  const gh=mult?[`INITIAL ${L} GRADE`,frac(T.own),`${TN[pt][2]} GRADE`,frac(T.prev),`${L} GRADE`]:[`${L} GRADE`];if(last)gh.push('FNL_FINAL GRADE','REMARKS');
  h1+=gh.map(x=>`<th rowspan=2 style="min-width:.42in">${x}</th>`).join('');
  /* top row of the grade columns = the grade for a perfect score, like row 17 of the workbook */
@@ -705,9 +705,9 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
  const nc=5+cs.reduce((a,z)=>a+z.cols.length+(z.to?4:3),0),
  spc=`<tr class=spc>${'<td class=w></td>'.repeat(nc)}${gh.map(()=>'<td class=gd></td>').join('')}</tr>`,
  body=spc+c.students.map((u,i)=>{const g=grades(c,u.id);let r=`<tr><td class=w>${i+1}</td><td class=nb>${esc(u.last)}</td><td class=w>,</td><td class=nb>${esc(u.first)}</td><td class=nb>${esc(u.mi)}</td>`;
-  cs.forEach(({cp,cols,to})=>{const q=cmp(c,t,u.id,cp);
-   cols.forEach(x=>{r+=`<td>${tn(x.val(u),2)}</td>`});
-   const any=q.subs.some(Boolean);r+=`${to?`<td class=c1>${any?tn(sum(q.subs.filter(Boolean).map(z=>z.ct)),2):''}</td>`:''}<td class=c2>${tn(q.p,1)}</td><td class=c3>${fx(q.g,1)}</td><td class=c4>${fx(q.w,2)}</td>`});
+  cs.forEach(({cp,cols,to,wt,dg,eq})=>{const q=cmp(c,t,u.id,cp);
+   cols.forEach(x=>{r+=`<td>${tn(x.val(u),dg)}</td>`});
+   const any=q.subs.some(Boolean);r+=`${to?`<td class=c1>${any?(wt?tn(q.p,0):tn(sum(q.subs.filter(Boolean).map(z=>z.ct)),dg)):''}</td>`:''}<td class=c2>${tn(q.p,eq)}</td><td class=c3>${fx(q.g,1)}</td><td class=c4>${fx(q.w,2)}</td>`});
   const x=g[t].x;
   if(mult){const pv=g[pt].g;r+=`<td class=gd>${fx(x,1)}</td><td class=gd>${x==null?'':fx(x*T.own/100,2)}</td><td class=gd>${fx(pv,1)}</td><td class=gd>${pv==null?'':fx(pv*T.prev/100,2)}</td><td class=gd>${fx(g[t].g,1)}</td>`}
   else r+=`<td class=gd>${fx(g[t].g,1)}</td>`;
