@@ -443,7 +443,7 @@ function classPicker(){const L=liveS(),o=document.createElement('div');o.id='mdl
 function grpScore(c,t,s,i0){const gs=gset(c,t),G=GR(c,gs);if(!G.length){toast('Create a group set in the Students tab first');return}
  const o=document.createElement('div');o.id='mdl';o.innerHTML=`<div class=md><h3>Group score</h3><p class=mut>Give every member of a group the same score.</p><label>Group<select id=gs_g>${G.map(g=>`<option value="${esc(g)}" ${g==gf?'selected':''}>${esc(g)}</option>`).join('')}</select></label><label>Column<select id=gs_c>${s.items.map((x,i)=>`<option value=${i} ${i==i0?'selected':''}>${esc(x.d?fd(x.d):(x.n||'Column '+(i+1)))} (max ${x.m||'—'})</option>`).join('')}</select></label><label>Score<input id=gs_v type=number step=any min=0 inputmode=decimal></label><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>Apply</button></div></div>`;
  o.onclick=e=>{const x=e.target.dataset.x;if(x===undefined&&e.target!==o)return;if(o.classList.contains('out'))return;
-  if(x=='1'){const v=$('#gs_v').value;if(v===''){toast('Enter a score');return}const g=$('#gs_g').value,i=+$('#gs_c').value,T=c.terms[t],m=c.students.filter(u=>ug(gs,u)==g);m.forEach(u=>((T.sc[u.id]??={})[s.id]??=[])[i]=+v);mark(c);toast(`Score ${v} applied to ${m.length} student${m.length==1?'':'s'}`);closeMdl(o);keep();return}
+  if(x=='1'){const v=$('#gs_v').value;if(v===''){toast('Enter a score');return}const g=$('#gs_g').value,i=+$('#gs_c').value,T=c.terms[t],m=c.students.filter(u=>ug(gs,u)==g);const mxv=+s.items[i].m,sv=mxv>0?Math.min(+v,mxv):+v;m.forEach(u=>((T.sc[u.id]??={})[s.id]??=[])[i]=sv);mark(c);toast(`Score ${sv} applied to ${m.length} student${m.length==1?'':'s'}`);closeMdl(o);keep();return}
   closeMdl(o)};document.body.appendChild(o);setTimeout(()=>{const v=$('#gs_v');v&&v.focus()},280)}
 
 document.addEventListener('click',e=>{const l=e.target.closest('.dt');if(l){try{l.querySelector('input').showPicker()}catch(_){}}});
@@ -635,6 +635,8 @@ const cnt=a=>{a=a||[];const n=k=>a.filter(x=>x==k).length;return `<td class="pc 
 function fRows(c,T,s,gs,gr){const L=c.students.filter(u=>vis(u,gs));return [['P','Sessions present','ok'],['L','Sessions late','warn'],['A','Sessions absent','bad']].map(([k,l,cl])=>{let tot=0;const cs=s.items.map((x,i)=>{const n=L.filter(u=>(((T.sc[u.id]||{})[s.id]||[])[i])==k).length;tot+=n;return `<td class="ftc ${cl}">${n}</td>`}).join('');return `<tr class=ft><td class=nm>${l}</td>${gr?'<td></td>':''}${cs}<td class="ftc ${cl}" colspan=5>${tot}</td></tr>`}).join('')}
 function recalc(sid){const c=C(),tr=$(`tr[data-sid="${sid}"]`),s=subOf(c,view,comp);if(!tr||!s)return;const r=sb(c,view,sid,s),td=tr.querySelectorAll('td.c');td[0].textContent=f(r&&r.to);td[1].textContent=f(r&&r.p);document.querySelectorAll('tr[data-sid]').forEach(x=>x.classList.toggle('inc',incOf(c,view,x.dataset.sid,s)))}
 const recalcAll=()=>C().students.forEach(s=>recalc(s.id));
+/* cap any saved score that is higher than its column's total (header) */
+function clampAll(){let any=0;D.classes.forEach(c=>{let ch=0;TERMS.forEach(([t])=>{const T=c.terms[t];T.comps.forEach(cp=>cp.subs.forEach(s=>{if(s.att)return;s.items.forEach((it,i)=>{const m=+it.m;if(!(m>0))return;c.students.forEach(u=>{const a=(T.sc[u.id]||{})[s.id];if(a&&typeof a[i]=='number'&&a[i]>m){a[i]=m;ch=1}})})}))});if(ch){c.u=Date.now();any=1}});if(any){D.dirty=1;save()}return any}
 function sumV(c,t){const T=c.terms[t],i=TERMS.findIndex(x=>x[0]==t),tot=sum(T.comps.map(x=>x.w)),pr=i&&T.prev,last=t=='final';
  return `<p class="${tot==100?'ok':'bad'}">${tot==100?'Component weights total 100%.':'Component weights total '+tot+'% — fix this under Rules & weights.'} Term grade = ${T.own}% of this term's score${pr?` + ${T.prev}% of the previous term's grade`:''}.</p>
  <div class="wrap gw"><table><tr><th class=nm>Student</th>${T.comps.map(x=>`<th>${esc(x.name)}<br>GE × ${x.w}%</th>`).join('')}<th>Term score</th><th>Term grade</th>${last?'<th>Remarks</th>':''}</tr>${c.students.map((s,r)=>{const g=grades(c,s.id);return `<tr><td class=nm>${r+1}. ${esc(nm(s))}</td>${T.comps.map(cp=>{const x=cmp(c,t,s.id,cp);return `<td>${f(x.g)} → ${f(x.w,2)}</td>`}).join('')}<td class=c>${f(g[t].x)}</td><td class=c>${f(g[t].g)}</td>${last?`<td>${g.rem?`<span class="chip ${g.rem=='PASSED'?'ok':'bad'}">${g.rem}</span>`:'—'}</td>`:''}</tr>`}).join('')}</table></div>`}
@@ -934,7 +936,7 @@ document.addEventListener('input',e=>{const t=e.target,c=C(),d=t.dataset;if(!c)r
   if(d.m=='sem'||d.m=='ay'){M.sem=M.sem||sOf(c);M.ay=M.ay||aOf(c);M.sy=`${M.sem||''}, A.Y. ${M.ay||''}`}mark(c)}
  else if(d.p){c[d.p]=t.type=='checkbox'?+t.checked:+t.value||0;mark(c)}
  else if(d.s){const[id,k]=d.s.split('|');c.students.find(x=>x.id==id)[k]=t.value;mark(c)}
- else if(d.sc){const[id,sid,i]=d.sc.split('|'),T=c.terms[view];((T.sc[id]??={})[sid]??=[])[i]=t.value===''?null:+t.value;t.classList.toggle('over',+t.value>+subOf(c,view,sid).items[i].m);mark(c);recalc(id)}
+ else if(d.sc){const[id,sid,i]=d.sc.split('|'),T=c.terms[view];{const mxv=+subOf(c,view,sid).items[i].m;let nv=t.value===''?null:+t.value;if(nv!=null&&mxv>0&&nv>mxv){nv=mxv;t.value=mxv;toast('Highest possible score is '+mxv)}((T.sc[id]??={})[sid]??=[])[i]=nv;t.classList.remove('over');mark(c);recalc(id)}}
  else if(d.it){const[sid,i,fl]=d.it.split('|'),s=subOf(c,view,sid),x=s.items[i];x[fl]=fl=='m'?(t.value===''?'':+t.value):t.value;if(fl=='m'){const e=$(`[data-mx="${sid}"]`);if(e)e.textContent=mx(s)||'';t.classList.toggle('req',!(+t.value>0));document.querySelectorAll(`[data-sc$="|${sid}|${i}"]`).forEach(z=>{z.disabled=!(+t.value>0);z.classList.toggle('over',+z.value>+t.value)});recalcAll()}mark(c)}
  else if(d.grp){const[sid,i,k]=d.grp.split('|'),s=subOf(c,view,sid);for(let j=+i;j<+i+ +k;j++)s.items[j].n=t.value;mark(c)}
  else if(d.sg){const[k,i,j]=d.sg.split('|');c.scales[k][i][j]=+t.value||0;mark(c)}
@@ -942,7 +944,9 @@ document.addEventListener('input',e=>{const t=e.target,c=C(),d=t.dataset;if(!c)r
  else if(d.nt){const[sid,k]=d.nt.split('|'),x=secOf(c,sid);if(x){x[k]=t.value;mark(c)}}
  else if(d.ni){const[sid,iid,k]=d.ni.split('|'),x=secOf(c,sid),y=x&&(x.items||[]).find(z=>z.id==iid);if(y){y[k]=t.type=='checkbox'?+t.checked:k=='p'?+t.value||0:t.value;mark(c);if(k=='p'){const e=$(`[data-tot="${sid}"]`);if(e)e.textContent=qtot(x)}}}
  else if(d.tf){const p=d.tf.split('|');let o=c.terms[p[0]];if(p.length>2)o=o.comps[p[1]];if(p.length>3)o=o.subs[p[2]];const k=p[p.length-1];o[k]=k=='name'||k=='scale'?t.value:k=='red'?Math.min(90,Math.max(0,+t.value||0)):+t.value||0;mark(c);updChk()}});
-document.addEventListener('change',e=>{const t=e.target,d=t.dataset,c=C();if(d.a=='cksel'){ck=t.value;return render()}
+document.addEventListener('change',e=>{const t=e.target,d=t.dataset,c=C();
+ if(c&&d.it&&/\|m$/.test(d.it)){const[sid,i]=d.it.split('|'),s=subOf(c,view,sid),m=s?+s.items[i].m:0;if(m>0){let ch=0;c.students.forEach(u=>{const a=(c.terms[view].sc[u.id]||{})[sid];if(a&&typeof a[i]=='number'&&a[i]>m){a[i]=m;ch=1}});if(ch){mark(c);document.querySelectorAll(`[data-sc$="|${sid}|${i}"]`).forEach(z=>{if(+z.value>m)z.value=m});recalcAll();toast('Scores above '+m+' were set to '+m)}}}
+ if(d.a=='cksel'){ck=t.value;return render()}
  if(d.a=='srterm'){srt=t.value;return keep()}
  if(c&&d.nf){const L=[...t.files];t.value='';addFiles(c,d.nf,L);return}
  if(c&&d.m=='type'){applyType(c);mark(c);return render()}
@@ -1454,7 +1458,7 @@ async function sync(manual){if(!U||busy)return;if(!navigator.onLine){st('Offline
  busy=1;st('Syncing…');try{await tk();await pushFiles();st('Syncing…');let r=null;
   if(!fid){const j=await(await dr(G+'drive/v3/files?fields=files(id)&q='+encodeURIComponent(`name='${FN}' and trashed=false`))).json();fid=j.files[0]?.id||''}
   if(fid)r=await(await dr(G+`drive/v3/files/${fid}?alt=media`)).json();
-  merge.ch=0;const push=r?merge(r):true,chg=merge.ch;
+  merge.ch=0;const push=r?merge(r):true,chg=clampAll()|merge.ch;
   if(push||D.dirty){if(fid)await dr(G+`upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:body()});
    else{const b='b'+uid();const j=await(await dr(G+'upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:`--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({name:FN,mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body()}\r\n--${b}--`})).json();fid=j.id}}
   localStorage.fid=fid;D.dirty=0;save();dPush().catch(e=>console.error(e));st('Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
@@ -1525,7 +1529,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button[dat
  if(a=='share'){const em=($('#dpm').value||'').trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))return toast('Enter a valid Gmail address');if(!U)return toast('Sign in first');s.email=em;s.on=1;s.h='';DSv(s);toast('Sharing…');try{await dPush(1);toast('Shared with '+em)}catch(x){toast(x.auth?'Sign in again, then press Share now':'Could not share. Check the email and try again.')}return render()}
  if(a=='stop'){if(!s.sid||!s.shared){s.on=0;DSv(s);return render()}try{await tk();const j=await(await dr(G+`drive/v3/files/${s.sid}/permissions?fields=permissions(id,emailAddress,role)`)).json();for(const p of j.permissions||[])if(p.role=='reader'&&(p.emailAddress||'').toLowerCase()==s.shared.toLowerCase())await dr(G+`drive/v3/files/${s.sid}/permissions/${p.id}`,{method:'DELETE'});s.on=0;s.shared='';s.h='';DSv(s);toast('Sharing stopped')}catch(x){toast('Could not stop sharing. Sign in again and retry.')}render()}});
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-applyTheme();matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTheme);render();
+clampAll();applyTheme();matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTheme);render();
 if(auth)fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+tok}}).then(r=>r.json()).then(p=>{U=localStorage.user=p.email;localStorage.gn=p.given_name||'';localStorage.guest='';render();sync(1)}).catch(()=>toast('Sign-in failed. Check the Client ID and redirect address.'));
 else if(U&&navigator.onLine){if(tok&&Date.now()<exp)sync();else if(!sessionStorage.silent)goAuth(1);else st('Tap Sync now to sign in again')}
 </script></body></html>
