@@ -35,7 +35,6 @@ nav .mt{width:100%;justify-content:flex-start;border:0;background:transparent;co
 .subs{display:grid;grid-template-rows:0fr;opacity:0;margin-left:1.1rem;padding-left:.4rem;border-left:2px solid color-mix(in srgb,var(--ter) 65%,var(--line));transition:grid-template-rows .32s cubic-bezier(.4,0,.2,1),opacity .25s ease}
 .subs.open{grid-template-rows:1fr;opacity:1}.subs>.in{overflow:hidden;min-height:0}
 .subs.sub{margin-left:.9rem;border-left-color:var(--line)}
-.wm{display:flex;margin-top:.3rem;font-size:.8rem;align-items:center;gap:.5rem;border:0;background:none;padding:.2rem 0;font-weight:600}.wbox{width:1.2rem;height:1.2rem;border:2px solid var(--mut);border-radius:5px;display:inline-grid;place-items:center}.wbox.on{background:var(--pri);border-color:var(--pri);color:#fff}.wbox .i{width:.85rem;height:.85rem}.ib.wt{padding:.25rem}
 .cb,.sbn{width:100%;justify-content:flex-start;text-align:left;border:0;background:none;border-radius:8px;margin:.05rem 0}
 .cb{justify-content:space-between;color:var(--ink);font-size:.9rem;font-weight:600;padding:.4rem .6rem}
 .cb>.i{margin-left:auto;transition:transform .28s cubic-bezier(.4,0,.2,1);opacity:.7}.cb.op>.i{transform:rotate(90deg)}
@@ -372,14 +371,14 @@ const OLDA={3:[10,5],2:[20,10],1:[30,15]};
 function migA(c){const a=AT(c),m=+(c.meta||{}).spw,o=OLDA[m];if(o&&SPW[m]&&a.p==o[0]&&a.l==o[1]&&(a.p!=SPW[m][0]||a.l!=SPW[m][1])){a.p=SPW[m][0];a.l=SPW[m][1];mark(c)}}
 const ptsLine=A=>`<p class=ptl><b>Points per session</b><span class="chip ok">Present = ${A.p}</span><span class="chip warn">Late = ${A.l}</span><span class="chip bad">Absent = 0</span></p>`;
 const ge=(p,c,t)=>{const S=c.scales[c.terms[t].scale]||c.scales.A;let g=S[0][1];for(const[m,v]of S)if(p>=m)g=v;return g};
-const mx=s=>sum(s.items.map(x=>x.m)),subOf=(c,t,id)=>{for(const cp of c.terms[t].comps){const s=cp.subs.find(x=>x.id==id);if(s)return s}};
-function sb(c,t,sid,s,z){const v=(c.terms[t].sc[sid]||{})[s.id]||[],m=mx(s),rf=1-Math.min(.9,Math.max(0,+s.red||0)/100),cp=x=>rf<1?Math.min(100,x):x;
- if(s.att){const A=AT(c),d=s.items.filter((_,i)=>c.students.some(u=>((c.terms[t].sc[u.id]||{})[s.id]||[])[i])).length;if(!d)return null;if(!v.some(x=>x)){if(!z)return null;return{to:0,mx:d*A.p,rm:d*A.p*rf,ct:0,p:0}}const to=sum(v.map(x=>x=='P'?A.p:x=='L'?A.l:0));return{to,mx:d*A.p,rm:d*A.p*rf,ct:rf<1?Math.min(to,d*A.p*rf):to,p:cp(to/(d*A.p*rf)*100)}}
- if(!m)return null;if(!s.items.some((_,i)=>v[i]!=null)){if(!z||!c.students.some(u=>((c.terms[t].sc[u.id]||{})[s.id]||[]).some(x=>x!=null)))return null;return{to:0,mx:m,rm:m*rf,ct:0,p:0}}const to=sum(s.items.map((_,i)=>v[i]));return{to,mx:m,rm:m*rf,ct:rf<1?Math.min(to,m*rf):to,p:cp(to/(m*rf)*100)}}
-function cmp(c,t,sid,cp,z){const subs=cp.subs.map(s=>sb(c,t,sid,s,z)),u=cp.subs.map((s,i)=>subs[i]?+s.w:0),ws=sum(u),us=subs.filter(Boolean);if(!us.length)return{subs};
- const GR=cp.gross&&cp.subs.length>1,RM=sum(us.map(x=>x.rm)),p=GR&&RM>0?sum(us.map(x=>x.ct))/RM*100:ws?sum(subs.map((x,i)=>x?x.p*u[i]:0))/ws:sum(us.map(x=>x.p))/us.length,g=ge(p,c,t);return{subs,p,g,w:g*cp.w/100}}
-const termG=(c,t,sid,z)=>{const r=c.terms[t].comps.map(cp=>cmp(c,t,sid,cp,z));return r.every(x=>x.g!=null)?sum(r.map(x=>x.w)):null};
-function grades(c,sid,z){const o={};let pv=null;TERMS.forEach(([t],i)=>{const T=c.terms[t],x=termG(c,t,sid,z),pr=i?T.prev:0;let g=null;if(x!=null){if(!pr)g=x*T.own/100;else if(pv!=null)g=x*T.own/100+pv*pr/100}o[t]={x,g};pv=g});
+const cap=(v,m)=>v==null||v===''||isNaN(+v)?v:(+m>0?Math.min(+v,+m):+v),mx=s=>sum(s.items.map(x=>x.m)),subOf=(c,t,id)=>{for(const cp of c.terms[t].comps){const s=cp.subs.find(x=>x.id==id);if(s)return s}};
+function sb(c,t,sid,s){const v=(c.terms[t].sc[sid]||{})[s.id]||[],m=mx(s),rf=1-Math.min(.9,Math.max(0,+s.red||0)/100),cp=x=>rf<1?Math.min(100,x):x;
+ if(s.att){const A=AT(c),d=s.items.filter((_,i)=>c.students.some(u=>((c.terms[t].sc[u.id]||{})[s.id]||[])[i])).length;if(!d||!v.some(x=>x))return null;const to=sum(v.map(x=>x=='P'?A.p:x=='L'?A.l:0));return{to,mx:d*A.p,p:cp(to/(d*A.p*rf)*100)}}
+ if(!m||!s.items.some((_,i)=>v[i]!=null))return null;const to=sum(s.items.map((x,i)=>cap(v[i],x.m)));return{to,mx:m,p:cp(to/(m*rf)*100)}}
+function cmp(c,t,sid,cp){const subs=cp.subs.map(s=>sb(c,t,sid,s)),u=cp.subs.map((s,i)=>subs[i]?+s.w:0),ws=sum(u),us=subs.filter(Boolean);if(!us.length)return{subs};
+ const p=ws?sum(subs.map((x,i)=>x?x.p*u[i]:0))/ws:sum(us.map(x=>x.p))/us.length,g=ge(p,c,t);return{subs,p,g,w:g*cp.w/100}}
+const termG=(c,t,sid)=>{const r=c.terms[t].comps.map(cp=>cmp(c,t,sid,cp));return r.every(x=>x.g!=null)?sum(r.map(x=>x.w)):null};
+function grades(c,sid){const o={};let pv=null;TERMS.forEach(([t],i)=>{const T=c.terms[t],x=termG(c,t,sid),pr=i?T.prev:0;let g=null;if(x!=null){if(!pr)g=x*T.own/100;else if(pv!=null)g=x*T.own/100+pv*pr/100}o[t]={x,g};pv=g});
  const g=o.final.g;o.rem=g==null?'':(c.hi?g>=c.pass:g<=c.pass)?'PASSED':'FAILED';return o}
 /* ---------- state ---------- */
 const C=()=>D.classes.find(c=>c.id==cur&&!c.d),live=()=>D.classes.filter(c=>!c.d),save=()=>localStorage[K]=JSON.stringify(D);
@@ -443,7 +442,7 @@ function classPicker(){const L=liveS(),o=document.createElement('div');o.id='mdl
 function grpScore(c,t,s,i0){const gs=gset(c,t),G=GR(c,gs);if(!G.length){toast('Create a group set in the Students tab first');return}
  const o=document.createElement('div');o.id='mdl';o.innerHTML=`<div class=md><h3>Group score</h3><p class=mut>Give every member of a group the same score.</p><label>Group<select id=gs_g>${G.map(g=>`<option value="${esc(g)}" ${g==gf?'selected':''}>${esc(g)}</option>`).join('')}</select></label><label>Column<select id=gs_c>${s.items.map((x,i)=>`<option value=${i} ${i==i0?'selected':''}>${esc(x.d?fd(x.d):(x.n||'Column '+(i+1)))} (max ${x.m||'—'})</option>`).join('')}</select></label><label>Score<input id=gs_v type=number step=any min=0 inputmode=decimal></label><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>Apply</button></div></div>`;
  o.onclick=e=>{const x=e.target.dataset.x;if(x===undefined&&e.target!==o)return;if(o.classList.contains('out'))return;
-  if(x=='1'){const v=$('#gs_v').value;if(v===''){toast('Enter a score');return}const g=$('#gs_g').value,i=+$('#gs_c').value,T=c.terms[t],m=c.students.filter(u=>ug(gs,u)==g);m.forEach(u=>((T.sc[u.id]??={})[s.id]??=[])[i]=+v);mark(c);toast(`Score ${v} applied to ${m.length} student${m.length==1?'':'s'}`);closeMdl(o);keep();return}
+  if(x=='1'){const v=$('#gs_v').value;if(v===''){toast('Enter a score');return}const g=$('#gs_g').value,i=+$('#gs_c').value,T=c.terms[t],m=c.students.filter(u=>ug(gs,u)==g);const mi=+s.items[i].m,vv=cap(+v,mi);m.forEach(u=>((T.sc[u.id]??={})[s.id]??=[])[i]=vv);mark(c);toast(`Score ${vv}${vv<+v?' (capped at the total)':''} applied to ${m.length} student${m.length==1?'':'s'}`);closeMdl(o);keep();return}
   closeMdl(o)};document.body.appendChild(o);setTimeout(()=>{const v=$('#gs_v');v&&v.focus()},280)}
 
 document.addEventListener('click',e=>{const l=e.target.closest('.dt');if(l){try{l.querySelector('input').showPicker()}catch(_){}}});
@@ -454,8 +453,7 @@ function keep(){const y=scrollY,w=$('.wrap'),x=w?w.scrollLeft:0,t=w?w.scrollTop:
 const NKS=['open','on','op','pri'];
 const navSnap=r=>{const m=new Map();document.querySelectorAll(r+' [data-nk]').forEach(e=>m.set(e.dataset.nk,NKS.filter(k=>e.classList.contains(k))));return m};
 function navAnim(r,prev){document.querySelectorAll(r+' [data-nk]').forEach(e=>{const p=prev.get(e.dataset.nk);if(!p)return;const n=NKS.filter(k=>e.classList.contains(k));if(p.join()==n.join())return;NKS.forEach(k=>e.classList.toggle(k,p.includes(k)));void e.offsetHeight;NKS.forEach(k=>e.classList.toggle(k,n.includes(k)))})}
-const WT=(cp,t,ci,lb)=>cp.subs.length>1&&(cp.id=='cw'||cp.id=='mp')?`<button type=button class="${lb?'wm':'ib wt'}" data-a=wmode data-t=${t} data-ci=${ci} role=checkbox aria-checked="${!cp.gross}" title="Use weighted computation" aria-label="Use weighted computation for ${esc(cp.name)}"><span class="wbox ${cp.gross?'':'on'}">${cp.gross?'':I('check')}</span>${lb?'Use weighted computation':''}</button>`:'',
- AB=(cp,k,ci)=>cp.id=='cw'||cp.id=='mp'?(k===undefined?1:WT(cp,k,ci)+`<button class=ib data-a=addsub2 data-t=${k} data-ci=${ci} title="Add sub-section" aria-label="Add sub-section">${I('plus')}</button>`):'';
+const AB=(cp,k,ci)=>cp.id=='cw'||cp.id=='mp'?(k===undefined?1:`<button class=ib data-a=addsub2 data-t=${k} data-ci=${ci} title="Add sub-section" aria-label="Add sub-section">${I('plus')}</button>`):'';
 function navHtml(c){const DP=isHead()?[['dept','Department','award']]:[],M=c?[['home','Home','home'],['compare','Compare','grid'],...DP,['students','Students','users'],['notes','Notes','note'],...TERMS.map(([t,l],i)=>[t,l,['book','layers','flag'][i]]),['perf','Performance','chart'],['grades','Grades','award'],['srec','Student records','mail'],['set','Rules','sliders']]:[['home','Home','home'],['compare','Compare','grid'],...DP];
  const ND=c?['compare','dept','notes','perf','grades','srec','set']:[];
  const a=M.map(([k,l,ic])=>{const tm=isT(k),on=view==k;let sb='';
@@ -495,7 +493,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 62</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 53</span></div>`}
 /* ---------- views ---------- */
 /* a new class, tab, component or sub-component always opens at the top */
 const topOnNav=k=>{if(k!=render.n){render.n=k;scrollTo({top:0,left:0,behavior:'instant'});const m=document.getElementById('main');if(m)m.scrollTop=0}};
@@ -618,9 +616,9 @@ WI={};const cl=i=>{const x=s.items[i];if(!at||!x.d)return'';const k=wk(x.d);if(!
  al=i=>c.students.length&&c.students.every(u=>(((T.sc[u.id]||{})[s.id]||[])[i])=='P');
  const h2=at?s.items.map((x,i)=>`<th class="${cl(i)}"><label class=dt><span>${fd(x.d)||'Pick date'}</span><input type=date data-dt="${s.id}|${i}" value="${x.d||''}"></label></th>`).join(''):s.items.map((x,i)=>`<th><label class=dt><span>${x.d?fd(x.d):(x.n||'Pick date')}</span><input type=date data-dt="${s.id}|${i}" value="${x.d||''}"></label></th>`).join(''),
  h3=at?`<tr class=max>${s.items.map((x,i)=>`<th class="${cl(i)}"><small>${x.d?'Session '+ord(s.items,i):'—'}</small> <button class=mini data-a=allp title="${al(i)?'Unselect all':'Mark all present'}" data-sub=${s.id} data-i=${i}>${I(al(i)?'x':'check')}</button></th>`).join('')}<th class=cg2 title="Sessions marked present">Present</th><th class=cg2 title="Sessions marked late">Late</th><th class=cg2 title="Sessions marked absent">Absent</th></tr>`:`<tr class=max>${s.items.map((x,i)=>`<th><input type=number min=0 step=any placeholder="Total" data-it="${s.id}|${i}|m" value="${x.m??''}" class="${+x.m>0?'':'req'}"></th>`).join('')}<th data-mx=${s.id}>${mx(s)||''}</th><th>${mx(s)?100:''}</th></tr>`;
- return hd+(at?ptsLine(A):'')+subCfg(c,t,cp,s)+`<div class="wrap gw"><table class=grid><tr><th class=nm rowspan=2>Student</th>${gr?'<th rowspan=2>Group</th>':''}${h2}<th${at?' rowspan=2':''}>${at?'Points':'Total'}</th><th${at?' rowspan=2':''}>%</th>${at?'<th colspan=3 class=cg>Number of sessions</th>':''}</tr>${h3}`+(c.students.map((u,r)=>!vis(u,gs)?'':`<tr data-sid=${u.id}${incOf(c,t,u.id,s)?' class=inc':''}><td class=nm>${r+1}. ${esc(nm(u))}</td>${gr?`<td class=gc>${gsel(gs,u)}</td>`:''}${s.items.map((x,i)=>{const v=((T.sc[u.id]||{})[s.id]||[])[i];return at?`<td class="${cl(i)}"><button class="ab ${v||''}" data-a=att data-sid=${u.id} data-sub=${s.id} data-i=${i}>${v||'·'}</button></td>`:`<td><input type=number step=any min=0 data-sc="${u.id}|${s.id}|${i}" value="${v??''}" class="${v>x.m?'over':''}" ${+x.m>0?'':'disabled title="Fill in this column\'s total first"'}></td>`}).join('')}<td class=c></td><td class=c></td>${at?cnt((T.sc[u.id]||{})[s.id]):''}</tr>`).join('')||`<tr><td class=mut colspan=9>${gf?'No students in this group.':'Add students first.'}</td></tr>`)+(at?fRows(c,T,s,gs,gr):'')+`</table></div>`+(at?'<p class=mut>Tap a cell to cycle Present, Late, Absent, blank. Pick a date for each column; columns in the same week share a colour and are numbered Session 1, 2, 3. The check under a column marks everyone present; press it again to unselect all.</p>':'<p class=mut>Pick the date of each column and fill in its total (the highest possible score) in row 2. Scores can be typed once the total is set. Blank cells count as 0 once a student has any score here.</p>')}
+ return hd+(at?ptsLine(A):'')+subCfg(c,t,cp,s)+`<div class="wrap gw"><table class=grid><tr><th class=nm rowspan=2>Student</th>${gr?'<th rowspan=2>Group</th>':''}${h2}<th${at?' rowspan=2':''}>${at?'Points':'Total'}</th><th${at?' rowspan=2':''}>%</th>${at?'<th colspan=3 class=cg>Number of sessions</th>':''}</tr>${h3}`+(c.students.map((u,r)=>!vis(u,gs)?'':`<tr data-sid=${u.id}${incOf(c,t,u.id,s)?' class=inc':''}><td class=nm>${r+1}. ${esc(nm(u))}</td>${gr?`<td class=gc>${gsel(gs,u)}</td>`:''}${s.items.map((x,i)=>{const v=((T.sc[u.id]||{})[s.id]||[])[i];return at?`<td class="${cl(i)}"><button class="ab ${v||''}" data-a=att data-sid=${u.id} data-sub=${s.id} data-i=${i}>${v||'·'}</button></td>`:`<td><input type=number step=any min=0 max="${+x.m>0?x.m:''}" data-sc="${u.id}|${s.id}|${i}" value="${v??''}" class="${v>x.m?'over':''}" ${+x.m>0?'':'disabled title="Fill in this column\'s total first"'}></td>`}).join('')}<td class=c></td><td class=c></td>${at?cnt((T.sc[u.id]||{})[s.id]):''}</tr>`).join('')||`<tr><td class=mut colspan=9>${gf?'No students in this group.':'Add students first.'}</td></tr>`)+(at?fRows(c,T,s,gs,gr):'')+`</table></div>`+(at?'<p class=mut>Tap a cell to cycle Present, Late, Absent, blank. Pick a date for each column; columns in the same week share a colour and are numbered Session 1, 2, 3. The check under a column marks everyone present; press it again to unselect all.</p>':'<p class=mut>Pick the date of each column and fill in its total (the highest possible score) in row 2. Scores can be typed once the total is set. Blank cells count as 0 once a student has any score here.</p>')}
 function quickV(c,t,cp,s){const T=c.terms[t],cols=s.items,A=AT(c);qi=Math.max(0,Math.min(qi,cols.length-1));const q=cols[qi],al=c.students.length&&c.students.every(u=>(((T.sc[u.id]||{})[s.id]||[])[qi])=='P'),nt=!s.att&&!(+q.m>0);
- const gs=gset(c,t),gr=!s.att&&gcand(c,t).some(x=>x.groups.length),qv=u=>((T.sc[u]||{})[s.id]||[])[qi],actQ=s.att?c.students.some(u=>qv(u.id)):(+q.m>0||c.students.some(u=>hv(qv(u.id)))),qn=k=>c.students.filter(u=>qv(u.id)==k).length,rows=c.students.map((u,r)=>{if(!vis(u,gs))return '';const v=((T.sc[u.id]||{})[s.id]||[])[qi];return `<div class="qr${actQ&&!hv(v)?' inc':''}"><span>${r+1}. ${esc(nm(u))}${gr&&ug(gs,u)?`<small class=gtag>${esc(ug(gs,u))}</small>`:''}</span>`+(s.att?`<div class=seg>${['P','L','A'].map(k=>`<button class="ab ${v==k?k:''}" data-a=att data-sid=${u.id} data-sub=${s.id} data-i=${qi} data-pv=${k}>${k}</button>`).join('')}</div>`:`<input type=number inputmode=decimal step=any min=0 data-sc="${u.id}|${s.id}|${qi}" value="${v??''}" class="${v>q.m?'over':''}" ${nt?'disabled':''}>`)+`</div>`}).join('')||`<p class=mut style="padding:1rem">${gf?'No students in this group.':'Add students first.'}</p>`;
+ const gs=gset(c,t),gr=!s.att&&gcand(c,t).some(x=>x.groups.length),qv=u=>((T.sc[u]||{})[s.id]||[])[qi],actQ=s.att?c.students.some(u=>qv(u.id)):(+q.m>0||c.students.some(u=>hv(qv(u.id)))),qn=k=>c.students.filter(u=>qv(u.id)==k).length,rows=c.students.map((u,r)=>{if(!vis(u,gs))return '';const v=((T.sc[u.id]||{})[s.id]||[])[qi];return `<div class="qr${actQ&&!hv(v)?' inc':''}"><span>${r+1}. ${esc(nm(u))}${gr&&ug(gs,u)?`<small class=gtag>${esc(ug(gs,u))}</small>`:''}</span>`+(s.att?`<div class=seg>${['P','L','A'].map(k=>`<button class="ab ${v==k?k:''}" data-a=att data-sid=${u.id} data-sub=${s.id} data-i=${qi} data-pv=${k}>${k}</button>`).join('')}</div>`:`<input type=number inputmode=decimal step=any min=0 max="${+q.m>0?q.m:''}" data-sc="${u.id}|${s.id}|${qi}" value="${v??''}" class="${v>q.m?'over':''}" ${nt?'disabled':''}>`)+`</div>`}).join('')||`<p class=mut style="padding:1rem">${gf?'No students in this group.':'Add students first.'}</p>`;
  return `<div class="bar qb"><button data-a=qprev title=Previous>${I('left')}</button><select data-a=qpick>${cols.map((o,j)=>`<option value=${j} ${j==qi?'selected':''}>${esc(s.name)} · ${esc(clb(cols,j,s))}${s.att||!(+o.m>0)?'':' (/'+o.m+')'}</option>`).join('')}</select><button data-a=qnext title=Next>${I('right')}</button></div>
  ${subCfg(c,t,cp,s)}<div class="card qd"><label>Date<input type=date data-dt="${s.id}|${qi}" value="${q.d||''}" class="${q.d?'':'req'}"></label>${s.att?`<div class=qi2><b>${q.d?'Session '+ord(cols,qi):'Pick a date'}</b><span class=qct>Count: <b class=ok>${qn('P')}</b> present · <b class=warn>${qn('L')}</b> late · <b class=bad>${qn('A')}</b> absent</span></div><div class=qpl><i>Points: Present ${A.p} · Late ${A.l} · Absent 0</i></div>`:`<label>Total (highest score)<input type=number inputmode=decimal min=0 step=any data-it="${s.id}|${qi}|m" value="${q.m??''}" class="${nt?'req':''}"></label>`}</div>
  ${nt?'<p class=mut style="margin:.2rem .2rem .5rem">Fill in the total above before entering scores.</p>':''}
@@ -664,7 +662,7 @@ function setV(c){const A=AT(c),sp=spwOf(c);
 function termSet(c,t,l){const T=c.terms[t],i0=TERMS.findIndex(x=>x[0]==t);
  return `<div class=card><h2>${l}</h2><div class=form>${kv('Grade conversion table','Table '+esc(T.scale))}${kv("Weight of this term's own score",pc(T.own))}${i0?kv("Weight of previous term's grade",pc(T.prev)):''}</div>
  <div class="wrap rs" style="margin-top:.6rem"><table class=stk><tr><th class=nm>Component</th><th>Weight</th><th>Sub-sections (weight inside the component)</th></tr>
- ${T.comps.map((cp,ci)=>`<tr><td class=nm data-l="Component">${esc(cp.name)}${WT(cp,t,ci,1)}</td><td data-l="Weight">${pc(cp.w)}</td><td class=sc2 data-l="Sub-sections">${cp.subs.map(s=>`<div>${esc(s.name)}${cp.subs.length>1?` <b>${pc(s.w)}</b>`:''}${+s.red>0?` <span class=mut>· total reduced by ${pc(s.red)}</span>`:''}</div>`).join('')}${cp.subs.length>1?`<span class=chk data-chk="${t}|${ci}"></span>`:''}</td></tr>`).join('')}
+ ${T.comps.map((cp,ci)=>`<tr><td class=nm data-l="Component">${esc(cp.name)}</td><td data-l="Weight">${pc(cp.w)}</td><td class=sc2 data-l="Sub-sections">${cp.subs.map(s=>`<div>${esc(s.name)}${cp.subs.length>1?` <b>${pc(s.w)}</b>`:''}${+s.red>0?` <span class=mut>· total reduced by ${pc(s.red)}</span>`:''}</div>`).join('')}${cp.subs.length>1?`<span class=chk data-chk="${t}|${ci}"></span>`:''}</td></tr>`).join('')}
  <tr><td class=nm data-l="Total"><b>Total</b></td><td data-l="Weights"><span class=chk data-chk="${t}"></span></td><td></td></tr></table></div>
  <p class=mut style="margin:.5rem 0 0">Term grade = ${pc(T.own)} of this term's score${i0&&T.prev?` + ${pc(T.prev)} of the previous term's grade`:''}.</p></div>`}
 function updChk(){const c=C();document.querySelectorAll('.chk').forEach(e=>{const[t,ci]=e.dataset.chk.split('|'),T=c.terms[t];let s=ci==null?sum(T.comps.map(x=>x.w)):sum(T.comps[ci].subs.map(x=>x.w));s=+s.toFixed(2);const ok=Math.round(s)==100;let tx='Total '+s+'%';if(!ok){if(ci!=null&&s>0)tx+=' — not 100%, so the weights are recomputed to 100%: '+T.comps[ci].subs.map(x=>x.name+' '+(+(x.w/s*100).toFixed(2))+'%').join(', ');else tx+=' — should be 100%'}e.textContent=tx;e.className='chk '+(ok?'ok':ci!=null&&s>0?'mut':'bad')});
@@ -677,27 +675,26 @@ const fnlG=(c,g)=>g==null?null:(c.hi?g:g>c.pass?5:g),remOf=(c,g)=>g==null?'':(c.
 function perf(c,t){const T=c.terms[t],i=TERMS.findIndex(x=>x[0]==t),g100=ge(100,c,t),x=sum(T.comps.map(cp=>g100*cp.w/100));let g=x*T.own/100;if(i&&T.prev)g+=perf(c,TERMS[i-1][0]).g*T.prev/100;return{x,g}}
 function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t),A=AT(c),last=t=='final',mult=ti>0&&T.prev>0,pt=ti?TERMS[ti-1][0]:'',L=TN[t][2],
  has=(s,i)=>c.students.some(u=>((T.sc[u.id]||{})[s.id]||[])[i]),
- rf=s=>1-Math.min(.9,Math.max(0,+s.red||0)/100),smax=s=>s.att?s.items.filter((_,i)=>has(s,i)).length*A.p:+(mx(s)*rf(s)).toFixed(2),
+ smax=s=>s.att?s.items.filter((_,i)=>has(s,i)).length*A.p:mx(s),
  sv=(u,s)=>(T.sc[u.id]||{})[s.id]||[],
  raw=(u,s)=>{const v=sv(u,s);return s.items.some((_,i)=>v[i]!=null)?sum(s.items.map((_,i)=>v[i])):''},
- rawc=(u,s)=>{const v=raw(u,s);if(v==='')return c.students.some(w=>raw(w,s)!=='')?0:'';return !(+s.red>0)?v:Math.min(v,mx(s)*rf(s))},
  wkG=s=>{const g=[],ix={};s.items.forEach((x,i)=>{const k=x.d?wk(x.d):'i'+i;if(k in ix)g[ix[k]].push(i);else{ix[k]=g.length;g.push([i])}});return g},
  pad=(o,pre,n)=>{while(o.length<n)o.push({lab:pre+(o.length+1),mx:'',val:()=>''});return o},
  /* same columns as the e-class workbook: A1-A6 = one column per week of attendance, CW1-CW6 (CW1-CW5 in Final) = the total of each course work, MP = weighted total of the major performance, ST = major exam */
  colsOf=cp=>{
-  if(cp.id=='att'||cp.subs.every(s=>s.att)){const o=[];cp.subs.forEach(s=>wkG(s).forEach(g=>{const any=g.some(i=>has(s,i));if(!any)return;o.push({lab:'A'+(o.length+1),mx:g.filter(i=>has(s,i)).length*A.p||'',val:u=>{const v=sv(u,s);return g.some(i=>v[i])?sum(g.map(i=>v[i]=='P'?A.p:v[i]=='L'?A.l:0)):0}})}));return o}
-  if(cp.id=='cw'){const W=!cp.gross;return cp.subs.map((s,k)=>({lab:'CW'+(k+1),mx:W?(mx(s)?100:''):smax(s)||'',val:u=>{if(!W)return rawc(u,s);const r=sb(c,t,u.id,s,1);return r?r.p:''}})).filter(x=>x.mx!==''||c.students.some(u=>+x.val(u)>0))}
+  if(cp.id=='att'||cp.subs.every(s=>s.att)){const o=[];cp.subs.forEach(s=>wkG(s).forEach(g=>{const any=g.some(i=>has(s,i));if(!any)return;o.push({lab:'A'+(o.length+1),mx:g.filter(i=>has(s,i)).length*A.p||'',val:u=>{const v=sv(u,s);return g.some(i=>v[i])?sum(g.map(i=>v[i]=='P'?A.p:v[i]=='L'?A.l:0)):''}})}));return o}
+  if(cp.id=='cw')return cp.subs.map((s,k)=>({lab:'CW'+(k+1),mx:mx(s)||'',val:u=>raw(u,s)})).filter(x=>x.mx!==''||c.students.some(u=>+x.val(u)>0));
   const lab=cp.id=='mp'?'MP':cp.id=='me'?'ST':'TOT';
-  if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:smax(s)||'',val:u=>rawc(u,s)}]}
-  return[{lab,mx:cp.subs.some(s=>mx(s)>0)?100:'',val:u=>{const q=cmp(c,t,u.id,cp,1);return q.p==null?'':q.p}}]},
- cs=T.comps.map(cp=>{const wt=cp.id=='cw'&&!cp.gross,cols=colsOf(cp);return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:0,cols,to:cp.id=='att'||cp.id=='cw'||cp.subs.every(s=>s.att),tm:wt?sum(cols.map(x=>x.mx)):sum(cp.subs.map(smax))}});
+  if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:mx(s)||'',val:u=>raw(u,s)}]}
+  return[{lab,mx:cp.subs.some(s=>mx(s)>0)?100:'',val:u=>{const q=cmp(c,t,u.id,cp);return q.p==null?'':q.p}}]},
+ cs=T.comps.map(cp=>({cp,cols:colsOf(cp),to:cp.id=='att'||cp.id=='cw'||cp.subs.every(s=>s.att),tm:sum(cp.subs.map(smax))}));
  let h1='<th rowspan=2 colspan=5 class=nmh>NAME</th>',h2='',r4='<td>#</td><td class=nb>FAMILY NAME</td><td class=w></td><td class=nb>FIRST NAME</td><td>M.I.</td>';
- cs.forEach(({cp,cols,to,tm,dg})=>{const ttl=cp.id=='cw'&&cp.name=='Course works'?'PARTICIPATION and OTHER COURSEWORK':cp.name.toUpperCase();
+ cs.forEach(({cp,cols,to,tm})=>{const ttl=cp.id=='cw'&&cp.name=='Course works'?'PARTICIPATION and OTHER COURSEWORK':cp.name.toUpperCase();
   h1+=`<th colspan=${cols.length+(to?4:3)} class=ch>${esc(ttl)}<br>(${+cp.w}%)</th>`;
   cols.forEach(x=>{h2+=`<th>${x.lab}</th>`});
   h2+=`${to?'<th>TO</th>':''}<th>%EQ</th><th>GE</th><th class=c4>${(cp.w/100).toFixed(2)}</th>`;
-  cols.forEach(x=>{r4+=`<td>${x.mx===''?'':tn(x.mx,dg)}</td>`});
-  const g100=ge(100,c,t);r4+=`${to?`<td class=c1>${tm?tn(tm,dg==0?0:2):''}</td>`:''}<td class=c2>${tm?100:''}</td><td class=c3>${tm?fx(g100,1):''}</td><td class=c4>${tm?fx(g100*cp.w/100,2):''}</td>`});
+  cols.forEach(x=>{r4+=`<td>${x.mx===''?'':tn(x.mx,2)}</td>`});
+  const g100=ge(100,c,t);r4+=`${to?`<td class=c1>${tm||''}</td>`:''}<td class=c2>${tm?100:''}</td><td class=c3>${tm?fx(g100,1):''}</td><td class=c4>${tm?fx(g100*cp.w/100,2):''}</td>`});
  const gh=mult?[`INITIAL ${L} GRADE`,frac(T.own),`${TN[pt][2]} GRADE`,frac(T.prev),`${L} GRADE`]:[`${L} GRADE`];if(last)gh.push('FNL_FINAL GRADE','REMARKS');
  h1+=gh.map(x=>`<th rowspan=2 style="min-width:.42in">${x}</th>`).join('');
  /* top row of the grade columns = the grade for a perfect score, like row 17 of the workbook */
@@ -705,20 +702,20 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
  r4+=gv.map(x=>`<td class=gd>${x}</td>`).join('');
  const nc=5+cs.reduce((a,z)=>a+z.cols.length+(z.to?4:3),0),
  spc=`<tr class=spc>${'<td class=w></td>'.repeat(nc)}${gh.map(()=>'<td class=gd></td>').join('')}</tr>`,
- body=spc+c.students.map((u,i)=>{const g=grades(c,u.id,1);let r=`<tr><td class=w>${i+1}</td><td class=nb>${esc(u.last)}</td><td class=w>,</td><td class=nb>${esc(u.first)}</td><td class=nb>${esc(u.mi)}</td>`;
-  cs.forEach(({cp,cols,to,wt,dg,eq})=>{const q=cmp(c,t,u.id,cp,1);
-   cols.forEach(x=>{r+=`<td>${tn(x.val(u),dg)}</td>`});
-   const any=q.subs.some(Boolean);r+=`${to?`<td class=c1>${any?(wt?tn(sum(cols.map(x=>x.val(u))),0):tn(sum(q.subs.filter(Boolean).map(z=>z.ct)),dg)):''}</td>`:''}<td class=c2>${tn(q.p,eq)}</td><td class=c3>${fx(q.g,1)}</td><td class=c4>${fx(q.w,2)}</td>`});
+ body=spc+c.students.map((u,i)=>{const g=grades(c,u.id);let r=`<tr><td class=w>${i+1}</td><td class=nb>${esc(u.last)}</td><td class=w>,</td><td class=nb>${esc(u.first)}</td><td class=nb>${esc(u.mi)}</td>`;
+  cs.forEach(({cp,cols,to})=>{const q=cmp(c,t,u.id,cp);
+   cols.forEach(x=>{r+=`<td>${tn(x.val(u),2)}</td>`});
+   const any=q.subs.some(Boolean);r+=`${to?`<td class=c1>${any?tn(sum(q.subs.filter(Boolean).map(z=>z.to)),2):''}</td>`:''}<td class=c2>${tn(q.p,1)}</td><td class=c3>${fx(q.g,1)}</td><td class=c4>${fx(q.w,2)}</td>`});
   const x=g[t].x;
   if(mult){const pv=g[pt].g;r+=`<td class=gd>${fx(x,1)}</td><td class=gd>${x==null?'':fx(x*T.own/100,2)}</td><td class=gd>${fx(pv,1)}</td><td class=gd>${pv==null?'':fx(pv*T.prev/100,2)}</td><td class=gd>${fx(g[t].g,1)}</td>`}
   else r+=`<td class=gd>${fx(g[t].g,1)}</td>`;
   if(last)r+=`<td class=gd>${fx(fnlG(c,g.final.g),1)}</td><td class=gd>${esc(g.rem)}</td>`;return r+'</tr>'}).join('');
  return `<section class="pg pr-rec"><div class=fitw><div class=rh><img src=logo.png alt=""><div class=rt><b>${esc(m.school||'TALISAY CITY COLLEGE')}</b><div>Poblacion, Talisay City, Cebu</div><small>${esc(m.sy)}</small></div><img src=city-seal.jpg alt=""></div><div class=rd>${esc(m.dept)}</div>
- <table class=ri>${[['Instructor :',m.instructor],['Course No:',[m.course,m.section].filter(Boolean).join(', ')],['Descriptive Title:',m.title],['Schedule:',m.sched]].map(([a,b])=>`<tr><td>${a}</td><td>${esc(b)}</td></tr>`).join('')}</table><div class=rb>${TN[t][1]}</div>
+ <table class=ri>${[['Instructor :',m.instructor],['Course No:',m.course],['Descriptive Title:',m.title],['Schedule:',m.sched]].map(([a,b])=>`<tr><td>${a}</td><td>${esc(b)}</td></tr>`).join('')}</table><div class=rb>${TN[t][1]}</div>
  <table class=rt2><thead><tr>${h1}</tr><tr>${h2}</tr><tr class=mxr>${r4}</tr></thead><tbody>${body}</tbody></table>
  <div class=sg><div><small>Prepared by:</small><b>${esc(m.instructor)}</b><span>Faculty</span></div><div><small>Checked by:</small><b>${esc(m.head??HEAD)}</b><span>Head, ${esc(m.dept)}</span></div><div><small>Noted by:</small><b>${esc(m.pres??PRES)}</b><span>College President</span></div></div></div></section>`}
 function gsHtml(c,t){const m=c.meta,ti=TERMS.findIndex(x=>x[0]==t),last=t=='final',hp=c.students.some(u=>String(u.prog||'').trim());
- const rows=`<tr><td colspan=${hp?7:6} style="height:.17in"></td></tr>`+c.students.map((u,i)=>{const g=grades(c,u.id,1);return `<tr><td>${i+1}</td><td class=l><b>${esc(nm(u))}</b></td>${TERMS.map(([k],j)=>`<td><b>${j<=ti?fx(k=='final'?fnlG(c,g[k].g):g[k].g,1):''}</b></td>`).join('')}<td>${last?esc(g.rem):''}</td>${hp?`<td>${esc(u.prog||'')}</td>`:''}</tr>`}).join('');
+ const rows=`<tr><td colspan=${hp?7:6} style="height:.17in"></td></tr>`+c.students.map((u,i)=>{const g=grades(c,u.id);return `<tr><td>${i+1}</td><td class=l><b>${esc(nm(u))}</b></td>${TERMS.map(([k],j)=>`<td><b>${j<=ti?fx(k=='final'?fnlG(c,g[k].g):g[k].g,1):''}</b></td>`).join('')}<td>${last?esc(g.rem):''}</td>${hp?`<td>${esc(u.prog||'')}</td>`:''}</tr>`}).join('');
  return `<section class="pg pr-gs"><div class=fitw><div class=gh><img src=logo.png alt=""><div class=gc2><div>Republic of the Philippines</div><div>Province of Cebu</div><div><i>City of Talisay</i></div><div class=gb>${esc(m.school||'TALISAY CITY COLLEGE')}</div><div>Poblacion, Talisay City, Cebu</div></div><img src=city-seal.jpg alt=""></div><div class=rule></div>
  <div class=gt>COLLEGIATE GRADE SHEET</div><div class=gsy>${esc(m.sy)}</div>
  <table class=gi2><tr><td>Course No.</td><td class=u>${esc(m.course)}</td><td>Year and Section:</td><td class=u>${esc(m.section)}</td></tr><tr><td>Descriptive Title</td><td class=u>${esc(m.title)}</td><td>Instructor:</td><td class=u><b>${esc(m.instructor)}</b></td></tr></table>
@@ -828,7 +825,7 @@ function atV(c){const E=sessOf(c),N=c.students.length;
  <div class=card><h2>${I('cal')}Session by session</h2><div class="wrap free"><table><tr><th style="text-align:left">Period</th><th style="text-align:left">Session</th><th>Present</th><th>Late</th><th>Absent</th><th>Rate</th></tr>${R.map(({e,q})=>`<tr><td class="${wc(e.d)}" style="text-align:left">${e.l}</td><td class="${wc(e.d)}" style="text-align:left">${esc(e.lab)}</td><td class="${wc(e.d)}">${q.P}</td><td class="${wc(e.d)}">${q.L}</td><td class="${wc(e.d)}"><b class="${q.A?'bad':''}">${q.A}</b></td><td class="${wc(e.d)}"><b>${Math.round((q.P+q.L)/N*100)}%</b></td></tr>`).join('')}</table></div></div>
  <div class=card><h2>${I('alert')}Most absences</h2>${S.length?`<div class="wrap free"><table><tr><th class=nm>Student</th><th>Absent</th><th>Late</th><th>Longest run</th></tr>${S.slice(0,15).map(x=>`<tr><td class=nm><button class=stu-link data-a=pst data-id=${x.u.id}>${esc(nm(x.u)||'Unnamed')}</button></td><td><b class=bad>${x.q.A}</b> of ${E.length}</td><td>${x.q.L||'—'}</td><td>${x.mr>=3?`<span class="chip bad">${x.mr} in a row</span>`:x.mr}</td></tr>`).join('')}</table></div>${S.length>15?`<p class=nte>Showing 15 of ${S.length} students.</p>`:''}`:'<p class=mut>No student has been absent.</p>'}</div>`}
 function itV(c){const out=[],all=[];
- TERMS.forEach(([t,l])=>{const T=c.terms[t],rows=[];T.comps.forEach(cp=>cp.subs.forEach(s=>{if(s.att)return;s.items.forEach((x,i)=>{const m=+x.m;if(!(m>0))return;const v=c.students.map(u=>((T.sc[u.id]||{})[s.id]||[])[i]).filter(z=>z!=null&&z!=='');if(!v.length)return;
+ TERMS.forEach(([t,l])=>{const T=c.terms[t],rows=[];T.comps.forEach(cp=>cp.subs.forEach(s=>{if(s.att)return;s.items.forEach((x,i)=>{const m=+x.m;if(!(m>0))return;const v=c.students.map(u=>((T.sc[u.id]||{})[s.id]||[])[i]).filter(z=>z!=null&&z!=='').map(z=>cap(z,m));if(!v.length)return;
   const a=avg(v.map(Number)),r={t:l,lab:`${s.name} · ${clb(s.items,i,s).replace(/ · no date$/,'')}`,m,n:v.length,a,p:a/m*100,hi:Math.max(...v),lo:Math.min(...v)};rows.push(r);all.push(r)})}));out.push([l,rows])});
  if(!all.length)return `<div class="card empty"><span class="ic big">${I('tasks')}</span><h2>No scored items yet</h2><p class=mut>Quizzes, activities and exams appear here once they have a total and scores.</p></div>`;
  const srt=all.slice().sort((a,b)=>a.p-b.p),li=x=>`<li>${esc(x.t)} · ${esc(x.lab)} <b>${x.p.toFixed(0)}%</b></li>`,tag=p=>p<60?'<span class="chip bad">Hard</span>':p>=90?'<span class="chip ok">Easy</span>':'';
@@ -913,7 +910,7 @@ function pstat(c){const S=SN(c),N=c.students.length,L=c.students.map(u=>S[u.id].
  if(E.length){const A=c.students.map(u=>({u,...attOf(c,u.id)})),tp=sum(A.map(a=>a.P+a.L));
   h+=pph('Attendance')+pnt(`${E.length} sessions held · ${Math.round(tp/(E.length*N)*100)}% present or late. A blank for a held session counts as absent.`)+pt(['Period','Session','Present','Late','Absent','Rate'],E.map(e=>{const z={P:0,L:0,A:0};c.students.forEach(u=>z[aval(c,e,u)]++);return[e.l,esc(e.lab),z.P,z.L,z.A,Math.round((z.P+z.L)/N*100)+'%']}));
   const W=A.filter(a=>a.A>0).sort((a,b)=>b.A-a.A||nm(a.u).localeCompare(nm(b.u))).slice(0,15);if(W.length)h+=pph('Most absences')+pt(['Student','Absent','Late'],W.map(a=>[esc(nm(a.u)),a.A,a.L||'—']))}
- const IT=[];TERMS.forEach(([t,l])=>{const T=c.terms[t];T.comps.forEach(cp=>cp.subs.forEach(s=>{if(s.att)return;s.items.forEach((x,i)=>{const mm=+x.m;if(!(mm>0))return;const v=c.students.map(u=>((T.sc[u.id]||{})[s.id]||[])[i]).filter(z=>z!=null&&z!=='').map(Number);if(!v.length)return;const a=avg(v);IT.push([l,esc(`${s.name} · ${clb(s.items,i,s).replace(/ · no date$/,'')}`),mm,`${v.length} of ${N}`,a.toFixed(1),Math.min(...v),Math.max(...v),(a/mm*100).toFixed(0)+'%'])})}))});
+ const IT=[];TERMS.forEach(([t,l])=>{const T=c.terms[t];T.comps.forEach(cp=>cp.subs.forEach(s=>{if(s.att)return;s.items.forEach((x,i)=>{const mm=+x.m;if(!(mm>0))return;const v=c.students.map(u=>((T.sc[u.id]||{})[s.id]||[])[i]).filter(z=>z!=null&&z!=='').map(z=>cap(+z,mm));if(!v.length)return;const a=avg(v);IT.push([l,esc(`${s.name} · ${clb(s.items,i,s).replace(/ · no date$/,'')}`),mm,`${v.length} of ${N}`,a.toFixed(1),Math.min(...v),Math.max(...v),(a/mm*100).toFixed(0)+'%'])})}))});
  if(IT.length)h+=pph('Item analysis')+pt(['Period','Item','Total','Counted','Average','Lowest','Highest','Average %'],IT)+pnt('Average % = average score ÷ the item\'s total.');
  return `<section class="pg pr-gs"><div class=fitw>${h}${pdt()}</div></section>`}
 function pcmp(){const G=groupsOf(),g=G.find(x=>x.k==ck)||G[0];if(!g)return'';const cl=g.cl,c0=cl[0],pl=PPER.find(x=>x[0]==psp)[1];let h=ph(c0,'SECTION COMPARISON',pnt(`<b>Course number:</b> ${esc(g.name)} · <b>Period:</b> ${pl} · averages and counts only`));
@@ -934,8 +931,8 @@ document.addEventListener('input',e=>{const t=e.target,c=C(),d=t.dataset;if(!c)r
   if(d.m=='sem'||d.m=='ay'){M.sem=M.sem||sOf(c);M.ay=M.ay||aOf(c);M.sy=`${M.sem||''}, A.Y. ${M.ay||''}`}mark(c)}
  else if(d.p){c[d.p]=t.type=='checkbox'?+t.checked:+t.value||0;mark(c)}
  else if(d.s){const[id,k]=d.s.split('|');c.students.find(x=>x.id==id)[k]=t.value;mark(c)}
- else if(d.sc){const[id,sid,i]=d.sc.split('|'),T=c.terms[view];((T.sc[id]??={})[sid]??=[])[i]=t.value===''?null:+t.value;t.classList.toggle('over',+t.value>+subOf(c,view,sid).items[i].m);mark(c);recalc(id)}
- else if(d.it){const[sid,i,fl]=d.it.split('|'),s=subOf(c,view,sid),x=s.items[i];x[fl]=fl=='m'?(t.value===''?'':+t.value):t.value;if(fl=='m'){const e=$(`[data-mx="${sid}"]`);if(e)e.textContent=mx(s)||'';t.classList.toggle('req',!(+t.value>0));document.querySelectorAll(`[data-sc$="|${sid}|${i}"]`).forEach(z=>{z.disabled=!(+t.value>0);z.classList.toggle('over',+z.value>+t.value)});recalcAll()}mark(c)}
+ else if(d.sc){const[id,sid,i]=d.sc.split('|'),T=c.terms[view];const mm=+subOf(c,view,sid).items[i].m;if(t.value!==''&&mm>0&&+t.value>mm){t.value=mm;toast('Highest possible score is '+mm)}((T.sc[id]??={})[sid]??=[])[i]=t.value===''?null:+t.value;t.classList.toggle('over',+t.value>mm);mark(c);recalc(id)}
+ else if(d.it){const[sid,i,fl]=d.it.split('|'),s=subOf(c,view,sid),x=s.items[i];x[fl]=fl=='m'?(t.value===''?'':+t.value):t.value;if(fl=='m'){const e=$(`[data-mx="${sid}"]`);if(e)e.textContent=mx(s)||'';t.classList.toggle('req',!(+t.value>0));document.querySelectorAll(`[data-sc$="|${sid}|${i}"]`).forEach(z=>{z.disabled=!(+t.value>0);z.max=+t.value>0?t.value:'';z.classList.toggle('over',+z.value>+t.value)});recalcAll()}mark(c)}
  else if(d.grp){const[sid,i,k]=d.grp.split('|'),s=subOf(c,view,sid);for(let j=+i;j<+i+ +k;j++)s.items[j].n=t.value;mark(c)}
  else if(d.sg){const[k,i,j]=d.sg.split('|');c.scales[k][i][j]=+t.value||0;mark(c)}
  else if(d.p2){AT(c)[d.p2]=+t.value||0;mark(c)}
@@ -1086,7 +1083,6 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
    s.items.push(s.att?{n:'',m:'',d:v}:{n:'',d:v,m:''});
    if(mode()=='quick')qi=s.items.length-1;mark(c);render()})}
  case'delcol':return delCol(c,d.sub);
- case'wmode':{if(!cp)return;const g=!cp.gross,tl=TERMS.find(x=>x[0]==d.t)[1];return ask(g?'Switch to gross computation?':'Switch to weighted computation?',g?`<b>${esc(cp.name)}</b> in ${tl} will be computed from total points: all scores added ÷ all totals added (after any reduction), ignoring the sub-section weights. Grades for this component will change.`:`<b>${esc(cp.name)}</b> in ${tl} will be computed by converting each sub-section to 100 (after any reduction on its total), then applying the sub-section weights. Grades for this component will change.`,'Switch',()=>{if(g)cp.gross=1;else delete cp.gross;mark(c);render()})}
  case'addsub2':{const co=c.terms[d.t].comps[d.ci],mp=co.id=='mp';let n=(mp?co.subs.filter(x=>/^Assessment Task/i.test(x.name)).length:co.subs.filter(x=>x.ed&&x.name!='Others'&&/^Sub-section/i.test(x.name)).length)+1,nm_;do{nm_=(mp?'Assessment Task ':'Sub-section ')+n++}while(co.subs.some(x=>x.name.toLowerCase()==nm_.toLowerCase()));
   const s=Object.assign(mkSub(uid(),nm_,0,1,'',''),{ed:1});co.subs.push(s);view=d.t;comp=s.id;cx=-1;qi=0;pop=null;mark(c);render();scrollTo(0,0);toast(nm_+' added. Set its name and weight above the grid.');return}
  case'addsub':cp.subs.push(mkSub(uid(),'New sub-component',0,3,'',10));mark(c);return render();
@@ -1172,7 +1168,7 @@ function srData(c,s,upto){
   if(cp.subs.length==1){k.cells[ti]=one(t,cp.subs[0],pp).cell;return}
   const R=cp.subs.map(sx=>one(t,sx,pp));cp.subs.forEach((sx,i)=>sub(k,sx.name,ti,R[i].cell));
   const n=sum(R.map(x=>x.n)),got=sum(R.map(x=>x.got)),mxv=sum(R.map(x=>x.mxv)),to=sum(R.map(x=>x.to)),ok=R.filter(x=>x.p!=null),ws=sum(ok.map(x=>x.w)),
-   p=!ok.length?null:cp.gross?(mxv>0?to/mxv*100:null):ws?sum(ok.map(x=>x.p*x.w))/ws:sum(ok.map(x=>x.p))/ok.length;
+   p=!ok.length?null:ws?sum(ok.map(x=>x.p*x.w))/ws:sum(ok.map(x=>x.p))/ok.length;
   k.cells[ti]={cnt:n?got+'/'+n:'',sc:mxv>0?num(to)+'/'+num(mxv):'',lv:sigLv(p,pp)}})});
  const rows=[];comps.forEach(k=>{rows.push(k,...k.subs)});
  return{name:nm(s),first:s.first||'',last:s.last||'',email:(s.email||'').trim(),terms,rows,rem:upto=='final'?g.rem:'',
@@ -1193,9 +1189,9 @@ function srHtml(c,s,upto){
  return `<div class=srv><div class=srh><img src=logo.png alt=""><div><b>${esc(m.school||'')}</b><small>${esc(m.dept||'')}</small><h3>Individual Student Record</h3></div><img src=city-seal.jpg alt=""></div>
  <div class=clause><b>${SRTITLE}</b>${SRCLAUSE}</div>
  <div class=sri>${R.info.map(([k,v])=>`<span><small>${k}</small>${esc(v||'—')}</span>`).join('')}</div>
- <h4>Summary of grades</h4><div class=wrap><table class=cmpt><tr><th>Period</th><th>Term grade</th></tr>${T3(R).map(t=>t.off?`<tr><td class=off>${t.lab}</td><td class=off>Not yet released</td></tr>`:`<tr><td>${t.lab}</td><td><b>${f(t.grade)}</b></td></tr>`).join('')}</table></div>
+ <h4>Summary of grades</h4><div class=wrap><table class=cmpt><tr><th>Period</th><th>Term grade</th></tr>${T3(R).map(t=>t.off?`<tr><td class=off>${t.lab}</td><td class=off>Not yet released</td></tr>`:`<tr><td>${t.lab}</td><td><b>${f(t.grade,2)}</b></td></tr>`).join('')}</table></div>
  ${R.rem?`<p>Final remarks: <span class="chip ${R.rem=='PASSED'?'ok':'bad'}">${R.rem}</span></p>`:''}
- <h4>Breakdown of scores</h4><div class=wrap><table class=cmpt><tr><th rowspan=2>Component</th>${T3(R).map(t=>`<th colspan=3 class="${t.off?'off':''}" style="text-align:center">${t.lab}</th>`).join('')}</tr><tr>${T3(R).map(t=>`<th class="${t.off?'off':''}">Count</th><th class="${t.off?'off':''}">Score</th><th class="${t.off?'off':''}"></th>`).join('')}</tr>${R.rows.map(r=>`<tr${r.sub?'':' style="font-weight:600"'}><td>${r.sub?'&nbsp;&nbsp;':''}${esc(r.name)}</td>${T3(R).map((t,ti)=>{const x=r.cells[ti];return t.off?'<td class=off></td><td class=off></td><td class=off></td>':x?`<td>${x.cnt}</td><td>${x.sc}</td><td>${sigHtml(x.lv)}</td>`:'<td></td><td></td><td></td>'}).join('')}</tr>`).join('')}<tr style="font-weight:700"><td>Term grade</td>${T3(R).map(t=>t.off?'<td class=off></td><td class=off></td><td class=off></td>':`<td></td><td>${t.grade==null?'—':f(t.grade)}</td><td></td>`).join('')}</tr></table></div>
+ <h4>Breakdown of scores</h4><div class=wrap><table class=cmpt><tr><th rowspan=2>Component</th>${T3(R).map(t=>`<th colspan=3 class="${t.off?'off':''}" style="text-align:center">${t.lab}</th>`).join('')}</tr><tr>${T3(R).map(t=>`<th class="${t.off?'off':''}">Count</th><th class="${t.off?'off':''}">Score</th><th class="${t.off?'off':''}"></th>`).join('')}</tr>${R.rows.map(r=>`<tr${r.sub?'':' style="font-weight:600"'}><td>${r.sub?'&nbsp;&nbsp;':''}${esc(r.name)}</td>${T3(R).map((t,ti)=>{const x=r.cells[ti];return t.off?'<td class=off></td><td class=off></td><td class=off></td>':x?`<td>${x.cnt}</td><td>${x.sc}</td><td>${sigHtml(x.lv)}</td>`:'<td></td><td></td><td></td>'}).join('')}</tr>`).join('')}<tr style="font-weight:700"><td>Term grade</td>${T3(R).map(t=>t.off?'<td class=off></td><td class=off></td><td class=off></td>':`<td></td><td>${t.grade==null?'—':f(t.grade,2)}</td><td></td>`).join('')}</tr></table></div>
  <p class=mut style="display:flex;flex-wrap:wrap;gap:.3rem .9rem;align-items:center">${[4,3,2,1].map(l=>`<span>${sigHtml(l)} ${SIGN[l]}</span>`).join('')}</p>
  <p class=mut>${SRNOTE}${T3(R).some(t=>t.off)?' Greyed columns are periods not yet released.':''}</p>
  <p class=mut>${passNote(c)}</p></div>`}
@@ -1291,7 +1287,7 @@ async function srPdf(c,s,upto){
  /* summary */
  head('SUMMARY OF GRADES');
  table([{w:200,h:'Period'},{w:110,h:'Term grade',al:'r'}],
-  T3(R).map(t=>t.off?{c:[t.lab,'Not yet released'],fill:'#ececec',col:'#9a9a9a',sz:8.5}:{c:[t.lab,f(t.grade)],b:1}));
+  T3(R).map(t=>t.off?{c:[t.lab,'Not yet released'],fill:'#ececec',col:'#9a9a9a',sz:8.5}:{c:[t.lab,f(t.grade,2)],b:1}));
  if(R.rem){need(24);P.text(L,y+10,'Final remarks:',10,{b:1});P.text(L+72,y+10,R.rem,10,{b:1,c:R.rem=='PASSED'?'#1e8a5a':'#c93a3a'});y+=18}
  need(20);P.text(L,y+8,passNote(c),8.5,{c:mut});y+=22;
  /* breakdown: ONE table, Count + Score + signal for each period */
@@ -1299,7 +1295,7 @@ async function srPdf(c,s,upto){
   T3(R).forEach((t,ti)=>cols.push({w:36,h:'Count',al:'r',g:t.lab,off:t.off},{w:60,h:'Score',al:'r',g:t.lab,off:t.off},{w:26,h:'',g:t.lab,sg:ti,off:t.off}));
   head('BREAKDOWN OF SCORES');
   const rows=R.rows.map(r=>({c:[r.name,...c3(r).flatMap(x=>x?[x.cnt,x.sc,'']:['','',''])],lv:c3(r).map(x=>x?x.lv:0),...(r.sub?{ind:10,sz:8.5,col:'#555555'}:{b:1,fill:soft})}));
-  rows.push({c:['Term grade',...T3(R).flatMap(t=>t.off?['','','']:['',t.grade==null?'-':f(t.grade),''])],b:1,fill:soft});
+  rows.push({c:['Term grade',...T3(R).flatMap(t=>t.off?['','','']:['',t.grade==null?'-':f(t.grade,2),''])],b:1,fill:soft});
   table(cols,rows);
   /* what the signals mean */
   need(30);let lx=L;[4,3,2,1].forEach(l=>{sigBars(lx+8,y,l);P.text(lx+22,y+10,SIGN[l],8,{c:mut});lx+=64});y+=18;
@@ -1325,7 +1321,7 @@ function srMail(c,s,upto){
   period=R.terms.length>1?R.terms[0].lab+' to '+R.terms[R.terms.length-1].lab:R.terms[0].lab,
   term=`${sOf(c)}${aOf(c)?', A.Y. '+aOf(c):''}`,
   subject=`Individual Student Record - ${[m.course,m.section].filter(Boolean).join(' ')} - ${tlab(upto)} (${term})`,
-  sum=R.terms.map(t=>`${t.lab}: ${f(t.grade)}`).join('  |  ');
+  sum=R.terms.map(t=>`${t.lab}: ${f(t.grade,2)}`).join('  |  ');
  const text=`Dear ${who},
 
 Good day!
@@ -1333,7 +1329,7 @@ Good day!
 Attached is your individual student record for ${course}${m.section?' ('+m.section+')':''}, ${term}. It covers your ${period} grades.
 
 Summary of grades
-${T3(R).map(t=>`  ${t.lab}: ${t.off?'(not yet released)':f(t.grade)}`).join('\n')}${R.rem?`\n  Final remarks: ${R.rem}`:''}
+${T3(R).map(t=>`  ${t.lab}: ${t.off?'(not yet released)':f(t.grade,2)}`).join('\n')}${R.rem?`\n  Final remarks: ${R.rem}`:''}
 
 Please review the attached PDF carefully. If you notice any error or have a question about your record, please see me during consultation hours.
 
@@ -1355,7 +1351,7 @@ ${m.dept||''}`;
  <p style="margin:0 0 12px">Dear ${esc(who)},</p><p style="margin:0 0 12px">Good day!</p>
  <p style="margin:0 0 12px">Attached is your individual student record for <b>${esc(course)}</b>${m.section?' ('+esc(m.section)+')':''}, ${esc(term)}. It covers your <b>${esc(period)}</b> grades.</p>
  <table style="border-collapse:collapse;width:auto;min-width:300px;margin:0 0 14px;font-size:13px"><tr><th style="text-align:left;background:#f5efe9;padding:6px 10px;border:1px solid #e3d9d0">Period</th><th style="text-align:right;background:#f5efe9;padding:6px 10px;border:1px solid #e3d9d0">Term grade</th></tr>
- ${T3(R).map(t=>t.off?`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0;background:#eeeeee;color:#999">${t.lab}</td><td style="padding:6px 10px;border:1px solid #e3d9d0;background:#eeeeee;color:#999;text-align:right;font-size:12px">Not yet released</td></tr>`:`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0">${t.lab}</td><td style="padding:6px 10px;border:1px solid #e3d9d0;text-align:right"><b>${f(t.grade)}</b></td></tr>`).join('')}
+ ${T3(R).map(t=>t.off?`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0;background:#eeeeee;color:#999">${t.lab}</td><td style="padding:6px 10px;border:1px solid #e3d9d0;background:#eeeeee;color:#999;text-align:right;font-size:12px">Not yet released</td></tr>`:`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0">${t.lab}</td><td style="padding:6px 10px;border:1px solid #e3d9d0;text-align:right"><b>${f(t.grade,2)}</b></td></tr>`).join('')}
  ${R.rem?`<tr><td style="padding:6px 10px;border:1px solid #e3d9d0">Final remarks</td><td style="padding:6px 10px;border:1px solid #e3d9d0;text-align:right;font-weight:bold;color:${R.rem=='PASSED'?'#1e8a5a':'#c93a3a'}">${R.rem}</td></tr>`:''}</table>
  <p style="margin:0 0 12px"><p style="margin:0 0 12px;border:1px solid #c93a3a;background:#fdf1f1;border-radius:6px;padding:10px 12px;font-size:13px"><b style="color:#c93a3a">${SRTITLE}</b><br>${esc(SRCLAUSE)}</p><p style="margin:0 0 12px;border:1px solid #e0a100;background:#fff8e0;border-radius:6px;padding:10px 12px;font-size:13px"><b>Please do not reply to this email.</b><br>${esc(NOREPLY)}</p><p style="margin:0 0 12px">Please review the attached PDF carefully. If you notice any error or have a question about your record, please see me during consultation hours.</p>
  <p style="margin:0 0 12px">Thank you.</p>
@@ -1510,10 +1506,10 @@ function deptV(){if(!deptV.t||Date.now()-deptV.t>3e5){deptV.t=Date.now();dLoad()
 <div class=bar><button class=pri data-dp=add>${I('plus')}Add teachers' files</button><button data-dp=refresh>${I('refresh')}Refresh</button><button data-dp=csv>${I('file')}Export CSV</button><button data-dp=print>${I('printer')}Print / PDF</button></div>
 <div class=bar><select data-dp=per>${[['last','Latest grade'],['prelim','Prelim'],['midterm','Midterm'],['final','Final']].map(([k,l])=>`<option value=${k} ${k==dpp?'selected':''}>${l}</option>`).join('')}</select>${sel('fk',dpf,ks,'All terms')}${sel('ft',dpt,ts,'All teachers')}</div>
 ${mixed?'<p class=warn>Some classes use a different grading scale, so rankings compare grades across scales. Filter by teacher or term to compare like with like.</p>':''}
-<div class=dpk><div><b>${n}</b><small>Students graded</small></div><div><b>${f(av)}</b><small>Average grade</small></div><div><b>${n?Math.round((ok+rk)/n*100)+'%':'—'}</b><small>Passing rate</small></div><div><b>${rk}</b><small>At risk</small></div><div><b>${fl}</b><small>Failing</small></div></div></div>
-<div class=card><h2>${I('trophy')}Top performing students <select data-dp=top style="margin-left:auto">${[10,20,30].map(k=>`<option ${k==dpn?'selected':''} value=${k}>Top ${k}</option>`).join('')}</select></h2>${T(['#','Student','Class','Teacher','Grade'],best.map((a,i)=>[i+1,esc(a.r.n),nmC(a),esc(a.x.m.ins||a.x.by)+(a.x.mine?' <span class=chip>Mine</span>':''),f(a.g)]))}</div>
-<div class=card><h2>${I('flag')}Struggling students <small>${weak.length} shown</small></h2>${T(['Student','Class','Teacher','Grade','Status','Absent'],weak.map(a=>[esc(a.r.n),nmC(a),esc(a.x.m.ins||a.x.by),f(a.g),stChip(a.s),a.r.A||'—']))}</div>
-<div class=card><h2>${I('layers')}Classes</h2>${T(['Class','Teacher','Students','Average','Passing','Updated'],cls.map(x=>{const g=x.st.map(r=>dG(r,dpp)).filter(v=>v!=null),p=g.filter(v=>dSt(x,v)!='failed').length;return[esc((x.m.course||'')+' · '+(x.m.section||''))+'<br><small class=mut>'+esc(x.m.title||'')+'</small>',esc(x.m.ins||x.by)+(x.mine?' <span class=chip>Mine</span>':''),x.st.length,f(g.length?g.reduce((a,b)=>a+b,0)/g.length:null),g.length?Math.round(p/g.length*100)+'%':'—',x.mine?'Live':x.at?new Date(x.at).toLocaleDateString([],{dateStyle:'medium'}):'—']}))}</div>`}
+<div class=dpk><div><b>${n}</b><small>Students graded</small></div><div><b>${f(av,2)}</b><small>Average grade</small></div><div><b>${n?Math.round((ok+rk)/n*100)+'%':'—'}</b><small>Passing rate</small></div><div><b>${rk}</b><small>At risk</small></div><div><b>${fl}</b><small>Failing</small></div></div></div>
+<div class=card><h2>${I('trophy')}Top performing students <select data-dp=top style="margin-left:auto">${[10,20,30].map(k=>`<option ${k==dpn?'selected':''} value=${k}>Top ${k}</option>`).join('')}</select></h2>${T(['#','Student','Class','Teacher','Grade'],best.map((a,i)=>[i+1,esc(a.r.n),nmC(a),esc(a.x.m.ins||a.x.by)+(a.x.mine?' <span class=chip>Mine</span>':''),f(a.g,2)]))}</div>
+<div class=card><h2>${I('flag')}Struggling students <small>${weak.length} shown</small></h2>${T(['Student','Class','Teacher','Grade','Status','Absent'],weak.map(a=>[esc(a.r.n),nmC(a),esc(a.x.m.ins||a.x.by),f(a.g,2),stChip(a.s),a.r.A||'—']))}</div>
+<div class=card><h2>${I('layers')}Classes</h2>${T(['Class','Teacher','Students','Average','Passing','Updated'],cls.map(x=>{const g=x.st.map(r=>dG(r,dpp)).filter(v=>v!=null),p=g.filter(v=>dSt(x,v)!='failed').length;return[esc((x.m.course||'')+' · '+(x.m.section||''))+'<br><small class=mut>'+esc(x.m.title||'')+'</small>',esc(x.m.ins||x.by)+(x.mine?' <span class=chip>Mine</span>':''),x.st.length,f(g.length?g.reduce((a,b)=>a+b,0)/g.length:null,2),g.length?Math.round(p/g.length*100)+'%':'—',x.mine?'Live':x.at?new Date(x.at).toLocaleDateString([],{dateStyle:'medium'}):'—']}))}</div>`}
 function dCsv(){const{o}=dFlat(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',L=[['Teacher','Course','Section','Semester','Academic year','Student','Gender','Prelim','Midterm','Final','Status','Absences']];
  o.forEach(a=>L.push([a.x.m.ins||a.x.by,a.x.m.course,a.x.m.section,a.x.m.sem,a.x.m.ay,a.r.n,a.r.g,...TERMS.map(([t])=>a.r[t]==null?'':a.r[t].toFixed(2)),a.s,a.r.A]));
  const u=URL.createObjectURL(new Blob(['\ufeff'+L.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'})),e=document.createElement('a');e.href=u;e.download='department-grades.csv';e.click();setTimeout(()=>URL.revokeObjectURL(u),2e3)}
