@@ -492,16 +492,18 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 51</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 53</span></div>`}
 /* ---------- views ---------- */
+/* a new class, tab, component or sub-component always opens at the top */
+const topOnNav=k=>{if(k!=render.n){render.n=k;scrollTo({top:0,left:0,behavior:'instant'});const m=document.getElementById('main');if(m)m.scrollTop=0}};
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
  if(!U&&!localStorage.guest){$('#hd').innerHTML='';$('#tabs').innerHTML='';$('#main').innerHTML=`<div class=login><img src=logo.png alt="Talisay City College"><h1>Class Record</h1><p class=mut>Talisay City College · Department of Business Management &amp; Entrepreneurship</p><p>Sign in with Google. Your records stay on this device and sync to your Google Drive whenever you're online.</p><p><button class=pri data-a=signin>${I('login')}Sign in with Google</button></p>${WV?'<p class=bad>Google sign-in is blocked inside in-app browsers. Open this page in Chrome or Safari to sign in, or continue offline.</p>':''}<p class=mut>No connection right now?</p><button data-a=guest>Continue offline on this device</button><p><button data-a=cid>Change Client ID</button></p></div>`;return}
  live().forEach(migA);const c=C();if(c)fixSubs(c);applyTheme();document.body.classList.toggle('pop',!!pop&&mob());if(!c){cur='';if(view!='compare'&&view!='dept')view='home'}
  const pt=navSnap('#tp');$('#hd').innerHTML=`<div class=brand><img src=logo.png alt=""><div><small>Talisay City College</small><b>Class Record</b></div></div><div class=hc><button class=mo data-a=choose title="Choose class">${I('book')}<span class=cl>${c?esc(cname(c)):'Choose class'}</span></button><button class=mo data-a=addclass title="New class">${I('plus')}<span class=lb>New class</span></button></div><span class=sp></span><div class=hr><div class=hl>${U?`<span class=em>${esc(U)}</span>`:''}<span id=st>${esc(st.m||'')}</span></div><div class=hb><button data-a=tp title=Theme class="${c&&c.th?'has':''}">${I('palette')}</button>${U?`<button data-a=sync title=Sync>${I('refresh')}<span class=lb>Sync</span></button><button data-a=signout title="Sign out">${I('logout')}</button>`:`<button data-a=signin>${I('login')}Sign in</button>`}</div></div>${tp?tpHtml():''}`;navAnim('#tp',pt);tpNew=0;
- if(!c){$('#tabs').innerHTML=navHtml(null);$('#main').innerHTML=view=='compare'?cmpV():view=='dept'?deptV():homeV();if(view=='home')$('#main').insertAdjacentHTML('beforeend',dCard());return}
+ if(!c){$('#tabs').innerHTML=navHtml(null);$('#main').innerHTML=view=='compare'?cmpV():view=='dept'?deptV():homeV();if(view=='home')$('#main').insertAdjacentHTML('beforeend',dCard());topOnNav('|'+view);return}
  if(gf&&gf!='__none'&&!GR(c).includes(gf))gf='';if(isT(view)&&comp!='sum'&&!subOf(c,view,comp))comp=c.terms[view].comps[0].subs[0].id;const ps=navSnap('#tabs');$('#tabs').innerHTML=navHtml(c);navAnim('#tabs',ps);
- const en=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|')!=render.k;render.k=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|');const MN=$('#main');MN.classList.remove('enter');MN.innerHTML=view=='home'?homeV():view=='students'?stuV(c):view=='notes'?notesV(c):view=='grades'?gradV(c):view=='set'?setV(c):view=='srec'?srecV(c):view=='perf'?statV(c):view=='compare'?cmpV():view=='dept'?deptV():termV(c,view);if(view=='set')MN.insertAdjacentHTML('beforeend',dCard());if(en){void MN.offsetWidth;MN.classList.add('enter');clearTimeout(render.t);render.t=setTimeout(()=>MN.classList.remove('enter'),600)}fit();
+ const en=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|')!=render.k;render.k=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|');const MN=$('#main');MN.classList.remove('enter');MN.innerHTML=view=='home'?homeV():view=='students'?stuV(c):view=='notes'?notesV(c):view=='grades'?gradV(c):view=='set'?setV(c):view=='srec'?srecV(c):view=='perf'?statV(c):view=='compare'?cmpV():view=='dept'?deptV():termV(c,view);if(view=='set')MN.insertAdjacentHTML('beforeend',dCard());if(en){void MN.offsetWidth;MN.classList.add('enter');clearTimeout(render.t);render.t=setTimeout(()=>MN.classList.remove('enter'),600)}fit();topOnNav([cur,view,comp].join('|'));
  if(isT(view)&&comp!='sum')recalcAll();updChk();if(view=='notes')nthumbs();
  document.querySelectorAll('.wrap td>input,.wrap th>input,.wrap td>select,.grid td>.ab').forEach(e=>e.parentNode.classList.add('ce'));
 }
@@ -1438,17 +1440,20 @@ const tk=()=>{if(tok&&Date.now()<exp)return Promise.resolve(tok);return Promise.
 const dr=async(u,o={})=>{const r=await fetch(u,{...o,headers:{Authorization:'Bearer '+tok,...o.headers}});if(!r.ok)throw Object.assign(Error('drive'),{status:r.status});return r};
 const G='https://www.googleapis.com/',body=()=>JSON.stringify({classes:D.classes});
 function merge(rem){let push=false;const a={},b={};D.classes.forEach(x=>a[x.id]=x);rem.classes.forEach(x=>b[x.id]=x);
- D.classes=[...new Set([...Object.keys(a),...Object.keys(b)])].map(id=>{const x=a[id],y=b[id];if(!y||x&&x.u>y.u){push=true;return x}return y});return push}
-let busy=0;
-async function sync(manual){if(!U||busy)return;if(!navigator.onLine){st('Offline — saved on this device');return render()}
+ merge.ch=0;D.classes=[...new Set([...Object.keys(a),...Object.keys(b)])].map(id=>{const x=a[id],y=b[id];if(!y||x&&x.u>y.u){push=true;return x}if(x&&x.u==y.u)return x;merge.ch=1;return y});return push}
+let busy=0,lastAct=Date.now(),staleR=0;
+['pointerdown','keydown','input','touchmove','wheel'].forEach(e=>addEventListener(e,()=>{lastAct=Date.now()},{passive:true,capture:true}));
+function softRender(){const a=document.activeElement;if(Date.now()-lastAct<6000||(a&&a.matches&&a.matches('input,textarea,select'))||tp||pop||$('#mdl')){staleR=1;return}staleR=0;keep()}
+setInterval(()=>{if(staleR)softRender()},3000);
+async function sync(manual){if(!U||busy)return;if(!navigator.onLine){st('Offline — saved on this device');return}
  busy=1;st('Syncing…');try{await tk();await pushFiles();st('Syncing…');let r=null;
   if(!fid){const j=await(await dr(G+'drive/v3/files?fields=files(id)&q='+encodeURIComponent(`name='${FN}' and trashed=false`))).json();fid=j.files[0]?.id||''}
   if(fid)r=await(await dr(G+`drive/v3/files/${fid}?alt=media`)).json();
-  const push=r?merge(r):true;
+  merge.ch=0;const push=r?merge(r):true,chg=merge.ch;
   if(push||D.dirty){if(fid)await dr(G+`upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:body()});
    else{const b='b'+uid();const j=await(await dr(G+'upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:`--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({name:FN,mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body()}\r\n--${b}--`})).json();fid=j.id}}
   localStorage.fid=fid;D.dirty=0;save();dPush().catch(e=>console.error(e));st('Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
-  if(!document.activeElement||!document.activeElement.closest('main'))render()
+  if(chg)softRender()
  }catch(e){console.error(e);if(e.auth){busy=0;st('Sign in again to sync');if(manual)goAuth();return}if(e.status==401){tok=null;delete localStorage.tok}if(e.status==404){fid='';delete localStorage.fid}st(manual?'Sync failed — tap Sync now to retry':'Waiting to sync');if(manual)toast('Could not sync. Sign in again if this keeps happening.')}
  busy=0}
 addEventListener('online',()=>sync());addEventListener('offline',()=>st('Offline — saved on this device'));
