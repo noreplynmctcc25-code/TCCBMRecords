@@ -492,7 +492,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 50</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 51</span></div>`}
 /* ---------- views ---------- */
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
@@ -1142,7 +1142,7 @@ const passNote=c=>c.hi?`Passing grade: ${c.pass} or higher.`:`Passing grade: ${c
 const passPct=(c,t)=>{const S=c.scales[c.terms[t].scale]||c.scales.A,r=S.find(([m,v])=>c.hi?v>=c.pass:v<=c.pass);return r?r[0]:75};
 /* signal level: 4 best, 3 better, 2 good, 1 bad, 0 none. Starts at the passing mark and steps up every 10 points. */
 const sigLv=(p,pp)=>p==null?0:p<pp?1:p<Math.min(pp+10,98)?2:p<Math.min(pp+20,99)?3:4;
-const SIGN={4:'Best',3:'Better',2:'Good',1:'Bad'},SIGC={4:'#1e8a5a',3:'#4c9a2a',2:'#e0a100',1:'#c93a3a'};
+const SIGN={4:'Best',3:'Better',2:'Good',1:'Poor'},SIGC={4:'#1e8a5a',3:'#4c9a2a',2:'#e0a100',1:'#c93a3a'};
 function srData(c,s,upto){
  const m=c.meta,g=grades(c,s.id),last=TERMS.findIndex(x=>x[0]==upto),num=v=>+(+v).toFixed(2),TS=TERMS.slice(0,last+1);
  const terms=TS.map(([t,lab])=>({t,lab,score:g[t].x,grade:g[t].g}));
