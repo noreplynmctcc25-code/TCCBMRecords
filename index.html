@@ -495,7 +495,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 59</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 60</span></div>`}
 /* ---------- views ---------- */
 /* a new class, tab, component or sub-component always opens at the top */
 const topOnNav=k=>{if(k!=render.n){render.n=k;scrollTo({top:0,left:0,behavior:'instant'});const m=document.getElementById('main');if(m)m.scrollTop=0}};
@@ -680,14 +680,15 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
  rf=s=>1-Math.min(.9,Math.max(0,+s.red||0)/100),smax=s=>s.att?s.items.filter((_,i)=>has(s,i)).length*A.p:+(mx(s)*rf(s)).toFixed(2),
  sv=(u,s)=>(T.sc[u.id]||{})[s.id]||[],
  raw=(u,s)=>{const v=sv(u,s);return s.items.some((_,i)=>v[i]!=null)?sum(s.items.map((_,i)=>v[i])):''},
+ rawc=(u,s)=>{const v=raw(u,s);return v===''||!(+s.red>0)?v:Math.min(v,mx(s)*rf(s))},
  wkG=s=>{const g=[],ix={};s.items.forEach((x,i)=>{const k=x.d?wk(x.d):'i'+i;if(k in ix)g[ix[k]].push(i);else{ix[k]=g.length;g.push([i])}});return g},
  pad=(o,pre,n)=>{while(o.length<n)o.push({lab:pre+(o.length+1),mx:'',val:()=>''});return o},
  /* same columns as the e-class workbook: A1-A6 = one column per week of attendance, CW1-CW6 (CW1-CW5 in Final) = the total of each course work, MP = weighted total of the major performance, ST = major exam */
  colsOf=cp=>{
   if(cp.id=='att'||cp.subs.every(s=>s.att)){const o=[];cp.subs.forEach(s=>wkG(s).forEach(g=>{const any=g.some(i=>has(s,i));if(!any)return;o.push({lab:'A'+(o.length+1),mx:g.filter(i=>has(s,i)).length*A.p||'',val:u=>{const v=sv(u,s);return g.some(i=>v[i])?sum(g.map(i=>v[i]=='P'?A.p:v[i]=='L'?A.l:0)):''}})}));return o}
-  if(cp.id=='cw'){const W=!cp.gross;return cp.subs.map((s,k)=>({lab:'CW'+(k+1),mx:W?(mx(s)?100:''):smax(s)||'',val:u=>{if(!W)return raw(u,s);const r=sb(c,t,u.id,s);return r?r.p:''}})).filter(x=>x.mx!==''||c.students.some(u=>+x.val(u)>0))}
+  if(cp.id=='cw'){const W=!cp.gross;return cp.subs.map((s,k)=>({lab:'CW'+(k+1),mx:W?(mx(s)?100:''):smax(s)||'',val:u=>{if(!W)return rawc(u,s);const r=sb(c,t,u.id,s);return r?r.p:''}})).filter(x=>x.mx!==''||c.students.some(u=>+x.val(u)>0))}
   const lab=cp.id=='mp'?'MP':cp.id=='me'?'ST':'TOT';
-  if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:mx(s)||'',val:u=>raw(u,s)}]}
+  if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:smax(s)||'',val:u=>rawc(u,s)}]}
   return[{lab,mx:cp.subs.some(s=>mx(s)>0)?100:'',val:u=>{const q=cmp(c,t,u.id,cp);return q.p==null?'':q.p}}]},
  cs=T.comps.map(cp=>{const wt=cp.id=='cw'&&!cp.gross,cols=colsOf(cp);return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:0,cols,to:cp.id=='att'||cp.id=='cw'||cp.subs.every(s=>s.att),tm:wt?sum(cols.map(x=>x.mx)):sum(cp.subs.map(smax))}});
  let h1='<th rowspan=2 colspan=5 class=nmh>NAME</th>',h2='',r4='<td>#</td><td class=nb>FAMILY NAME</td><td class=w></td><td class=nb>FIRST NAME</td><td>M.I.</td>';
