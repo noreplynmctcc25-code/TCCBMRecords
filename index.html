@@ -247,7 +247,7 @@ header .hc{display:contents}
 .sx{display:grid;grid-template-columns:minmax(11rem,1.1fr) minmax(12rem,1.5fr) auto;gap:.6rem .9rem;align-items:center;padding:.7rem 1rem}
 .sx .chip{margin-top:.3rem}.sx label{margin:0}.sx .ac{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end}
 @media(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px){.sx{grid-template-columns:1fr}.sx .ac{justify-content:flex-start}}
-.sig{display:inline-flex;align-items:center;gap:2px;height:12px;vertical-align:middle}.sig i{width:9px;height:5px;display:block;border-radius:3px}.srv h3,.srv h4{margin:.5rem 0 .3rem}.srv h4{color:var(--pri)}
+.sig{display:inline-flex;align-items:center;gap:3px;height:14px;vertical-align:middle}.sig i{width:8px;height:8px;display:block;border-radius:2px}.srv h3,.srv h4{margin:.5rem 0 .3rem}.srv h4{color:var(--pri)}
 .srh{display:flex;align-items:center;gap:.8rem;text-align:center;border-bottom:3px solid var(--pri);padding-bottom:.6rem;margin-bottom:.6rem}.srh>div{flex:1;min-width:0}
 .srh img{width:3.4rem;height:3.4rem;object-fit:contain;background:#fff;border-radius:50%;flex:none;margin:0!important;display:block}
 .srh b{display:block;font-size:1.05rem;color:var(--pri);text-transform:uppercase}.srh small{display:block;color:var(--mut)}
@@ -492,7 +492,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 48</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 49</span></div>`}
 /* ---------- views ---------- */
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
@@ -1255,7 +1255,7 @@ async function srPdf(c,s,upto){
   }else{P.text(L,34,R.name,10,{b:1,c:brand});P.text(RT,34,[m.course,sOf(c)].filter(Boolean).join(' | '),9,{c:mut,al:'r'});P.line(L,40,RT,40,brand,.8);y=54}};
  const need=h=>{if(y+h>BOT)page(false)};
  /* level meter (four flat segments): 4 best ... 1 bad. y is the top of the row. */
- const sigBars=(cx,y0,lv)=>{for(let i=0;i<4;i++)P.rect(cx-11.5+i*6,y0+5,5,5,i<lv?SIGC[lv]:'#d9d9d9')};
+ const sigBars=(cx,y0,lv)=>{for(let i=0;i<4;i++)P.rect(cx-12.5+i*7,y0+4.5,5.5,5.5,i<lv?SIGC[lv]:'#d9d9d9')};
  /* a table: cols=[{w,al,h}], rows=[{c:[...],b,fill,sz,col,ind}] */
  const table=(cols,rows)=>{const rh=15,TW=cols.reduce((q,k)=>q+k.w,0),bar=()=>{P.rect(L,y,TW,rh+2,brand);let xx=L;cols.forEach(k=>{if(k.off)P.rect(xx,y,k.w,rh+2,'#9b9b9b');xx+=k.w})};
   const hdr=()=>{if(cols.some(k=>k.g)){bar();let x0=L,j=0;while(j<cols.length){const k=cols[j];let w=k.w,n=1;if(k.g)while(cols[j+n]&&cols[j+n].g==k.g){w+=cols[j+n].w;n++}
