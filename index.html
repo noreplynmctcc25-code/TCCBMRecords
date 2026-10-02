@@ -461,7 +461,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 43</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 44</span></div>`}
 /* ---------- views ---------- */
 function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
@@ -1271,7 +1271,7 @@ async function srPdf(c,s,upto){
   P.text(x+w/2,y+42,pdfFit(nme||'',w,9,1),9,{b:1,al:'c'});P.text(x+w/2,y+54,role,8,{c:mut,al:'c'})});
  /* footer on every page */
  const day=new Date().toLocaleDateString('en-PH',{year:'numeric',month:'long',day:'numeric'});
- P.each((i,n)=>{P.line(L,806,RT,806,rule,.5);P.text(L,820,'Confidential and unofficial document | Generated on '+day+' | Do not reply',7.5,{c:mut});P.text(RT,820,`Page ${i} of ${n}`,7.5,{c:mut,al:'r'})});
+ P.each((i,n)=>{P.line(L,806,RT,806,rule,.5);P.text(L,820,'Confidential and unofficial document | Generated on '+day,7.5,{c:mut});P.text(RT,820,`Page ${i} of ${n}`,7.5,{c:mut,al:'r'})});
  return P.done()}
 const pdfBytes=bin=>Uint8Array.from(bin,ch=>ch.charCodeAt(0)&255);        // binary string -> bytes
 /* file name without spaces or accents, e.g. Student-Record_Bacalso_Helen_Midterm.pdf */
