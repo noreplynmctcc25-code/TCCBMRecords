@@ -371,7 +371,7 @@ const AT=c=>c.att||(c.att={p:10,l:5});
 const OLDA={3:[10,5],2:[20,10],1:[30,15]};
 function migA(c){const a=AT(c),m=+(c.meta||{}).spw,o=OLDA[m];if(o&&SPW[m]&&a.p==o[0]&&a.l==o[1]&&(a.p!=SPW[m][0]||a.l!=SPW[m][1])){a.p=SPW[m][0];a.l=SPW[m][1];mark(c)}}
 const ptsLine=A=>`<p class=ptl><b>Points per session</b><span class="chip ok">Present = ${A.p}</span><span class="chip warn">Late = ${A.l}</span><span class="chip bad">Absent = 0</span></p>`;
-const ge=(p,c,t)=>{const S=c.scales[c.terms[t].scale]||c.scales.A;let g=S[0][1];for(const[m,v]of S)if(p>=m)g=v;return g};
+const ge=(p,c,t)=>{const S=c.scales[c.terms[t].scale]||c.scales.A;let g=S[0][1];for(const[m,v]of S)if(p+1e-9>=m)g=v;return g};
 const mx=s=>sum(s.items.map(x=>x.m)),subOf=(c,t,id)=>{for(const cp of c.terms[t].comps){const s=cp.subs.find(x=>x.id==id);if(s)return s}};
 /* a score never counts for more than its column total (header); the typed entry itself is left as is */
 const ci=(s,v,i)=>v[i];/* v64: typed scores count as typed; only the overall total is capped at the sum of the column maximums */
@@ -382,7 +382,7 @@ function cmp(c,t,sid,cp,z){const subs=cp.subs.map(s=>sb(c,t,sid,s,z)),u=cp.subs.
  const GR=cp.gross&&cp.subs.length>1,RM=sum(us.map(x=>x.rm)),p=GR&&RM>0?sum(us.map(x=>x.ct))/RM*100:ws?sum(subs.map((x,i)=>x?x.p*u[i]:0))/ws:sum(us.map(x=>x.p))/us.length,g=ge(p,c,t);return{subs,p,g,w:g*cp.w/100}}
 const termG=(c,t,sid,z)=>{const r=c.terms[t].comps.map(cp=>cmp(c,t,sid,cp,z));return r.every(x=>x.g!=null)?sum(r.map(x=>x.w)):null};
 function grades(c,sid,z){const o={};let pv=null;TERMS.forEach(([t],i)=>{const T=c.terms[t],x=termG(c,t,sid,z),pr=i?T.prev:0;let g=null;if(x!=null){if(!pr)g=x*T.own/100;else if(pv!=null)g=x*T.own/100+pv*pr/100}o[t]={x,g};pv=g});
- const g=o.final.g;o.rem=g==null?'':(c.hi?g>=c.pass:g<=c.pass)?'PASSED':'FAILED';return o}
+ const g=o.final.g;o.rem=g==null?'':(c.hi?g+1e-9>=c.pass:g-1e-9<=c.pass)?'PASSED':'FAILED';return o}
 /* ---------- state ---------- */
 const C=()=>D.classes.find(c=>c.id==cur&&!c.d),live=()=>D.classes.filter(c=>!c.d),save=()=>localStorage[K]=JSON.stringify(D);
 const mark=c=>{if(c)c.u=Date.now();D.dirty=1;save();clearTimeout(mark.t);mark.t=setTimeout(()=>sync(),4000)};
@@ -497,7 +497,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 63</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 66</span></div>`}
 /* ---------- views ---------- */
 /* a new class, tab, component or sub-component always opens at the top */
 const topOnNav=k=>{if(k!=render.n){render.n=k;scrollTo({top:0,left:0,behavior:'instant'});const m=document.getElementById('main');if(m)m.scrollTop=0}};
@@ -638,20 +638,26 @@ const cnt=a=>{a=a||[];const n=k=>a.filter(x=>x==k).length;return `<td class="pc 
 function fRows(c,T,s,gs,gr){const L=c.students.filter(u=>vis(u,gs));return [['P','Sessions present','ok'],['L','Sessions late','warn'],['A','Sessions absent','bad']].map(([k,l,cl])=>{let tot=0;const cs=s.items.map((x,i)=>{const n=L.filter(u=>(((T.sc[u.id]||{})[s.id]||[])[i])==k).length;tot+=n;return `<td class="ftc ${cl}">${n}</td>`}).join('');return `<tr class=ft><td class=nm>${l}</td>${gr?'<td></td>':''}${cs}<td class="ftc ${cl}" colspan=5>${tot}</td></tr>`}).join('')}
 function recalc(sid){const c=C(),tr=$(`tr[data-sid="${sid}"]`),s=subOf(c,view,comp);if(!tr||!s)return;const r=sb(c,view,sid,s),td=tr.querySelectorAll('td.c');td[0].textContent=f(r&&r.to);td[1].textContent=f(r&&r.p);document.querySelectorAll('tr[data-sid]').forEach(x=>x.classList.toggle('inc',incOf(c,view,x.dataset.sid,s)))}
 const recalcAll=()=>C().students.forEach(s=>recalc(s.id));
-/* ---------- Review: every student's score on every date (Attendance, Course works, Major performance) ---------- */
-function revData(c,t){const T=c.terms[t],cols=[];
+/* ---------- Review: every student's score on every date (Attendance, Course works, Major performance), with a Total and % for each part ---------- */
+function revData(c,t){const T=c.terms[t],A=AT(c),cols=[];
  T.comps.filter(cp=>cp.id!='me').forEach(cp=>cp.subs.forEach(s=>{
   let ix=s.items.map((_,i)=>i).filter(i=>s.items[i].d||c.students.some(u=>hv((((T.sc[u.id]||{})[s.id])||[])[i])));
   if(!ix.length)ix=[-1];
-  ix.forEach(i=>cols.push({s,i,at:!!s.att,lab:i<0?'—':s.items[i].d?fd(s.items[i].d):(s.items[i].n||'Column '+(i+1)),max:i<0||s.att?'':(+s.items[i].m||'')}))}));
- const val=(u,k)=>{if(k.i<0)return'';const v=(((T.sc[u.id]||{})[k.s.id])||[])[k.i];return hv(v)?v:''};
+  ix.forEach(i=>cols.push({s,i,k:'d',lab:i<0?'—':s.items[i].d?fd(s.items[i].d):(s.items[i].n||'Column '+(i+1)),max:i<0?'':s.att?A.p:(+s.items[i].m||'')}));
+  const r0=c.students.length?sb(c,t,c.students[0].id,s,1):null;
+  cols.push({s,k:'t',lab:'Total',max:r0?+r0.mx:''},{s,k:'p',lab:'%',max:''})}));
+ /* the values are the points themselves; Total and % come from the same full-precision calculation as the class record */
+ const val=(u,k)=>{
+  if(k.k=='d'){if(k.i<0)return'';const v=(((T.sc[u.id]||{})[k.s.id])||[])[k.i];if(k.s.att)return v=='P'?A.p:v=='L'?A.l:v=='A'?0:'';return hv(v)?v:''}
+  const r=sb(c,t,u.id,k.s,1);if(!r)return'';return k.k=='t'?r.to:r.p};
  return{cols,val}}
 function revV(c,t){const lab=TERMS.find(x=>x[0]==t)[1],{cols,val}=revData(c,t),grp=[];
  cols.forEach(k=>{const g=grp[grp.length-1];if(g&&g.s==k.s)g.n++;else grp.push({s:k.s,n:1})});
- const cl=v=>v=='P'?' style="color:var(--ok);font-weight:600"':v=='L'?' style="color:#b7791f;font-weight:600"':v=='A'?' style="color:var(--bad);font-weight:600"':'';
- return `<div class=bar><div><h2>${lab} · Review</h2><span class=mut>Every score by date, as typed. Attendance shows P, L or A.</span></div><span class=sp></span><button class=pri data-a=revcsv data-pt=${t}>${I('download')}Download CSV</button></div>
- <div class="wrap gw"><table><tr><th class=nm rowspan=2>Student</th>${grp.map(g=>`<th colspan=${g.n}>${esc(g.s.name)}</th>`).join('')}</tr><tr>${cols.map(k=>`<th>${esc(k.lab)}${k.max?`<br><small class=mut>/ ${k.max}</small>`:''}</th>`).join('')}</tr>${c.students.map((u,r)=>`<tr><td class=nm>${r+1}. ${esc(nm(u))}</td>${cols.map(k=>{const v=val(u,k);return `<td class=c${k.at?cl(v):''}>${esc(v)}</td>`}).join('')}</tr>`).join('')||`<tr><td class=mut colspan=${cols.length+1}>Add students first.</td></tr>`}</table></div>`}
-function revCsv(c,t){const{cols,val}=revData(c,t),rows=[['Student',...cols.map(k=>k.s.name+' '+k.lab+(k.max?' (max '+k.max+')':''))],...c.students.map(u=>[nm(u),...cols.map(k=>val(u,k))])];
+ const sh=(k,v)=>v===''?'':k.k=='d'?(+v):f(+v,k.k=='p'?1:+v%1?2:0);
+ return `<div class=bar><div><h2>${lab} · Review</h2><span class=mut>Every score by date, as typed; attendance shows its points. Total and % use the full unrounded scores.</span></div><span class=sp></span><button class=pri data-a=revcsv data-pt=${t}>${I('download')}Download CSV</button></div>
+ <div class="wrap gw"><table><tr><th class=nm rowspan=2>Student</th>${grp.map(g=>`<th colspan=${g.n}>${esc(g.s.name)}</th>`).join('')}</tr><tr>${cols.map(k=>`<th${k.k!='d'?' class=cg2':''}>${esc(k.lab)}${k.max!==''?`<br><small class=mut>/ ${+(+k.max).toFixed(2)}</small>`:''}</th>`).join('')}</tr>${c.students.map((u,r)=>`<tr><td class=nm>${r+1}. ${esc(nm(u))}</td>${cols.map(k=>{const v=val(u,k);return `<td class=c${k.k!='d'?' style="font-weight:600"':''}>${esc(k.k=='d'?v:v===''?'':f(+v,k.k=='p'?1:2).replace(/\.00$/,''))}</td>`}).join('')}</tr>`).join('')||`<tr><td class=mut colspan=${cols.length+1}>Add students first.</td></tr>`}</table></div>`}
+function revCsv(c,t){const{cols,val}=revData(c,t),n=v=>v===''?'':+(+v).toFixed(4),
+ rows=[['Student',...cols.map(k=>k.s.name+' '+(k.k=='d'?k.lab:k.k=='t'?'Total':'%')+(k.k!='p'&&k.max!==''?' (max '+(+(+k.max).toFixed(2))+')':''))],...c.students.map(u=>[nm(u),...cols.map(k=>n(val(u,k)))])];
  csvOut(rows,`${(c.meta.course||'class').replace(/[^\w\-]+/g,'_')}-${t}-review.csv`)}
 function sumV(c,t){const T=c.terms[t],i=TERMS.findIndex(x=>x[0]==t),tot=sum(T.comps.map(x=>x.w)),pr=i&&T.prev,last=t=='final';
  return `<p class="${tot==100?'ok':'bad'}">${tot==100?'Component weights total 100%.':'Component weights total '+tot+'% — fix this under Rules & weights.'} Term grade = ${T.own}% of this term's score${pr?` + ${T.prev}% of the previous term's grade`:''}.</p>
@@ -691,7 +697,7 @@ function updChk(){const c=C();document.querySelectorAll('.chk').forEach(e=>{cons
 const fx=(v,d)=>v==null||v===''||isNaN(v)?'':(+v).toFixed(d),tn=(v,d)=>v==null||v===''||isNaN(v)?'':String(+(+v).toFixed(d));
 const TN={prelim:['Prelim','P r e l i m','PRELIM'],midterm:['Midterm','M i d t e r m','MIDTERM'],final:['Final','F i n a l','FINAL']};
 const frac=p=>{p=+p||0;if(p%1)return p+'%';const q=(a,b)=>b?q(b,a%b):a,d=q(p,100)||1;return (p/d)+'/'+(100/d)};
-const fnlG=(c,g)=>g==null?null:(c.hi?g:g>c.pass?5:g),remOf=(c,g)=>g==null?'':(c.hi?g>=c.pass:g<=c.pass)?'PASSED':'FAILED';
+const fnlG=(c,g)=>g==null?null:(c.hi?g:g>c.pass?5:g),remOf=(c,g)=>g==null?'':(c.hi?g+1e-9>=c.pass:g-1e-9<=c.pass)?'PASSED':'FAILED';
 function perf(c,t){const T=c.terms[t],i=TERMS.findIndex(x=>x[0]==t),g100=ge(100,c,t),x=sum(T.comps.map(cp=>g100*cp.w/100));let g=x*T.own/100;if(i&&T.prev)g+=perf(c,TERMS[i-1][0]).g*T.prev/100;return{x,g}}
 function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t),A=AT(c),last=t=='final',mult=ti>0&&T.prev>0,pt=ti?TERMS[ti-1][0]:'',L=TN[t][2],
  has=(s,i)=>c.students.some(u=>((T.sc[u.id]||{})[s.id]||[])[i]),
