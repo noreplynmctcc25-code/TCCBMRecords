@@ -495,7 +495,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero><h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class=hc data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 53</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 59</span></div>`}
 /* ---------- views ---------- */
 /* a new class, tab, component or sub-component always opens at the top */
 const topOnNav=k=>{if(k!=render.n){render.n=k;scrollTo({top:0,left:0,behavior:'instant'});const m=document.getElementById('main');if(m)m.scrollTop=0}};
@@ -689,7 +689,7 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
   const lab=cp.id=='mp'?'MP':cp.id=='me'?'ST':'TOT';
   if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:mx(s)||'',val:u=>raw(u,s)}]}
   return[{lab,mx:cp.subs.some(s=>mx(s)>0)?100:'',val:u=>{const q=cmp(c,t,u.id,cp);return q.p==null?'':q.p}}]},
- cs=T.comps.map(cp=>{const wt=cp.id=='cw'&&!cp.gross;return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:cp.id=='mp'||cp.id=='me'?0:1,cols:colsOf(cp),to:cp.id=='att'||cp.id=='cw'||cp.subs.every(s=>s.att),tm:wt?(cp.subs.some(s=>mx(s)>0)?100:0):sum(cp.subs.map(smax))}});
+ cs=T.comps.map(cp=>{const wt=cp.id=='cw'&&!cp.gross,cols=colsOf(cp);return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:0,cols,to:cp.id=='att'||cp.id=='cw'||cp.subs.every(s=>s.att),tm:wt?sum(cols.map(x=>x.mx)):sum(cp.subs.map(smax))}});
  let h1='<th rowspan=2 colspan=5 class=nmh>NAME</th>',h2='',r4='<td>#</td><td class=nb>FAMILY NAME</td><td class=w></td><td class=nb>FIRST NAME</td><td>M.I.</td>';
  cs.forEach(({cp,cols,to,tm,dg})=>{const ttl=cp.id=='cw'&&cp.name=='Course works'?'PARTICIPATION and OTHER COURSEWORK':cp.name.toUpperCase();
   h1+=`<th colspan=${cols.length+(to?4:3)} class=ch>${esc(ttl)}<br>(${+cp.w}%)</th>`;
@@ -707,7 +707,7 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
  body=spc+c.students.map((u,i)=>{const g=grades(c,u.id);let r=`<tr><td class=w>${i+1}</td><td class=nb>${esc(u.last)}</td><td class=w>,</td><td class=nb>${esc(u.first)}</td><td class=nb>${esc(u.mi)}</td>`;
   cs.forEach(({cp,cols,to,wt,dg,eq})=>{const q=cmp(c,t,u.id,cp);
    cols.forEach(x=>{r+=`<td>${tn(x.val(u),dg)}</td>`});
-   const any=q.subs.some(Boolean);r+=`${to?`<td class=c1>${any?(wt?tn(q.p,0):tn(sum(q.subs.filter(Boolean).map(z=>z.ct)),dg)):''}</td>`:''}<td class=c2>${tn(q.p,eq)}</td><td class=c3>${fx(q.g,1)}</td><td class=c4>${fx(q.w,2)}</td>`});
+   const any=q.subs.some(Boolean);r+=`${to?`<td class=c1>${any?(wt?tn(sum(cols.map(x=>x.val(u))),0):tn(sum(q.subs.filter(Boolean).map(z=>z.ct)),dg)):''}</td>`:''}<td class=c2>${tn(q.p,eq)}</td><td class=c3>${fx(q.g,1)}</td><td class=c4>${fx(q.w,2)}</td>`});
   const x=g[t].x;
   if(mult){const pv=g[pt].g;r+=`<td class=gd>${fx(x,1)}</td><td class=gd>${x==null?'':fx(x*T.own/100,2)}</td><td class=gd>${fx(pv,1)}</td><td class=gd>${pv==null?'':fx(pv*T.prev/100,2)}</td><td class=gd>${fx(g[t].g,1)}</td>`}
   else r+=`<td class=gd>${fx(g[t].g,1)}</td>`;
