@@ -493,7 +493,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=106,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=107,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* ---------- defaults: taken from the DBME e-class workbook ---------- */
 const R=(a,n,f)=>Array.from({length:n},(_,i)=>f(i)+a);
@@ -520,8 +520,8 @@ const pc=v=>+(+v||0).toFixed(2)+'%',canRen=s=>!!s.ed,fixSubs=c=>TERMS.forEach(([
 const PRE={cw:[['Participation',25,1,'',''],['Quiz',25,1,'',''],['Assignment',25,1,'',''],['Reporting',25,1,'',''],['Others',0,1,'','']],mp:[['Summative',50,1,'',''],['Assessment Task 1',50,1,'','']]};
 /* ---------- computation ---------- */
 const AT=c=>c.att||(c.att={p:10,l:5});
-const OLDA={3:[10,5],2:[20,10],1:[30,15]};
-function migA(c){const a=AT(c),m=+(c.meta||{}).spw,o=OLDA[m];if(o&&SPW[m]&&a.p==o[0]&&a.l==o[1]&&(a.p!=SPW[m][0]||a.l!=SPW[m][1])){a.p=SPW[m][0];a.l=SPW[m][1];mark(c)}}
+const OLDA={3:[[10,5]],2:[[20,10]],1:[[30,15],[20,10]]};
+function migA(c){const a=AT(c),m=+(c.meta||{}).spw,o=OLDA[m];if(o&&SPW[m]&&o.some(x=>a.p==x[0]&&a.l==x[1])&&(a.p!=SPW[m][0]||a.l!=SPW[m][1])){a.p=SPW[m][0];a.l=SPW[m][1];mark(c)}}
 const ptsLine=A=>`<p class=ptl><b>Points per session</b><span class="chip ok">Present = ${A.p}</span><span class="chip warn">Late = ${A.l}</span><span class="chip bad">Absent = 0</span></p>`;
 const ge=(p,c,t)=>{const T=c.terms[t],S=(T.fz&&T.fz.sc)||c.scales[T.scale]||c.scales.A;let g=S[0][1];for(const[m,v]of S)if(p+1e-9>=m)g=v;return g};
 const mx=s=>sum(s.items.map(x=>x.m)),subOf=(c,t,id)=>{for(const cp of c.terms[t].comps){const s=cp.subs.find(x=>x.id==id);if(s)return s}};
@@ -552,7 +552,7 @@ const mob=()=>matchMedia('(max-width:899px),(hover:none) and (pointer:coarse) an
 const nextG=(pg,pl,l)=>!pg?'M':pg=='F'||!l||!pl?pg:(l.localeCompare(pl,undefined,{sensitivity:'base'})<0?'F':'M');
 function fixG(c){let pg='',pl='',ch=0;c.students.forEach(s=>{const l=(s.last||'').trim();if(s.g!='M'&&s.g!='F'){s.g=nextG(pg,pl,l);ch=1}pg=s.g;if(l)pl=l});return ch}
 const SEMS=['First Semester','Second Semester'];
-const SPW={3:[10,5,'3 periods','1 hour class'],2:[10,5,'2 periods','1.5 hour class'],1:[20,10,'1 period','3 or 5 hours straight']},SPO=[3,2,1],SPL=[1,2,3];
+const SPW={3:[10,5,'3 periods','1 hour class'],2:[10,5,'2 periods','1.5 hour class'],1:[20,15,'1 period','3 or 5 hours straight']},SPO=[3,2,1],SPL=[1,2,3];
 const spwOf=c=>{const a=AT(c),m=+(c.meta||{}).spw;if(SPW[m]&&SPW[m][0]==a.p&&SPW[m][1]==a.l)return m;return SPO.find(k=>SPW[k][0]==a.p&&SPW[k][1]==a.l)||''};
 const ayStart=a=>+(String(a||'').match(/(\d{4})/)||[0])[1];
 const ayList=keep=>{const n=new Date();let a=[];for(let y=2026;y<=2034;y++)if(n<new Date(y+1,4,1))a.push(y);
