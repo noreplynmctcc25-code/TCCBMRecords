@@ -1469,8 +1469,12 @@ function secInfo(c,p){const S=SN(c),G=c.students.map(u=>S[u.id][p]).filter(x=>x!
  return{c,S,n:G.length,tot:N,avg:avg(G),med:med(G),pass:G.length?(q.ok+q.risk)/G.length:null,risk:q.risk,fail:q.failed,att:E.length&&N?sum(E.map(e=>c.students.filter(u=>aval(c,e,u)!='A').length))/(E.length*N):null}}
 const CCOL=['#1b4fa8','#c0334d','#1e8a5a','#ea7a0c','#6d4ac9','#0e8f9c','#8a5a3b','#db2777'];
 /* the course is chosen at the top, so sections are told apart by academic year and section only (semester is added only when those two are identical) */
-let cmpCl=[];const cmpKey=c=>[aOf(c),(c.meta||{}).section||'(no section)'].filter(Boolean).join(' · '),cmpLab=c=>cmpCl.some(x=>x!==c&&cmpKey(x)==cmpKey(c))?cmpKey(c)+' · '+sOf(c):cmpKey(c);
-const secLab=c=>`<b>${esc(cmpLab(c))}</b><br><small class=mut>${esc(sOf(c))}</small>`;
+let cmpCl=[];
+/* v106: show only the section name. "BSHM3 - Iris", "BSHM 3 - Iris", "BSHM3  Iris", "BSHM 3rd - Iris" all become "Iris" */
+const secShort=v=>{v=String(v||'').trim();const m=v.match(/^[A-Za-z]{2,}[\s.\-]*\d+\s*(?:st|nd|rd|th)?\s*(?:year)?\s*[-–—:\/·.,]*\s*(.+)$/i);return m&&m[1].trim()?m[1].trim():v};
+const cmpKey=c=>secShort((c.meta||{}).section)||'(no section)',cmpYK=c=>[aOf(c),cmpKey(c)].filter(Boolean).join(' · '),
+cmpLab=c=>{const k=cmpKey(c),o=cmpCl.filter(x=>x!==c);if(!o.some(x=>cmpKey(x)==k))return k;const y=cmpYK(c);return o.some(x=>cmpYK(x)==y)?y+' · '+sOf(c):y};
+const secLab=c=>`<b>${esc(cmpLab(c))}</b><br><small class=mut>${esc([aOf(c),sOf(c)].filter(Boolean).join(' · '))}</small>`;
 const bestIdx=(a,hiBetter)=>{let b=-1;a.forEach((v,i)=>{if(v!=null&&(b<0||(hiBetter?v>a[b]:v<a[b])))b=i});return b};
 function cmpV(){const G=groupsOf();
  if(!G.length)return `<div class="card empty"><span class="ic big">${I('grid')}</span><h2>Nothing to compare yet</h2><p class=mut>Create classes with a course number. Classes that share a course number are compared here.</p></div>`;
