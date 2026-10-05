@@ -493,7 +493,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=105,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=106,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* ---------- defaults: taken from the DBME e-class workbook ---------- */
 const R=(a,n,f)=>Array.from({length:n},(_,i)=>f(i)+a);
@@ -543,7 +543,7 @@ function grades(c,sid,z){const o={};let pv=null;TERMS.forEach(([t],i)=>{const T=
  const g=o.final.g;o.rem=g==null?'':(c.hi?g+1e-9>=c.pass:g-1e-9<=c.pass)?'PASSED':'FAILED';return o}
 /* ---------- state ---------- */
 const C=()=>D.classes.find(c=>c.id==cur&&!c.d),live=()=>D.classes.filter(c=>!c.d),save=()=>{try{localStorage[K]=JSON.stringify(D);save.f=0}catch(e){console.error(e);if(!save.f){save.f=1;toast('Storage is full. Changes may not be saved on this device. Tap Sync now, or free up space.')}}if(window.MEMSTORE&&!save.m){save.m=1;toast('This browser blocks storage. Changes will be lost when you close the app. Sync to Google Drive.')}};
-const mark=c=>{if(c)c.u=Date.now();D.dirty=1;save();clearTimeout(mark.t);mark.t=setTimeout(()=>sync(),4000)};
+const mark=c=>{if(c){c.u=Date.now();if(isT(view))(c.tu??={})[view]=c.u}D.dirty=1;save();if(U&&st.m!='Syncing…')st(navigator.onLine?'Pending sync':'Offline — saved on this device');clearTimeout(mark.t);mark.t=setTimeout(()=>sync(),4000)};
 const nm=s=>`${s.last||''}, ${s.first||''} ${s.mi||''}`.trim(),f=(v,d=1)=>v==null?'—':v.toFixed(d);
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2500)};
 const st=m=>{const e=$('#st');if(e)e.textContent=m;st.m=m},isT=v=>TERMS.some(t=>t[0]==v);
@@ -704,7 +704,7 @@ function render(){
  document.body.classList.toggle('nonav',!U&&!localStorage.guest);
  if(!U&&!localStorage.guest){$('#hd').innerHTML='';cbUpd(null);$('#tabs').innerHTML='';$('#main').innerHTML=`<div class=login><img src=logo.png alt="Talisay City College"><h1>Class Record</h1><p class=mut>Talisay City College · Department of Business Management &amp; Entrepreneurship</p><p>Sign in with Google. Your records stay on this device and sync to your Google Drive whenever you're online.</p><p><button class=pri data-a=signin>${I('login')}Sign in with Google</button></p>${WV?'<p class=bad>Google sign-in is blocked inside in-app browsers. Open this page in Chrome or Safari to sign in, or continue offline.</p>':''}<p class=mut>No connection right now?</p><button data-a=guest>Continue offline on this device</button><p><button data-a=cid>Change Client ID</button></p></div>`;return}
  live().forEach(migA);live().forEach(migS);const c=C();if(c)fixSubs(c);applyTheme();document.body.classList.toggle('pop',!!pop&&mob());if(!c){cur='';if(view!='compare'&&view!='dept'&&view!='dsh'&&view!='cal')view='home'}
- const pt=navSnap('#tp');$('#hd').innerHTML=`<div class=brand><img src=logo.png alt=""><div><small>Talisay City College</small><b>Class Record</b></div></div><div class=hc><button class=mo data-a=choose title="Choose class">${I('book')}<span class=cl>${c?esc(cname(c)):'Choose class'}</span></button><button class=mo data-a=addclass title="New class">${I('plus')}<span class=lb>New class</span></button></div><span class=sp></span><div class=hr><div class=hl>${U?`${avImg('avs')}<span class=em>${esc(localStorage.fn||U)}</span>`:''}<span id=st>${esc(st.m||'')}</span></div><div class=hb><button data-a=tp title=Theme class="${c&&c.th?'has':''}">${I('palette')}</button>${U?`<button data-a=sync title=Sync>${I('refresh')}<span class=lb>Sync</span></button><button data-a=signout title="Sign out">${I('logout')}</button>`:`<button data-a=signin>${I('login')}Sign in</button>`}</div></div>${tp?tpHtml():''}`;navAnim('#tp',pt);tpNew=0;cbUpd(c);
+ const pt=navSnap('#tp');$('#hd').innerHTML=`<div class=brand><img src=logo.png alt=""><div><small>Talisay City College</small><b>Class Record</b></div></div><div class=hc><button class=mo data-a=choose title="Choose class">${I('book')}<span class=cl>${c?esc(cname(c)):'Choose class'}</span></button><button class=mo data-a=addclass title="New class">${I('plus')}<span class=lb>New class</span></button></div><span class=sp></span><div class=hr><div class=hl>${U?`${avImg('avs')}<span class=em>${esc(localStorage.fn||U)}</span>`:''}<span id=st data-a=devs role=button tabindex=0 title="Sync details" style="cursor:pointer;text-decoration:underline dotted">${esc(st.m||'')}</span></div><div class=hb><button data-a=tp title=Theme class="${c&&c.th?'has':''}">${I('palette')}</button>${U?`<button data-a=sync title=Sync>${I('refresh')}<span class=lb>Sync</span></button><button data-a=signout title="Sign out">${I('logout')}</button>`:`<button data-a=signin>${I('login')}Sign in</button>`}</div></div>${tp?tpHtml():''}`;navAnim('#tp',pt);tpNew=0;cbUpd(c);
  if(!c){$('#tabs').innerHTML=navHtml(null);$('#main').innerHTML=view=='compare'?cmpV():view=='cal'?calV():view=='dept'?deptV():view=='dsh'?dCard()+dsCard():homeV();topOnNav('|'+view);return}
  if(gf&&gf!='__none'&&!GR(c).includes(gf))gf='';if(isT(view)&&comp!='sum'&&comp!='rev'&&!subOf(c,view,comp))comp=c.terms[view].comps[0].subs[0].id;const ps=navSnap('#tabs');$('#tabs').innerHTML=navHtml(c);navAnim('#tabs',ps);
  const en=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|')!=render.k;render.k=[cur,view,comp,localStorage.mode,gf===''?0:1].join('|');const MN=$('#main');MN.classList.remove('enter');MN.innerHTML=view=='home'?homeV():view=='students'?stuV(c):view=='syl'?sylV(c):view=='notes'?notesV(c):view=='grades'?gradV(c):view=='set'?setV(c):view=='srec'?srecV(c):view=='ai'?aiV(c):view=='perf'?statV(c):view=='compare'?cmpV():view=='cal'?calV():view=='dept'?deptV():view=='dsh'?dCard()+dsCard():termV(c,view);if(en){void MN.offsetWidth;MN.classList.add('enter');clearTimeout(render.t);render.t=setTimeout(()=>MN.classList.remove('enter'),600)}fit();topOnNav([cur,view,comp].join('|'));
@@ -846,7 +846,7 @@ const isPart=s=>!s.att&&/particip/i.test(s.name);
 function attRef(c,t,s,i){const T=c.terms[t],x=s.items[i];if(!isPart(s)||!x||!x.d||x.sess===-1)return{st:'none'};
  const L=[];T.comps.forEach(cp=>cp.subs.forEach(a=>{if(a.att)a.items.forEach((y,k)=>{if(y.d==x.d)L.push({a,k,n:L.length+1})})}));
  if(!L.length)return{st:'none'};
- const same=[];s.items.forEach((y,k)=>{if(y.d==x.d)same.push(k)}),o=same.indexOf(i)+1;
+ const same=[];s.items.forEach((y,k)=>{if(y.d==x.d)same.push(k)});const o=same.indexOf(i)+1;
  if(x.sess>=1&&L[x.sess-1])return{st:'ok',ref:L[x.sess-1],L};
  if(L.length==1)return o<=1?{st:'ok',ref:L[0],L}:{st:'none'};
  return{st:'ask',L,guess:Math.min(o,L.length)}}
@@ -1699,6 +1699,12 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'signin':return signin();
  case'signout':U='';tok=null;delete localStorage.user;delete localStorage.tok;delete localStorage.gn;delete localStorage.fn;delete localStorage.pic;delete localStorage.picd;delete localStorage.guest;return render();
  case'sync':return sync(1);
+ case'devs':{const dv=DEVS(),me=DEV,ls=+localStorage['eclass.ls']||0,tm=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'never',E=Object.entries(dv).sort((p,q)=>q[1].at-p[1].at),tot=v=>Object.values(v.sum||{}).reduce((a,c)=>a+TERMS.reduce((z,[t])=>z+(c[t]||0),0),0),top=Math.max(0,...E.map(([,v])=>tot(v))),cf=jget('eclass.cf',[]);
+  const rows=E.map(([k,v])=>`<tr><td><b>${esc(v.n||k)}</b>${k==me?' <span class=chip>this device</span>':''}${tot(v)==top&&top?' <span class="chip ok">most complete</span>':''}</td><td>${tm(v.at)}</td><td>${v.pend||0}</td>${TERMS.map(([t])=>`<td>${Object.values(v.sum||{}).reduce((a,c)=>a+(c[t]||0),0)}</td>`).join('')}</tr>`).join('');
+  return tell('Sync details',`<p><b>${esc(devName())}</b> · ${navigator.onLine?'Online':'Offline'} · ${esc(st.m||'')}</p><p class=mut>Last successful sync: ${tm(ls)}<br>Changes waiting to sync: ${pendN()}<br>Drive file version: ${esc(localStorage['eclass.sv']||'unknown')}${localStorage['eclass.sm']?' · '+tm(Date.parse(localStorage['eclass.sm'])):''}</p>
+  ${E.length?`<div class="wrap free"><table><tr><th style="text-align:left">Device</th><th>Last sync</th><th>Pending then</th>${TERMS.map(([,l])=>`<th>${l} scores</th>`).join('')}</tr>${rows}</table></div><p class=mut>Each device reports when it syncs. An offline device cannot report until it reconnects, so its row shows its last sync, not its current state. If Midterm is 0 on a device that has been editing, that device has not synced its Midterm yet.</p>`:'<p class=mut>No device has synced yet.</p>'}
+  ${cf.length?`<p><b>Saved copies from conflicts</b></p>${cf.map((x,i)=>`<p class=mut>${esc(x.n)} · ${esc(x.t)} · from ${x.from} · ${tm(x.at)} <button data-a=cfrest data-i=${i}>Restore this copy</button></p>`).join('')}`:''}`)}
+ case'cfrest':{const cf=jget('eclass.cf',[]),x=cf[+d.i],k=x&&D.classes.find(c=>c.id==x.cid);if(!k)return toast('That class is no longer here.');return ask('Restore this copy?','This replaces the current '+esc(x.t)+' data of '+esc(x.n)+' with the saved copy.','Restore',()=>{k.terms[x.t]=x.d;mark(k);cf.splice(+d.i,1);try{localStorage['eclass.cf']=JSON.stringify(cf)}catch(_){}render();toast('Restored.')})}
  case'addclass':return classForm();
  case'choose':return classPicker();
  case'delclass':return ask('Delete this class?','<b>'+esc(cname(c))+'</b> and all of its records will be deleted. This also removes it from Drive on the next sync.','Continue',()=>{const nz=v=>String(v||'').trim().replace(/\s+/g,' ').toLowerCase(),nm0=[localStorage.fn,localStorage.gn].map(nz).filter(Boolean),byName=nm0.length>0;
@@ -2112,21 +2118,47 @@ const tk=()=>{if(tok&&Date.now()<exp)return Promise.resolve(tok);return Promise.
  if(p.get('access_token')){tok=p.get('access_token');exp=Date.now()+(+p.get('expires_in')||3600)*1e3-6e4;localStorage.tok=tok;localStorage.exp=exp;delete sessionStorage.silent;auth=1}
  else if(!sessionStorage.silent)toast('Sign-in was cancelled or failed.')})();
 const dr=async(u,o={})=>{const r=await fetch(u,{...o,headers:{Authorization:'Bearer '+tok,...o.headers}});if(!r.ok)throw Object.assign(Error('drive'),{status:r.status});return r};
-const G='https://www.googleapis.com/',body=()=>JSON.stringify({classes:D.classes});
-function merge(rem){let push=false;const a={},b={};D.classes.forEach(x=>a[x.id]=x);rem.classes.forEach(x=>b[x.id]=x);
- merge.ch=0;D.classes=[...new Set([...Object.keys(a),...Object.keys(b)])].map(id=>{const x=a[id],y=b[id];if(!y||x&&x.u>y.u){push=true;return x}if(x&&x.u==y.u)return x;merge.ch=1;return y});return push}
+const G='https://www.googleapis.com/',body=()=>JSON.stringify({classes:D.classes,devices:DEVS()});
+/* v106: device id, per-term merge, conflict copies, device registry */
+const DEV=(()=>{let i=localStorage.dev;if(!i){i='d'+uid();localStorage.dev=i}return i})(),
+devName=()=>localStorage.devn||(/iPad/.test(UA)?'iPad':/iPhone/.test(UA)?'iPhone':/Android/.test(UA)?'Android':/Windows/.test(UA)?'Windows PC':/Mac/.test(UA)?'Mac':'Device')+' '+DEV.slice(1,4),
+jget=(k,d)=>{try{return JSON.parse(localStorage[k]||'')||d}catch(_){return d}},DEVS=()=>jget('eclass.devs',{}),
+nSc=T=>{let n=0;const q=(T&&T.sc)||{};for(const a in q)for(const b in q[a]||{})(q[a][b]||[]).forEach(v=>{if(v!==''&&v!=null)n++});return n},
+sumOf=()=>{const o={};live().forEach(c=>{o[c.id]={n:cname(c)};TERMS.forEach(([t])=>o[c.id][t]=nSc(c.terms[t]))});return o},
+pendN=()=>{const ls=+localStorage['eclass.ls']||0;return D.classes.filter(c=>(c.u||0)>ls).length};
+function mergeCl(x,y){const LS=+localStorage['eclass.ls']||0,base=(x.u||0)>=(y.u||0)?x:y,terms={},tu={};let push=base===x&&(x.u||0)>(y.u||0),ch=base===y&&(y.u||0)>(x.u||0);
+ TERMS.forEach(([t])=>{const xt=(x.terms||{})[t],yt=(y.terms||{})[t],xs=(x.tu||{})[t]||0,ys=(y.tu||{})[t]||0;let k=xs>ys?'x':ys>xs?'y':base===x?'x':'y';
+  if(xt&&yt&&JSON.stringify(xt)!=JSON.stringify(yt)){
+   const ps=k=='x'?xs:ys;
+   if(!ps&&nSc(k=='x'?yt:xt)>nSc(k=='x'?xt:yt)){k=k=='x'?'y':'x';(k=='x'?(push=true):(ch=true))}
+   else{if(k=='x'&&xs>ys)push=true;if(k=='y'&&ys>xs)ch=true}
+   if(xs>LS&&ys>LS&&xs!=ys){const cf=jget('eclass.cf',[]);cf.unshift({cid:x.id,n:cname(x),t,at:Date.now(),d:k=='x'?yt:xt,from:k=='x'?'another device':'this device'});try{localStorage['eclass.cf']=JSON.stringify(cf.slice(0,6))}catch(_){}merge.cf=(merge.cf||0)+1;push=ch=true}}
+  terms[t]=k=='x'?(xt||yt):(yt||xt);tu[t]=Math.max(xs,ys)});
+ return{c:{...base,terms:{...base.terms,...terms},tu,u:Math.max(x.u||0,y.u||0)},push,ch}}
+function merge(rem){let push=false;const a={},b={};D.classes.forEach(x=>a[x.id]=x);(rem.classes||[]).forEach(x=>b[x.id]=x);
+ merge.ch=0;merge.cf=0;const pre=JSON.stringify(D.classes);
+ D.classes=[...new Set([...Object.keys(a),...Object.keys(b)])].map(id=>{const x=a[id],y=b[id];if(!y){push=true;return x}if(!x){merge.ch=1;return y}const r=mergeCl(x,y);if(r.push)push=true;if(r.ch)merge.ch=1;return r.c});
+ if(merge.ch)try{localStorage['eclass.bak']=pre;localStorage['eclass.bakat']=Date.now()}catch(_){}
+ const dv=DEVS();for(const k in rem.devices||{}){const v=rem.devices[k];if(!dv[k]||v.at>dv[k].at)dv[k]=v}try{localStorage['eclass.devs']=JSON.stringify(dv)}catch(_){}
+ if(merge.cf)toast('Edits to the same term were made on two devices. The newer one was kept and the other saved. Tap the sync status to review.');
+ return push}
 let busy=0,lastAct=Date.now(),staleR=0;
 ['pointerdown','keydown','input','touchmove','wheel'].forEach(e=>addEventListener(e,()=>{lastAct=Date.now()},{passive:true,capture:true}));
 function softRender(){const a=document.activeElement;if(Date.now()-lastAct<6000||(a&&a.matches&&a.matches('input,textarea,select'))||tp||pop||$('#mdl')){staleR=1;return}staleR=0;keep()}
 setInterval(()=>{if(staleR)softRender()},3000);
-async function sync(manual){if(!U||busy)return;if(!navigator.onLine){st('Offline — saved on this device');return}
+async function sync(manual){if(!U||busy)return;const t0=Date.now(),pn=pendN();if(!navigator.onLine){st('Offline — saved on this device');return}
  busy=1;st('Syncing…');try{await tk();await pushFiles();st('Syncing…');let r=null;
-  if(!fid){const j=await(await dr(G+'drive/v3/files?fields=files(id)&q='+encodeURIComponent(`name='${FN}' and trashed=false`))).json();fid=j.files[0]?.id||''}
+  let extra=[];if(!fid){const j=await(await dr(G+'drive/v3/files?fields=files(id)&orderBy=modifiedTime%20desc&q='+encodeURIComponent(`name='${FN}' and trashed=false`))).json();fid=j.files[0]?.id||'';extra=(j.files||[]).slice(1).map(f=>f.id)}
   if(fid)r=await(await dr(G+`drive/v3/files/${fid}?alt=media`)).json();
-  merge.ch=0;const push=r?merge(r):true,chg=merge.ch;
+  merge.ch=0;let push=r?merge(r):true,chg=merge.ch;
+  /* duplicate record files (for example one created empty on a new device): merge them all so nothing is lost */
+  for(const id of extra){try{const x=await(await dr(G+`drive/v3/files/${id}?alt=media`)).json();if(merge(x))push=true;if(merge.ch)chg=1}catch(_){}}
+  {const dv=DEVS();dv[DEV]={n:devName(),at:Date.now(),pend:pn,sum:sumOf()};try{localStorage['eclass.devs']=JSON.stringify(dv)}catch(_){}}
   if(push||D.dirty){if(fid)await dr(G+`upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:body()});
    else{const b='b'+uid();const j=await(await dr(G+'upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:`--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({name:FN,mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body()}\r\n--${b}--`})).json();fid=j.id}}
-  localStorage.fid=fid;D.dirty=0;save();dPush().catch(e=>console.error(e));sLoad().catch(()=>{});st('Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
+  if(fid&&(push||D.dirty)){const r2=await(await dr(G+`drive/v3/files/${fid}?alt=media`)).json();if(merge(r2)){await dr(G+`upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:body()})}if(merge.ch)chg=1}
+  try{const m=await(await dr(G+`drive/v3/files/${fid}?fields=version,modifiedTime`)).json();localStorage['eclass.sv']=m.version||'';localStorage['eclass.sm']=m.modifiedTime||''}catch(_){}
+  localStorage.fid=fid;localStorage['eclass.ls']=t0;D.dirty=D.classes.some(c=>(c.u||0)>t0)?1:0;save();dPush().catch(e=>console.error(e));sLoad().catch(()=>{});st('Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));
   if(chg)softRender();syllSweep()
  }catch(e){console.error(e);if(e.auth){busy=0;st('Sign in again to sync');if(manual)goAuth();return}if(e.status==401){tok=null;delete localStorage.tok}if(e.status==404){fid='';delete localStorage.fid}st(manual?'Sync failed — tap Sync now to retry':'Waiting to sync');if(manual)toast('Could not sync. Sign in again if this keeps happening.')}
  busy=0}
