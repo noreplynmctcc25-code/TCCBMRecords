@@ -418,7 +418,7 @@ td.absn{background:color-mix(in srgb,var(--bad) 12%,var(--card))}td.absn input{b
 @media(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px){.stt td.nm,.stt th.nm{max-width:9.5rem}.hero .avl{width:2.9rem;height:2.9rem}}
 
 /* v79: full names get the room they need */
-.stt.full td.nm,.stt.full th.nm{max-width:min(78vw,24rem)!important;width:max-content;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+.stt.full td.nm,.stt.full th.nm{min-width:min(14rem,72vw)!important;max-width:88vw!important;width:auto;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;word-break:normal}
 
 /* v80 */
 .sylfrm{width:100%;height:calc(100dvh - 17rem);min-height:26rem;border:0;border-radius:10px;background:#fff;display:block}.syv{padding:.4rem}
@@ -603,7 +603,7 @@ function homeV(){const h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good 
  return `<div class=hero>${avImg('avl')}<h1>${g}${n?', '+esc(n):''}!</h1><p>${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p><p>${L.length?'No class selected. Choose a class to open it.':'You have no classes yet.'}</p></div>
  ${L.length?homeStrip(L):''}
  ${L.length?`<div class=cards>${L.map(x=>{const q=clsSum(x);return `<button class="hc cc" style="${clsLook(x)}" data-a=open data-id=${x.id}><span class=ic>${I('book')}</span><b>${esc(cname(x))}</b><small>${esc(x.meta.title)}</small><small>${esc([sOf(x),aOf(x)&&'A.Y. '+aOf(x)].filter(Boolean).join(' · '))}</small><small>${x.students.length} students</small>${q.n?`<span class=hcs data-a=openp data-id=${x.id} title="Open performance"><span>Avg <b>${g1(q.avg)}</b></span><span>${Math.round(q.pass*100)}% passing</span>${q.risk?`<span class=warn><b>${q.risk}</b> at risk</span>`:''}${spark(x,q.tr)}</span>`:`<small class=mut>No grades yet</small>`}</button>`}).join('')}<button class=hc data-a=addclass><span class=ic>${I('plus')}</span><b>New class</b><small>Add another class</small></button></div>`:`<div class="card empty"><span class="ic big">${I('book')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Every detail is required before it is saved.</p><button class=pri data-a=addclass>${I('plus')}New class</button></div>`}
- <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 81</span></div>`}
+ <div class=bar><button data-a=upd>${I('refresh')}Update app</button><span class=mut>Version 82</span></div>`}
 /* ---------- views ---------- */
 /* a new class, tab, component or sub-component always opens at the top */
 const topOnNav=k=>{if(k!=render.n){render.n=k;scrollTo({top:0,left:0,behavior:'instant'});const m=document.getElementById('main');if(m)m.scrollTop=0}};
