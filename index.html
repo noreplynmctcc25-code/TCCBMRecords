@@ -481,7 +481,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=95,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=96,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* ---------- defaults: taken from the DBME e-class workbook ---------- */
 const R=(a,n,f)=>Array.from({length:n},(_,i)=>f(i)+a);
@@ -576,13 +576,18 @@ function askDate(t,m,ok,fn){
  const go=()=>{if(!inp.value){o.querySelector('#ad_e').textContent='Please pick a date. A date is required for every new column.';inp.classList.add('badf');return}const v=inp.value;closeMdl(o);fn(v)};
  o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-x]'),x=b?b.dataset.x:null;if(x=='1')return go();if(x=='0'||e.target===o)closeMdl(o)};
  inp.oninput=inp.onchange=()=>{inp.classList.remove('badf');o.querySelector('#ad_e').textContent=''}}
-function classForm(){const F=[['school','School'],['dept','Department'],['instructor','Instructor'],['course','Course code'],['title','Descriptive title'],['sched','Schedule'],['section','Year and section'],['head','Checked by (department head)'],['dean','Checked by (dean)'],['deanpos',"Dean's position"],['pres','Noted by (college president)']];
+function classForm(){const F=[['school','School'],['dept','Department'],['instructor','Instructor'],['course','Course code'],['title','Descriptive title'],['section','Year and section'],['head','Checked by (department head)'],['dean','Checked by (dean)'],['deanpos',"Dean's position"],['pres','Noted by (college president)']];
  const o=document.createElement('div');o.id='mdl';
- o.innerHTML=`<div class="md cf"><h3>New class</h3><p class=mut>All fields are required. The class is only created when you press Save.</p><div class=form><label>School *<input data-f=school value="${SCHOOL}" autocomplete=off></label><label>Semester *<select data-f=sem><option value="">Select semester</option>${SEMS.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Academic year *<select data-f=ay><option value="">Select academic year</option>${ayList().map(x=>`<option>${x}</option>`).join('')}</select></label><label>Sessions per week *<select data-f=spw><option value="">Select sessions per week</option>${SPO.map(k=>`<option value=${k}>${k} session${k>1?'s':''} per week (${SPW[k][2]}, ${SPW[k][3]})</option>`).join('')}</select></label><label>Class type *<select data-f=type><option value="">Select class type</option>${TYP.map(x=>`<option>${x}</option>`).join('')}</select></label>${F.filter(x=>x[0]!='school').map(([k,l])=>`<label>${l} *<input data-f=${k}${k=='course'?' list=ccl':k=='dept'?' list=dpl':''} value="${esc({dept:DEPT,head:HEAD,dean:DEAN,deanpos:DEANPOS,pres:PRES}[k]||'')}" autocomplete=off></label>`).join('')}<datalist id=ccl>${codeList().map(v=>`<option value="${esc(v)}">`).join('')}</datalist></div><p class=mut style="margin:.5rem 0 0">Sessions per week set the attendance points (Present / Late / Absent). The class type sets the weight distribution: Non-Laboratory is Attendance 15%, Course works 35%, Major performance 25%, Major exam 25%; Laboratory is 5%, 25%, 40%, 30%. You can review everything under Rules.</p><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${I('check')}Save class</button></div></div>`;
- o.onclick=e=>{const x=e.target.dataset.x;if(x===undefined||o.classList.contains('out'))return;
+ o.innerHTML=`<div class="md cf"><h3>New class</h3><p class=mut>All fields are required. The class is only created when you press Save.</p><div class=form><label>School *<input data-f=school value="${SCHOOL}" autocomplete=off></label><label>Semester *<select data-f=sem><option value="">Select semester</option>${SEMS.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Academic year *<select data-f=ay><option value="">Select academic year</option>${ayList().map(x=>`<option>${x}</option>`).join('')}</select></label><label>Sessions per week *<select data-f=spw><option value="">Select sessions per week</option>${SPO.map(k=>`<option value=${k}>${k} session${k>1?'s':''} per week (${SPW[k][2]}, ${SPW[k][3]})</option>`).join('')}</select></label><label>Class type *<select data-f=type><option value="">Select class type</option>${TYP.map(x=>`<option>${x}</option>`).join('')}</select></label>${F.filter(x=>x[0]!='school').map(([k,l])=>`<label>${l} *<input data-f=${k}${k=='course'?' list=ccl':k=='dept'?' list=dpl':''} value="${esc({dept:DEPT,head:HEAD,dean:DEAN,deanpos:DEANPOS,pres:PRES}[k]||'')}" autocomplete=off></label>`).join('')}<div style="grid-column:1/-1"><label>Class days and times *</label><div id=nsch></div></div><datalist id=ccl>${codeList().map(v=>`<option value="${esc(v)}">`).join('')}</datalist></div><p class=mut style="margin:.5rem 0 0">Sessions per week set the attendance points (Present / Late / Absent). The class type sets the weight distribution: Non-Laboratory is Attendance 15%, Course works 35%, Major performance 25%, Major exam 25%; Laboratory is 5%, 25%, 40%, 30%. You can review everything under Rules.</p><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${I('check')}Save class</button></div></div>`;
+ let ns=[];const rs=()=>{o.querySelector('#nsch').innerHTML=schedUI(ns,1,1)};rs();
+ o.addEventListener('change',e=>{const t=e.target;if(t.dataset.nst!==undefined){const[i,f]=t.dataset.nst.split('|');if(ns[i])ns[i][f]=t.value;srtS(ns);rs()}else if(t.dataset.nsd!==undefined){const od=+t.dataset.nsd,nd=+t.value;ns=srtS(ns.map(x=>x.d==od?{...x,d:nd}:x));rs()}});
+ o.onclick=e=>{const q=e.target.closest('[data-ns]');if(q&&!o.classList.contains('out')){const a=q.dataset.ns,d=+q.dataset.d;if(a=='addt'||a=='addd')ns.push(nextSlot(ns,d));else if(a=='rmd')ns=ns.filter(x=>x.d!=d);else if(a=='rmt')ns.splice(+q.dataset.i,1);srtS(ns);rs();return}
+  const x=e.target.dataset.x;if(x===undefined||o.classList.contains('out'))return;
   if(x=='1'){const m={};let bad=null;o.querySelectorAll('[data-f]').forEach(i=>{const v=i.value.trim();m[i.dataset.f]=v;i.classList.toggle('badf',!v);if(!v&&!bad)bad=i});
    if(bad){toast('Please fill in every field');bad.focus();return}
-   m.sy=`${m.sem}, A.Y. ${m.ay}`;m.spw=+m.spw;const n=newClass(m);{const sl=parseSched(m.sched);n.meta.slots=sl;if(sl.length)n.meta.sched=fmtSched(sl);else n.meta.schk=1}n.att={p:SPW[m.spw][0],l:SPW[m.spw][1]};D.classes.push(n);cur=n.id;gf='';view='students';mark(n);closeMdl(o);render();scrollTo(0,0);syllSweep().then(k=>{if(k)toast('Syllabus added from another class with the same subject')});return}
+   if(!ns.length){toast('Add at least one class day and its time');return}const se=slotErr(ns);if(se){toast(se);return}
+   m.sched=fmtSched(ns);
+   m.sy=`${m.sem}, A.Y. ${m.ay}`;m.spw=+m.spw;const n=newClass(m);n.meta.slots=ns.map(x=>({...x}));n.att={p:SPW[m.spw][0],l:SPW[m.spw][1]};D.classes.push(n);cur=n.id;gf='';view='students';mark(n);closeMdl(o);render();scrollTo(0,0);syllSweep().then(k=>{if(k)toast('Syllabus added from another class with the same subject')});return}
   closeMdl(o)};
  o.addEventListener('input',e=>e.target.classList.remove('badf'));document.body.appendChild(o)}
 function classPicker(){const L=liveS(),o=document.createElement('div');o.id='mdl';
@@ -2267,12 +2272,21 @@ function parseSched(t){const sl=[],re=/(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm|nn|noo
    const e=tmin(m[4],m[5],a2);let s=tmin(m[1],m[2],a1||a2);if(!a1&&s>=e)s=tmin(m[1],m[2],a2=='pm'?'am':'pm');
    if(s<e&&s>=0&&e<=1440)days.forEach(d=>{if(!sl.some(x=>x.d==d&&x.s==hhmm(s)))sl.push({d,s:hhmm(s),e:hhmm(e)})})}});return sl}
 function migS(c){const m=c.meta||(c.meta={});if(m.slots||!m.sched)return;m.slots=parseSched(m.sched);if(!m.slots.length)m.schk=1;mark(c)}
-function setS(c,sl){c.meta.slots=sl;c.meta.sched=fmtSched(sl);delete c.meta.schk;mark(c);render()}
+function setS(c,sl){sl=srtS(sl);c.meta.slots=sl;c.meta.sched=fmtSched(sl);delete c.meta.schk;mark(c);render()}
+const srtS=sl=>sl.sort((a,b)=>DORD.indexOf(a.d)-DORD.indexOf(b.d)||(a.s<b.s?-1:a.s>b.s?1:0));
+const nextSlot=(sl,d)=>{const L=sl.filter(x=>x.d==d).map(x=>x.e).sort().pop();if(!L)return{d,s:'08:00',e:'09:00'};const[h,m]=L.split(':').map(Number),s=Math.min(h*60+m,1320);return{d,s:hhmm(s),e:hhmm(s+60)}};
+const slotErr=sl=>{for(const x of sl)if(!x.s||!x.e||x.e<=x.s)return'End time must be after the start time';for(const d of new Set(sl.map(x=>x.d))){const r=sl.filter(x=>x.d==d).sort((a,b)=>a.s<b.s?-1:1);for(let i=1;i<r.length;i++)if(r[i].s<r[i-1].e)return'Two times on '+DAYS[d]+' overlap'}return''};
+/* schedule picker: one box per day, each with its own time or times; n=1 for the New class dialog */
+const schedUI=(sl,ed,n)=>{const dis=ed?'':'disabled',used=[...new Set(sl.map(x=>x.d))].sort((a,b)=>DORD.indexOf(a)-DORD.indexOf(b)),
+ B=(a,x)=>n?`data-ns="${a}"`:`data-cl="${x}"`,T=(i,f)=>n?`data-nst="${i}|${f}"`:`data-sl="${i}|${f}"`,SD=d=>n?`data-nsd="${d}"`:`data-sd="${d}"`;
+ return used.map(d=>`<div style="border:1px solid var(--line);border-radius:12px;padding:.5rem .7rem;margin:.4rem 0"><div class=ni style="margin-top:0"><select ${dis} ${SD(d)} aria-label="Day" style="font-weight:600">${DORD.map(k=>`<option value=${k} ${k==d?'selected':''} ${k!=d&&used.includes(k)?'disabled':''}>${DAYS[k]}</option>`).join('')}</select>${ed?`<span class=sp style="flex:1"></span><button class=dng ${B('rmd','sldday')} data-d=${d} aria-label="Remove ${DAYS[d]}">${I('trash')}</button>`:''}</div>
+ ${sl.map((x,i)=>x.d==d?`<div class=ni><span class=mut>Time</span><input type=time ${dis} ${T(i,'s')} value="${x.s}"><span class=mut>to</span><input type=time ${dis} ${T(i,'e')} value="${x.e}">${ed?`<button class=dng ${B('rmt','sldel')} data-i=${i} aria-label="Remove this time">${I('trash')}</button>`:''}</div>`:'').join('')}
+ ${ed?`<button ${B('addt','sladd')} data-d=${d}>${I('plus')}Add another time on ${DAYS[d]}</button>`:''}</div>`).join('')
+ +(ed?`<div class=ni><span class=mut>Add a day:</span>${DORD.filter(k=>!used.includes(k)).map(k=>`<button ${B('addd','sldayadd')} data-d=${k}>${DAYS[k].slice(0,3)}</button>`).join('')||'<span class=mut>All days added</span>'}</div>`:'')};
 const schedEd=(c,ed)=>{const m=c.meta,sl=m.slots||[],dis=ed?'':'disabled';
  return `<div style="grid-column:1/-1"><label>Schedule${m.schk?' <span class="chip warn">Check schedule</span>':''}</label><div class=mut style="margin:.2rem 0 .4rem">${esc(m.sched||'No schedule yet')}</div>
- ${ed?`<label>Quick entry<input data-sq placeholder="MWF 8:00am-9:00am | Sat 1:00pm-2:30pm" autocomplete=off></label><p class=mut style="margin:.2rem 0 .5rem">Press Enter to fill the rows below. MWF, TTh and day names all work.</p>`:''}
- ${sl.map((x,i)=>`<div class=ni><select ${dis} data-sl="${i}|d">${DORD.map(d=>`<option value=${d} ${x.d==d?'selected':''}>${DAYS[d]}</option>`).join('')}</select><input type=time ${dis} data-sl="${i}|s" value="${x.s}"><input type=time ${dis} data-sl="${i}|e" value="${x.e}">${ed?`<button class=dng data-cl=sldel data-i=${i} aria-label="Remove">${I('trash')}</button>`:''}</div>`).join('')}
- ${ed?`<button data-cl=sladd>${I('plus')}Add meeting time</button>`:''}
+ ${ed?`<label>Quick entry<input data-sq placeholder="MWF 8:00am-9:00am | Sat 1:00pm-2:30pm" autocomplete=off></label><p class=mut style="margin:.2rem 0 .5rem">Optional shortcut. Press Enter to fill the days and times below. MWF, TTh and day names all work.</p>`:''}
+ ${schedUI(sl,ed,0)}
  <div class=form style="margin-top:.6rem"><label>Semester start<input type=date ${dis} data-m=ss value="${esc(m.ss||'')}"></label><label>Semester end<input type=date ${dis} data-m=se value="${esc(m.se||'')}"></label></div></div>`};
 /* calendar: everything is derived from the class schedule, notes with a due date, department deadlines and personal tasks, so nothing is stored twice */
 const TK=()=>{try{return JSON.parse(localStorage['eclass.tasks']||'[]')}catch(_){return[]}},TKs=a=>localStorage['eclass.tasks']=JSON.stringify(a);
@@ -2309,12 +2323,14 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-cl]');if(!
  else if(a=='tdel')TKs(TK().filter(x=>x.id!=b.dataset.id));
  else if(a=='open'){cur=b.dataset.id;nt=b.dataset.ntm;nid=b.dataset.n;view='notes';gf=''}
  else if(a=='cdue'&&c){const x=secOf(c,b.dataset.id);if(x){x.due='';ntMark(c,x.id);mark(c)}}
- else if(a=='sladd'&&c&&cde==c.id)return setS(c,[...(c.meta.slots||[]),{d:1,s:'08:00',e:'09:00'}]);
+ else if((a=='sladd'||a=='sldayadd')&&c&&cde==c.id){const sl=c.meta.slots||[];return setS(c,[...sl,nextSlot(sl,+b.dataset.d)])}
+ else if(a=='sldday'&&c&&cde==c.id)return setS(c,(c.meta.slots||[]).filter(x=>x.d!=+b.dataset.d));
  else if(a=='sldel'&&c&&cde==c.id)return setS(c,(c.meta.slots||[]).filter((_,i)=>i!=+b.dataset.i));
  else return;render()});
 document.addEventListener('change',e=>{const t=e.target,c=C();
  if(t.dataset.clf!==undefined){calf=t.value;return render()}
- if(t.dataset.sl&&c){const[i,f]=t.dataset.sl.split('|'),sl=(c.meta.slots||[]).map(x=>({...x}));if(!sl[i])return;sl[i][f]=f=='d'?+t.value:t.value;if(sl[i].e<=sl[i].s)toast('End time must be after the start time');setS(c,sl)}
+ if(t.dataset.sd!==undefined&&c){const o=+t.dataset.sd,nd=+t.value;return setS(c,(c.meta.slots||[]).map(x=>x.d==o?{...x,d:nd}:x))}
+ if(t.dataset.sl&&c){const[i,f]=t.dataset.sl.split('|'),sl=(c.meta.slots||[]).map(x=>({...x}));if(!sl[i])return;sl[i][f]=f=='d'?+t.value:t.value;const er=slotErr(sl);if(er)toast(er);setS(c,sl)}
  if((t.dataset.nt||'').endsWith('|due'))setTimeout(render,0)});
 document.addEventListener('keydown',e=>{const t=e.target;if(e.key!='Enter'||t.dataset.sq===undefined)return;e.preventDefault();const c=C(),sl=parseSched(t.value);if(!c)return;if(!sl.length)return toast('Could not read that. Try: MWF 8:00am-9:00am');setS(c,sl)});
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
