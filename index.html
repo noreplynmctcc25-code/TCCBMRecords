@@ -475,13 +475,13 @@ details.dcl{border:1px solid var(--line);border-radius:12px;margin:.5rem 0;backg
 <script>
 /* storage fallback for web-views that block localStorage / sessionStorage */
 (function(){for(const n of['localStorage','sessionStorage']){let ok=1;try{const t=window[n];t.setItem('_t','1');t.removeItem('_t')}catch(_){ok=0}
- if(!ok){const m={};try{Object.defineProperty(window,n,{configurable:true,value:new Proxy(m,{get:(t,k)=>k=='getItem'?x=>x in t?t[x]:null:k=='setItem'?(x,v)=>{t[x]=String(v)}:k=='removeItem'?x=>{delete t[x]}:k=='clear'?()=>{for(const q in t)delete t[q]}:t[k],set:(t,k,v)=>(t[k]=String(v),true),deleteProperty:(t,k)=>delete t[k]})})}catch(_){}}}})();
+ if(!ok){window.MEMSTORE=1;const m={};try{Object.defineProperty(window,n,{configurable:true,value:new Proxy(m,{get:(t,k)=>k=='getItem'?x=>x in t?t[x]:null:k=='setItem'?(x,v)=>{t[x]=String(v)}:k=='removeItem'?x=>{delete t[x]}:k=='clear'?()=>{for(const q in t)delete t[q]}:t[k],set:(t,k,v)=>(t[k]=String(v),true),deleteProperty:(t,k)=>delete t[k]})})}catch(_){}}}})();
 const UA=navigator.userAgent||'',WV=/; wv\)|\bwv\b|FBAN|FBAV|FB_IAB|Instagram|Line\/|MicroMessenger|Messenger|GSA\//i.test(UA)||(/iPhone|iPad|iPod/.test(UA)&&!/Safari/.test(UA)&&!navigator.standalone);
 const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
-const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=94,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=95,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* ---------- defaults: taken from the DBME e-class workbook ---------- */
 const R=(a,n,f)=>Array.from({length:n},(_,i)=>f(i)+a);
@@ -530,7 +530,7 @@ const termG=(c,t,sid,z)=>{const r=c.terms[t].comps.map(cp=>cmp(c,t,sid,cp,z));re
 function grades(c,sid,z){const o={};let pv=null;TERMS.forEach(([t],i)=>{const T=c.terms[t],x=termG(c,t,sid,z),pr=i?T.prev:0;let g=null;if(x!=null){if(!pr)g=x*T.own/100;else if(pv!=null)g=x*T.own/100+pv*pr/100}o[t]={x,g};pv=g});
  const g=o.final.g;o.rem=g==null?'':(c.hi?g+1e-9>=c.pass:g-1e-9<=c.pass)?'PASSED':'FAILED';return o}
 /* ---------- state ---------- */
-const C=()=>D.classes.find(c=>c.id==cur&&!c.d),live=()=>D.classes.filter(c=>!c.d),save=()=>localStorage[K]=JSON.stringify(D);
+const C=()=>D.classes.find(c=>c.id==cur&&!c.d),live=()=>D.classes.filter(c=>!c.d),save=()=>{try{localStorage[K]=JSON.stringify(D);save.f=0}catch(e){console.error(e);if(!save.f){save.f=1;toast('Storage is full. Changes may not be saved on this device. Tap Sync now, or free up space.')}}if(window.MEMSTORE&&!save.m){save.m=1;toast('This browser blocks storage. Changes will be lost when you close the app. Sync to Google Drive.')}};
 const mark=c=>{if(c)c.u=Date.now();D.dirty=1;save();clearTimeout(mark.t);mark.t=setTimeout(()=>sync(),4000)};
 const nm=s=>`${s.last||''}, ${s.first||''} ${s.mi||''}`.trim(),f=(v,d=1)=>v==null?'—':v.toFixed(d);
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2500)};
@@ -989,7 +989,7 @@ const wrapTb=b=>String(b).replace(/<table/gi,'<div class=tw><table').replace(/<\
  syllDoc=(title,body)=>`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob: https:; style-src 'unsafe-inline'; font-src data:"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_blank"><title>${esc(title)}</title><style>:root{--bg:#fff;--fg:#1b2333;--bd:#c8ced9}body{font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:52rem;margin:0 auto;padding:1rem 1.1rem 3rem;color:var(--fg);background:var(--bg);overflow-wrap:anywhere}h1,h2,h3,h4{line-height:1.25;margin:1.3em 0 .4em}p{margin:.55em 0}ul,ol{padding-left:1.4rem}img{max-width:100%;height:auto}html{-webkit-text-size-adjust:100%}.tw{overflow-x:auto;max-width:100%;margin:.6em 0;-webkit-overflow-scrolling:touch}table{border-collapse:collapse;width:100%;margin:0}td[align=center],th[align=center]{text-align:center}td[align=right],th[align=right]{text-align:right}th{background:rgba(128,128,128,.14);text-align:left}b,strong,th{font-weight:700}i,em{font-style:italic}.lg{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:.4rem 0}.lg img{height:5rem;width:auto;max-width:30%;object-fit:contain}.tc{text-align:center}td,th{border:1px solid var(--bd);padding:.35rem .55rem;vertical-align:top}hr{border:0;border-top:1px solid var(--bd);margin:1.6em 0}.pgn{color:#8a93a6;font-size:.75rem;text-align:right}html[data-t=dark]{--bg:#12151c;--fg:#e6e9ef;--bd:#3a4150}html[data-t=dark] a{color:#8ab4ff}@media(max-width:640px){body{font-size:15px;padding:.7rem .75rem 2rem}td,th{min-width:5.5rem;padding:.3rem .4rem}}</style></head><body>${wrapTb(body)}</body></html>`;
 async function docxToHtml(ab){await loadJs('mammoth.min.js');const r=await mammoth.convertToHtml({arrayBuffer:ab});return r.value}
 async function pdfToHtml(ab){await loadJs('pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';
- const pdf=await pdfjsLib.getDocument({data:new Uint8Array(ab)}).promise,out=[],OP=pdfjsLib.OPS;let chars=0;
+ const pdf=await pdfjsLib.getDocument({data:new Uint8Array(ab),isEvalSupported:false}).promise,out=[],OP=pdfjsLib.OPS;let chars=0;
  const mul=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];
  for(let p=1;p<=pdf.numPages;p++){const pg=await pdf.getPage(p),vp=pg.getViewport({scale:1}),tc=await pg.getTextContent(),rows=[];let ol=null;try{ol=await pg.getOperatorList()}catch(_){}
   const fs=n=>{try{const nm=(pg.commonObjs.get(n)||{}).name||'';return[/bold|black|heavy/i.test(nm),/italic|oblique/i.test(nm)]}catch(_){return[0,0]}};
@@ -1073,7 +1073,7 @@ const askMode=name=>new Promise(res=>{const o=dlg(`<h3>How should it open?</h3><
  o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-k]');if(b){closeMdl(o);return res(b.dataset.k)}if(e.target.dataset.x==='0'||e.target===o){closeMdl(o);res(null)}}});
 async function viewInto(el,bl,name,key){const ext=extOf(name);el.innerHTML='';
  if(/^image\//.test(bl.type)){const im=new Image();im.src=URL.createObjectURL(bl);im.style.cssText='max-width:100%;display:block;margin:0 auto';el.appendChild(im)}
- else if(ext=='pdf'){await loadJs('pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await bl.arrayBuffer())}).promise,w=Math.max(280,Math.min(el.clientWidth||900,1100)),box=document.createElement('div');box.style.cssText='padding:.6rem;max-width:1100px;margin:0 auto';el.appendChild(box);
+ else if(ext=='pdf'){await loadJs('pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await bl.arrayBuffer()),isEvalSupported:false}).promise,w=Math.max(280,Math.min(el.clientWidth||900,1100)),box=document.createElement('div');box.style.cssText='padding:.6rem;max-width:1100px;margin:0 auto';el.appendChild(box);
   for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),sc=w/pg.getViewport({scale:1}).width,v=pg.getViewport({scale:sc*Math.min(2,devicePixelRatio||1)}),cv=document.createElement('canvas');cv.width=v.width;cv.height=v.height;cv.style.cssText='width:100%;height:auto;display:block;margin:0 auto .6rem;background:#fff;box-shadow:0 1px 6px #0003';box.appendChild(cv);await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise}}
  else if(ext=='docx')ifr(el,syllDoc(name,await docxToHtml(await bl.arrayBuffer())));
  else if(/^html?$/.test(ext))ifr(el,syllDoc(name,htmlSan(await bl.text())));
