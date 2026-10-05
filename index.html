@@ -435,7 +435,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']];
+const TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* ---------- defaults: taken from the DBME e-class workbook ---------- */
 const R=(a,n,f)=>Array.from({length:n},(_,i)=>f(i)+a);
@@ -513,7 +513,7 @@ function askInput(t,m,val,ok,fn,cancel){const o=dlg(`<h3>${t}</h3><p>${m}</p><in
  const go=()=>{const r=fn(inp.value);if(r){o.querySelector('#ai_e').textContent=r;inp.classList.add('badf');return}closeMdl(o)};
  o.onclick=e=>{if(o.classList.contains('out'))return;const x=e.target.dataset.x;if(x=='1')return go();if(x=='0'||e.target===o){closeMdl(o);cancel&&cancel()}};
  inp.onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();go()}};inp.oninput=()=>{inp.classList.remove('badf');o.querySelector('#ai_e').textContent=''};setTimeout(()=>inp.focus(),80)}
-function viewFile(u,name,ty,bl){const o=dlg(`<h3>${esc(name)}</h3><div id=vw_b></div><div class=bar><button data-x=0>Close</button>${/html/.test(ty)?`<button data-x=2>${I('right')}Open in tab</button>`:''}<button class=pri data-x=1>${I('download')}Download</button></div>`,'vw'),b=o.querySelector('#vw_b');
+function viewFile(u,name,ty,bl){const o=dlg(`<h3>${esc(name)}</h3><div id=vw_b></div><div class=bar><button data-x=0>Close</button><button class=pri data-x=1>${I('download')}Download</button></div>`,'vw'),b=o.querySelector('#vw_b');
  let hdoc='';
  if(/^image\//.test(ty)){const im=new Image();im.src=u;im.alt=name;b.appendChild(im)}
  else if(/html/.test(ty)){const fr=document.createElement('iframe');fr.className='sylfrm';fr.style.height='62vh';fr.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');b.appendChild(fr);bl.text().then(x=>{hdoc=syllDoc(name,htmlSan(x));fr.srcdoc=hdoc})}
@@ -637,7 +637,7 @@ ens=c=>{let e=es(c);if(!e){e={id:uid(),name:'Group set 1',t:[],groups:[],asg:{}}
 const vis=(u,g)=>!gf||(gf=='__none'?!ug(g,u):ug(g,u)==gf);
 const gsel=(g,u)=>{const G=g.groups,cu=ug(g,u);return `<select data-ga="${g.id}|${u.id}">${['',...G,...(cu&&!G.includes(cu)?[cu]:[])].map(x=>`<option value="${esc(x)}" ${x==cu?'selected':''}>${x===''?'—':esc(x)}</option>`).join('')}</select>`};
 const gBar=(c,s,i,lb)=>{const g=gset(c),cd=gcand(c,view);return `${cd.length>1?`<select class=gf data-a=gsetpick title="Group set">${cd.map(x=>`<option value="${x.id}" ${g&&x.id==g.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select>`:''}<select class=gf data-a=gfilt title="Filter by group"><option value="">All groups</option>${GR(c).map(x=>`<option value="${esc(x)}" ${gf==x?'selected':''}>Group ${esc(x)}</option>`).join('')}<option value="__none" ${gf=='__none'?'selected':''}>No group</option></select><button data-a=gscore data-sub=${s.id} data-i=${i||0}>${I('users')}${lb?'Group score':'<span class=lb>Group score</span>'}</button>`};
-let nt='prelim',ges='',nid='',rt='prelim',cde='';
+let nt='general',ges='',nid='',rt='prelim',cde='';
 function gsetCard(c){const A=GS(c),e=es(c);
  return `<div class=card><h2>${I('layers')}Group sets (${A.length})</h2><p class=mut style="margin:.2rem 0 .5rem">A group set is one way of splitting the class into groups. Make as many as you need, for example a different set for Prelim, Midterm and Final, or two different sets for Prelim. Tick the periods each set is used for; on that period's score pages you choose which set to use.</p>
  <div class="bar gsn"><input id=gsname placeholder="New set name, e.g. Prelim groups" style="width:16rem"><button class=pri data-a=addgset title="New group set" aria-label="New group set">+ Group set</button></div>
@@ -654,7 +654,7 @@ const STY={text:'Note',tasks:'Task checklist',quiz:'Quiz',form:'Questionnaire',f
 const NT=c=>{if(!c.notes){c.notes={};TERMS.forEach(([t])=>c.notes[t]=[])}
  if(!c.nv2){c.nv2=1;TERMS.forEach(([t])=>{c.notes[t]=(c.notes[t]||[]).filter(x=>!((x.type=='text'&&x.name=='Notes'&&!x.text)||(x.type=='tasks'&&x.name=='Assessment tasks'&&!(x.items||[]).length)))})}
  return c.notes};
-const secs=(c,t)=>NT(c)[t]||(NT(c)[t]=[]),secOf=(c,id)=>{for(const[t]of TERMS){const x=secs(c,t).find(y=>y.id==id);if(x)return x}};
+const secs=(c,t)=>NT(c)[t]||(NT(c)[t]=[]),secOf=(c,id)=>{for(const[t]of NTERMS){const x=secs(c,t).find(y=>y.id==id);if(x)return x}};
 const qtot=x=>{const a=x.items||[];return `${a.length} item${a.length==1?'':'s'} · ${sum(a.map(y=>y.p))} points`};
 const nq=x=>{const n=(x.items||[]).length;return n+' question'+(n==1?'':'s')};
 const nsum=x=>{const a=x.items||[],n=(x.files||[]).length,p=[];
@@ -684,10 +684,10 @@ async function pushFiles(){let n=0;
  return n}
 const fdel=async(id,r2)=>{try{const d=await FDB();d.transaction('f','readwrite').objectStore('f').delete(id)}catch(_){}
  if(r2&&U&&tok&&Date.now()<exp&&navigator.onLine)dr(G+'drive/v3/files/'+r2,{method:'DELETE'}).catch(()=>{})};
-const fsz=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB',fview=f=>/^(image\/|text\/)|pdf$/.test(f.type||'')||/\.html?$/i.test(f.name),fext=f=>(f.name.split('.').pop()||'').slice(0,5).toUpperCase();
-async function addFiles(c,sid,L){const x=secOf(c,sid);if(!x)return;let n=0;
+const fsz=n=>n<1024?n+' B':n<1048576?(n/1024).toFixed(0)+' KB':(n/1048576).toFixed(1)+' MB',fview=f=>/\.(docx|pptx)$/i.test(f.name)||/^(image\/|text\/)|pdf$/.test(f.type||'')||/\.html?$/i.test(f.name),fext=f=>(f.name.split('.').pop()||'').slice(0,5).toUpperCase();
+async function addFiles(c,sid,L){const x=secOf(c,sid);if(!x)return;let n=0;const cv=L.filter(F=>/\.(pdf|docx|html?)$/i.test(F.name));let mode='asis';if(cv.length){mode=await askMode(cv.length>1?cv.length+' documents':cv[0].name);if(!mode)return}
  for(const F of L){if(F.size>52428800){toast(F.name+' is over 50 MB and was skipped');continue}
-  try{const id=uid();await fput(id,F);(x.files||(x.files=[])).push({id,name:F.name,size:F.size,type:F.type||'',u:Date.now()});ntMark(c,sid);n++}catch(_){toast('Could not save '+F.name+' on this device')}}
+  try{const id=uid();await fput(id,F);(x.files||(x.files=[])).push({id,name:F.name,size:F.size,type:F.type||'',u:Date.now()});ntMark(c,sid);n++;if(mode=='html'&&/\.(pdf|docx)$/i.test(F.name)){const r=await syllConvert(F);if(r.conv=='ok'){const b=new Blob([syllDoc(F.name,r.body)],{type:'text/html'}),i2=uid();await fput(i2,b);x.files.push({id:i2,name:F.name.replace(/\.[^.]+$/,'')+' (converted).html',size:b.size,type:'text/html',u:Date.now()})}else toast(r.msg)}}catch(_){toast('Could not save '+F.name+' on this device')}}
  if(n){try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}mark(c);toast(n+' file'+(n==1?'':'s')+' added')}
  render()}
 const TU={};
@@ -703,12 +703,12 @@ function filesHtml(x){const F=x.files||[];
 function noteEd(c,x){
  return `<div class=bar><button data-a=nback>${I('left')}All items</button><span class=sp></span><span class=mut>Saved automatically</span></div>
  <div class=card><div class=bar style="margin-top:0"><input data-nt="${x.id}|name" value="${esc(x.name)}" style="flex:1;min-width:10rem;font-weight:600"><span class=chip>${STY[x.type]}</span><button class=dng data-a=delsec data-id=${x.id} title="Delete item">${I('trash')}</button></div>${x.type=='file'?'<span class=mut>Add the files for this item below.</span>':secBody(x)}</div>${filesHtml(x)}`}
-function notesV(c){const l=TERMS.find(x=>x[0]==nt)[1],S=secs(c,nt),x=nid&&S.find(y=>y.id==nid);if(nid&&!x)nid='';
+function notesV(c){const l=NTERMS.find(x=>x[0]==nt)[1],S=secs(c,nt),x=nid&&S.find(y=>y.id==nid);if(nid&&!x)nid='';
  if(x)return noteEd(c,x);
- return `<div class=bar><div><h2>${I('note')}Notes · ${l}</h2><span class=mut>Saved automatically and synced with your records.</span></div><span class=sp></span><div class=seg>${TERMS.map(([t,n])=>`<button data-a=ntterm data-val=${t} class="${t==nt?'pri':''}">${n}</button>`).join('')}</div><button class=pri data-a=nadd>${I('plus')}Add item</button></div>
- ${S.length?`<div class=cards>${S.map(y=>`<div class="hc nc" tabindex=0 role=button data-a=nopen data-id=${y.id}><span class=ic>${I(TI[y.type])}</span><b>${esc(y.name||STY[y.type])}</b><span class=chip>${STY[y.type]}</span><small>${esc(nsum(y))}</small><button class="x dng" data-a=delsec data-id=${y.id} title="Delete item">${I('trash')}</button></div>`).join('')}</div>`:`<div class="card empty"><span class="ic big">${I('note')}</span><h3>No files available for now</h3><p class=mut>Click <b>Add item</b> to create a new note, quiz, questionnaire or attachment for ${l}.</p></div>`}`}
+ return `<div class=bar><div><h2>${I('note')}Notes · ${l}</h2><span class=mut>Saved automatically and synced with your records.</span></div><span class=sp></span><div class=seg>${NTERMS.map(([t,n])=>`<button data-a=ntterm data-val=${t} class="${t==nt?'pri':''}">${n}</button>`).join('')}</div><button data-a=nadd style="background:var(--ter);border-color:var(--ter);color:#fff;font-weight:600">${I('plus')}New</button></div>
+ ${S.length?`<div class=cards>${S.map(y=>`<div class="hc nc" tabindex=0 role=button data-a=nopen data-id=${y.id}><span class=ic>${I(TI[y.type])}</span><b>${esc(y.name||STY[y.type])}</b><span class=chip>${STY[y.type]}</span><small>${esc(nsum(y))}</small><button class="x dng" data-a=delsec data-id=${y.id} title="Delete item">${I('trash')}</button></div>`).join('')}</div>`:`<div class="card empty"><span class="ic big">${I('note')}</span><h3>No files available for now</h3><p class=mut>Click <b>+ New</b> to create a new note, quiz, questionnaire or attachment for ${l}.</p></div>`}`}
 function addMenu(c){const K2=[['text','Note','Write lesson notes, reminders or plans.'],['quiz','Quiz','Questions with an answer key and points.'],['form','Questionnaire','Questions to ask, with no scoring.'],['file','Attachment','Upload PowerPoint, PDF, Word, image and other files.']];
- const o=document.createElement('div');o.id='mdl';o.innerHTML=`<div class="md am"><h3>Add item</h3><p class=mut>What would you like to add?</p>${K2.map(([k,n,ds])=>`<button class=ao data-k=${k}><span class=ic>${I(TI[k])}</span><span><b>${n}</b><small>${ds}</small></span></button>`).join('')}<div class=bar><button data-x=0>Cancel</button></div></div>`;
+ const o=document.createElement('div');o.id='mdl';o.innerHTML=`<div class="md am"><h3>New item</h3><p class=mut>What would you like to add?</p>${K2.map(([k,n,ds])=>`<button class=ao data-k=${k}><span class=ic>${I(TI[k])}</span><span><b>${n}</b><small>${ds}</small></span></button>`).join('')}<div class=bar><button data-x=0>Cancel</button></div></div>`;
  o.onclick=e=>{const b=e.target.closest('[data-k]'),x=e.target.dataset.x;if(!b&&x===undefined&&e.target!==o)return;if(o.classList.contains('out'))return;
   if(b){const k=b.dataset.k,it={id:uid(),name:'New '+STY[k].toLowerCase(),type:k,files:[],...(k=='text'?{text:''}:k=='file'?{}:{items:[]})};secs(c,nt).push(it);nid=it.id;ntMark(c,it.id);mark(c);closeMdl(o);render();scrollTo(0,0);const n=$('[data-nt$="|name"]');if(n){n.focus();n.select()}return}
   closeMdl(o)};document.body.appendChild(o)}
@@ -894,23 +894,37 @@ const nrm=x=>String(x||'').replace(/\s+/g,'').toUpperCase(),
  sameSubj=(a,b)=>a.id!=b.id&&!!nrm(a.meta.course)&&nrm(a.meta.course)==nrm(b.meta.course)&&sOf(a)==sOf(b)&&aOf(a)==aOf(b),
  MIMES={pdf:'application/pdf',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',doc:'application/msword',html:'text/html',htm:'text/html',txt:'text/plain',rtf:'application/rtf',odt:'application/vnd.oasis.opendocument.text'},
  extOf=n=>(String(n).split('.').pop()||'').toLowerCase(),sylC={};
-const syllDoc=(title,body)=>`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob: https:; style-src 'unsafe-inline'; font-src data:"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_blank"><title>${esc(title)}</title><style>:root{color-scheme:light dark}body{font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:52rem;margin:0 auto;padding:1rem 1.1rem 3rem;color:#1b2333;background:#fff;overflow-wrap:anywhere}h1,h2,h3,h4{line-height:1.25;margin:1.3em 0 .4em}p{margin:.55em 0}ul,ol{padding-left:1.4rem}img{max-width:100%;height:auto}table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}td,th{border:1px solid #c8ced9;padding:.35rem .55rem;vertical-align:top}hr{border:0;border-top:1px solid #d5dae3;margin:1.6em 0}.pgn{color:#8a93a6;font-size:.75rem;text-align:right}@media(prefers-color-scheme:dark){body{background:#12151c;color:#e6e9ef}a{color:#8ab4ff}td,th{border-color:#3a4150}hr{border-color:#2b3140}}</style></head><body>${body}</body></html>`;
+const syllDoc=(title,body)=>`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob: https:; style-src 'unsafe-inline'; font-src data:"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_blank"><title>${esc(title)}</title><style>:root{--bg:#fff;--fg:#1b2333;--bd:#c8ced9}body{font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:52rem;margin:0 auto;padding:1rem 1.1rem 3rem;color:var(--fg);background:var(--bg);overflow-wrap:anywhere}h1,h2,h3,h4{line-height:1.25;margin:1.3em 0 .4em}p{margin:.55em 0}ul,ol{padding-left:1.4rem}img{max-width:100%;height:auto}table{border-collapse:collapse;width:100%;max-width:100%;margin:.6em 0}th{background:rgba(128,128,128,.14);text-align:left}b,strong,th{font-weight:700}i,em{font-style:italic}.lg{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin:.4rem 0}.lg img{height:5rem;width:auto;max-width:30%;object-fit:contain}.tc{text-align:center}td,th{border:1px solid var(--bd);padding:.35rem .55rem;vertical-align:top}hr{border:0;border-top:1px solid var(--bd);margin:1.6em 0}.pgn{color:#8a93a6;font-size:.75rem;text-align:right}html[data-t=dark]{--bg:#12151c;--fg:#e6e9ef;--bd:#3a4150}html[data-t=dark] a{color:#8ab4ff}</style></head><body>${body}</body></html>`;
 async function docxToHtml(ab){await loadJs('mammoth.min.js');const r=await mammoth.convertToHtml({arrayBuffer:ab});return r.value}
 async function pdfToHtml(ab){await loadJs('pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';
- const pdf=await pdfjsLib.getDocument({data:new Uint8Array(ab)}).promise,out=[];let chars=0;
- for(let p=1;p<=pdf.numPages;p++){const pg=await pdf.getPage(p),tc=await pg.getTextContent(),rows=[];
-  tc.items.forEach(it=>{if(!it.str)return;const sz=Math.hypot(it.transform[0],it.transform[1])||it.height||10,y=it.transform[5],x=it.transform[4];let r=rows.find(q=>Math.abs(q.y-y)<=Math.max(2,sz*.35));if(!r)rows.push(r={y,sz:0,p:[]});r.p.push({x,w:it.width||0,s:it.str});r.sz=Math.max(r.sz,sz)});
+ const pdf=await pdfjsLib.getDocument({data:new Uint8Array(ab)}).promise,out=[],OP=pdfjsLib.OPS;let chars=0;
+ const mul=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];
+ for(let p=1;p<=pdf.numPages;p++){const pg=await pdf.getPage(p),vp=pg.getViewport({scale:1}),tc=await pg.getTextContent(),rows=[];let ol=null;try{ol=await pg.getOperatorList()}catch(_){}
+  const fs=n=>{try{const nm=(pg.commonObjs.get(n)||{}).name||'';return[/bold|black|heavy/i.test(nm),/italic|oblique/i.test(nm)]}catch(_){return[0,0]}};
+  /* logos and pictures: cut them out of a rendering of the page */
+  if(ol){const IM=[OP.paintImageXObject,OP.paintInlineImageXObject,OP.paintJpegXObject].filter(x=>x!=null),bx=[];let m=[1,0,0,1,0,0],stk=[];
+   ol.fnArray.forEach((fn,i)=>{if(fn==OP.save)stk.push(m);else if(fn==OP.restore)m=stk.pop()||m;else if(fn==OP.transform)m=mul(m,ol.argsArray[i]);else if(IM.includes(fn)){const t=mul(vp.transform,m),w=Math.hypot(t[0],t[1]),h=Math.hypot(t[2],t[3]);if(w>=24&&h>=24&&w<vp.width*.6&&h<vp.height*.4)bx.push({x:Math.min(t[4],t[4]+t[0]+t[2]),y:Math.min(t[5],t[5]+t[1]+t[3]),w,h})}});
+   if(bx.length&&bx.length<=8){const K=2,v2=pg.getViewport({scale:K}),cv=document.createElement('canvas');cv.width=v2.width;cv.height=v2.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:v2}).promise;
+    const L=[];bx.sort((a,b)=>a.y-b.y||a.x-b.x).forEach(b=>{const c=document.createElement('canvas');c.width=Math.max(1,b.w*K);c.height=Math.max(1,b.h*K);c.getContext('2d').drawImage(cv,b.x*K,b.y*K,b.w*K,b.h*K,0,0,c.width,c.height);const r=L.find(q=>Math.abs(q.y-b.y)<40);const s=`<img src="${c.toDataURL('image/png')}" alt="">`;r?r.i.push(s):L.push({y:b.y,i:[s]})});
+    L.forEach(r=>rows.push({y:vp.height-r.y+1,sz:10,img:r.i.join('')}))}}
+  tc.items.forEach(it=>{if(!it.str)return;const sz=Math.hypot(it.transform[0],it.transform[1])||it.height||10,y=it.transform[5],x=it.transform[4],[b,i]=fs(it.fontName);let r=rows.find(q=>!q.img&&Math.abs(q.y-y)<=Math.max(2,sz*.35));if(!r)rows.push(r={y,sz:0,p:[]});r.p.push({x,w:it.width||0,s:it.str,b,i});r.sz=Math.max(r.sz,sz)});
   rows.sort((a,b)=>b.y-a.y);
-  const L=rows.map(r=>{r.p.sort((a,b)=>a.x-b.x);let t='',e=null;r.p.forEach(q=>{if(e!==null){const g=q.x-e;t+=g>r.sz*2.2?'\u00a0\u00a0\u00a0\u00a0':g>r.sz*.15&&!/\s$/.test(t)&&!/^\s/.test(q.s)?' ':''}t+=q.s;e=q.x+q.w});return{y:r.y,sz:r.sz,t:t.replace(/\s+$/,'')}}).filter(l=>l.t.trim());
-  const sizes=L.map(l=>l.sz).sort((a,b)=>a-b),base=sizes.length?sizes[Math.floor(sizes.length/2)]:10;let h='',para='',ul=false,prev=null;
-  const flush=()=>{if(para){h+=`<p>${esc(para)}</p>`;para=''}},endUl=()=>{if(ul){h+='</ul>';ul=false}};
-  L.forEach(l=>{chars+=l.t.length;const bullet=/^([•▪●◦○■□\-–—*]|\d{1,2}[.)]|[a-zA-Z][.)])\s+/.test(l.t),gap=prev?prev.y-l.y:0,head=l.sz>=base*1.25&&l.t.length<130;
-   if(head){flush();endUl();h+=`<h${l.sz>=base*1.6?2:3}>${esc(l.t)}</h${l.sz>=base*1.6?2:3}>`}
-   else if(bullet){flush();if(!ul){h+='<ul>';ul=true}h+=`<li>${esc(l.t.replace(/^([•▪●◦○■□\-–—*]|\d{1,2}[.)]|[a-zA-Z][.)])\s+/,''))}</li>`}
-   else{if(ul&&gap<l.sz*1.8){h=h.replace(/<\/li>$/,' '+esc(l.t)+'</li>')}else{endUl();if(prev&&gap>l.sz*1.8)flush();para+=(para?' ':'')+l.t}}
-   prev=l});flush();endUl();out.push(h?`<div class="pgn">Page ${p}</div>${h}`:'')}
- if(chars<40){/* scanned PDF: show the pages as pictures */
-  const im=[];for(let p=1;p<=Math.min(pdf.numPages,60);p++){const pg=await pdf.getPage(p),vp=pg.getViewport({scale:1.4}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;im.push(`<p><img alt="Page ${p}" src="${cv.toDataURL('image/jpeg',.72)}"></p>`)}return im.join('<hr>')}
+  const fmt=q=>{let s=esc(q.s);if(q.b&&q.s.trim())s=`<b>${s}</b>`;if(q.i&&q.s.trim())s=`<i>${s}</i>`;return s};
+  const L=rows.map(r=>{if(r.img)return r;r.p.sort((a,b)=>a.x-b.x);const seg=[];let e=null;r.p.forEach(q=>{const g=e===null?0:q.x-e;if(e===null||g>r.sz*2.2)seg.push({x:q.x,e:q.x+q.w,t:'',raw:''});const s=seg[seg.length-1];if(e!==null&&g<=r.sz*2.2&&g>r.sz*.15&&!/\s$/.test(s.raw)&&!/^\s/.test(q.s)){s.t+=' ';s.raw+=' '}s.t+=fmt(q);s.raw+=q.s;s.e=q.x+q.w;e=q.x+q.w});seg.forEach(s=>{s.t=s.t.trim()});return{y:r.y,sz:r.sz,seg:seg.filter(s=>s.raw.trim())}}).filter(l=>l.img||l.seg.length);
+  const sizes=L.filter(l=>!l.img).map(l=>l.sz).sort((a,b)=>a-b),base=sizes.length?sizes[Math.floor(sizes.length/2)]:10;let h='',para='',ul=false,tb=null,prev=null;
+  const flush=()=>{if(para){h+=`<p>${para}</p>`;para=''}},endUl=()=>{if(ul){h+='</ul>';ul=false}},endTb=()=>{if(tb){const n=Math.max(...tb.map(r=>r.length));h+=`<table>${tb.map(r=>`<tr>${r.map((c,k)=>`<td${k==r.length-1&&r.length<n?' colspan='+(n-r.length+1):''}>${c}</td>`).join('')}</tr>`).join('')}</table>`;tb=null}},all=()=>{flush();endUl();endTb()};
+  L.forEach(l=>{if(l.img){all();h+=`<div class=lg>${l.img}</div>`;prev=null;return}
+   const txt=l.seg.map(s=>s.raw).join(' '),gap=prev?prev.y-l.y:0;chars+=txt.length;const x0=l.seg[0].x,ctr=l.seg.length==1&&Math.abs((x0+l.seg[0].e)/2-vp.width/2)<vp.width*.04,head=l.sz>=base*1.25&&txt.length<130,bullet=/^([•▪●◦○■□\-–—*]|\d{1,2}[.)]|[a-zA-Z][.)])\s+/.test(txt);
+   if(l.seg.length>1){flush();endUl();(tb=tb||[]).push(l.seg.map(s=>s.t))}
+   else if(tb&&gap<l.sz*1.8&&tb.length){const r=tb[tb.length-1];r[r.length-1]+='<br>'+l.seg[0].t}
+   else{endTb();const s=l.seg[0].t;
+    if(head){flush();endUl();const n=l.sz>=base*1.6?2:3;h+=`<h${n}${ctr?' class=tc':''}>${s}</h${n}>`}
+    else if(ctr){flush();endUl();h+=`<p class=tc>${s}</p>`}
+    else if(bullet){flush();if(!ul){h+='<ul>';ul=true}h+=`<li>${s.replace(/^((<[bi]>)*)([•▪●◦○■□\-–—*]|\d{1,2}[.)]|[a-zA-Z][.)])\s+/,'$1')}</li>`}
+    else if(ul&&gap<l.sz*1.8)h=h.replace(/<\/li>$/,' '+s+'</li>');
+    else{endUl();if(prev&&gap>l.sz*1.8)flush();para+=(para?' ':'')+s}}
+   prev=l});all();out.push(h?`<div class="pgn">Page ${p}</div>${h}`:'')}
+ if(chars<40){const im=[];for(let p=1;p<=Math.min(pdf.numPages,60);p++){const pg=await pdf.getPage(p),vp=pg.getViewport({scale:1.4}),cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;im.push(`<p><img alt="Page ${p}" src="${cv.toDataURL('image/jpeg',.72)}"></p>`)}return im.join('<hr>')}
  return out.filter(Boolean).join('<hr>')}
 const txtToHtml=t=>`<pre style="white-space:pre-wrap;font:inherit">${esc(t)}</pre>`;
 function htmlSan(src){const d=new DOMParser().parseFromString(src,'text/html');d.querySelectorAll('script,iframe,object,embed,form,base,link,meta,frame,frameset').forEach(x=>x.remove());
@@ -926,13 +940,13 @@ const blobSave=(b,name)=>{const a=document.createElement('a');a.href=URL.createO
 async function syllUpload(c,F){if(!F)return;const ext=extOf(F.name);
  if(F.size>52428800)return toast(F.name+' is over 50 MB.');
  if(!MIMES[ext])return toast('Choose a Word, PDF or HTML file.');
- st('Converting '+F.name+'…');toast('Converting the syllabus…');
- const old=c.syl,r=await syllConvert(F),orig={id:uid(),name:F.name,size:F.size,type:F.type||MIMES[ext],u:Date.now()};
+ const mode=/^(pdf|docx|doc|html|htm)$/.test(ext)?await askMode(F.name):'html';if(!mode)return;st(mode=='asis'?'Saving…':'Converting '+F.name+'…');
+ const old=c.syl,r=mode=='asis'?{conv:'asis',msg:''}:await syllConvert(F),orig={id:uid(),name:F.name,size:F.size,type:F.type||MIMES[ext],u:Date.now()};
  try{await fput(orig.id,F)}catch(_){st('');return toast('Could not save the file on this device.')}
  let html=null;if(r.conv=='ok'){const doc=syllDoc(c.meta.course||F.name,r.body),b=new Blob([doc],{type:'text/html'});html={id:uid(),name:F.name.replace(/\.[^.]+$/,'')+'.html',size:b.size,type:'text/html',u:Date.now()};await fput(html.id,b);sylC[html.id]=doc}
  if(old){[old.orig,old.html].forEach(f=>{if(f){fdel(f.id,f.r);delete sylC[f.id]}})}
  c.syl={oid:uid(),lid:old?old.lid:uid(),name:F.name,orig,html,conv:r.conv,msg:r.msg,u:Date.now()};delete c.sylOff;mark(c);st('');
- toast(r.conv=='ok'?'Syllabus added':r.msg);keep();
+ toast(r.conv=='ok'||r.conv=='asis'?'Syllabus added':r.msg);keep();
  const n=await syllSweep();if(n)toast(`Also added to ${n} other class${n==1?'':'es'}`)}
 async function syllCopy(src,dst){const cp=async f=>{if(!f)return null;const b=await fget(f.id,f.r,f.type);if(!b)return undefined;const id=uid();await fput(id,b);return{id,name:f.name,size:f.size,type:f.type,u:f.u}};
  const o=await cp(src.syl.orig);if(!o)return false;const h=await cp(src.syl.html);if(h===undefined)return false;
@@ -952,20 +966,97 @@ function sylV(c){const y=c.syl,sib=live().filter(x=>sameSubj(c,x)),acc='.pdf,.do
   return head+`<div class="card empty"><span class="ic big">${I('filec')}</span><h3>No syllabus yet</h3><p class=mut>Upload a Word, PDF or HTML file. It is converted so it opens right here on any device, and the original file is kept.</p><label class=dz data-sylz=1><input type=file hidden data-sylf accept="${acc}">${I('clip')}<span>Choose a syllabus or drop it here</span></label><p class=mut style="margin:.6rem 0 0">${note}</p></div>`}
  const also=live().filter(x=>x.id!=c.id&&x.syl&&x.syl.lid==y.lid);
  return head+`<div class=card><div class=nf style="display:flex;align-items:center;gap:.7rem"><span class=fi>${I('filec')}</span><div class=fm style="min-width:0"><b style="overflow-wrap:anywhere">${esc(y.name)}</b><small>${fext(y.orig)} · ${fsz(y.orig.size)} · ${y.html?'converted to HTML':'original only'}</small></div></div>
- <div class="bar sylb">${y.html?`<button data-a=sylnew>${I('right')}Open in new tab</button>`:''}<button data-a=syldl data-w=orig>${I('download')}Original</button>${y.html?`<button data-a=syldl data-w=html>${I('download')}HTML</button>`:''}<button class=dng data-a=sylrm title="Remove the syllabus from this class" aria-label="Remove">${I('trash')}</button></div>
+ <div class="bar sylb"><button data-a=sylnew>${I('filec')}Full view</button><button data-a=syldl data-w=orig>${I('download')}Original</button>${y.html?`<button data-a=syldl data-w=html>${I('download')}HTML</button>`:''}<button class=dng data-a=sylrm title="Remove the syllabus from this class" aria-label="Remove">${I('trash')}</button></div>
  ${y.conv!='ok'&&y.msg?`<p class=bad style="margin:.4rem 0 0">${esc(y.msg)}</p>`:''}
  <p class=mut style="margin:.5rem 0 0">${also.length?`Also in: ${also.map(x=>esc(cname(x))).join(', ')}. `:''}${note}</p></div>
- ${y.html?`<div class="card syv"><iframe id=sylfrm class=sylfrm sandbox="allow-popups allow-popups-to-escape-sandbox" title="Syllabus"></iframe></div>`:''}`}
-async function sylPaint(){const c=C(),f=$('#sylfrm');if(!c||!c.syl||!c.syl.html||!f)return;const h=c.syl.html;let t=sylC[h.id];
+ ${y.html?`<div class="card syv"><iframe id=sylfrm class=sylfrm sandbox="allow-popups allow-popups-to-escape-sandbox" title="Syllabus"></iframe></div>`:y.conv=='asis'?`<div class="card syv"><div id=sylvw></div></div>`:''}`}
+async function sylPaint(){sylAs();const c=C(),f=$('#sylfrm');if(!c||!c.syl||!c.syl.html||!f)return;const h=c.syl.html;let t=sylC[h.id];
  if(!t){const b=await fget(h.id,h.r,'text/html');if(!b){f.srcdoc=syllDoc('Syllabus','<p>The converted copy is not on this device yet. Connect to the internet and it will download.</p>');return}t=sylC[h.id]=await b.text()}
- f.srcdoc=t}
+ f.srcdoc=themed(t)}
+/* ---------- v83: themed docs, full view, upload choice, built-in viewers, slide decks ---------- */
+const isDk=()=>{const m=thv('mode');return m=='dark'||m!='light'&&matchMedia('(prefers-color-scheme:dark)').matches},
+ themed=d=>d.replace('<html','<html data-t="'+(isDk()?'dark':'light')+'"'),
+ ifr=(el,d)=>{const f=document.createElement('iframe');f.className='sylfrm';f.style.cssText='width:100%;height:100%;min-height:70vh;border:0';f.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');f.srcdoc=themed(d);el.appendChild(f)};
+const askMode=name=>new Promise(res=>{const o=dlg(`<h3>How should it open?</h3><p class=mut style="overflow-wrap:anywhere">${esc(name)}</p><button class=ao data-k=html><span class=ic>${I('right')}</span><span><b>Convert to HTML</b><small>Readable on any screen with headings, tables and logos kept. The original is kept too.</small></span></button><button class=ao data-k=asis><span class=ic>${I('file')}</span><span><b>Show as is</b><small>No edits. Opens in the built-in viewer.</small></span></button><div class=bar><button data-x=0>Cancel</button></div>`);
+ o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-k]');if(b){closeMdl(o);return res(b.dataset.k)}if(e.target.dataset.x==='0'||e.target===o){closeMdl(o);res(null)}}});
+async function viewInto(el,bl,name,key){const ext=extOf(name);el.innerHTML='';
+ if(/^image\//.test(bl.type)){const im=new Image();im.src=URL.createObjectURL(bl);im.style.cssText='max-width:100%;display:block;margin:0 auto';el.appendChild(im)}
+ else if(ext=='pdf'){await loadJs('pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await bl.arrayBuffer())}).promise,w=Math.max(280,Math.min(el.clientWidth||900,1100)),box=document.createElement('div');box.style.cssText='padding:.6rem;max-width:1100px;margin:0 auto';el.appendChild(box);
+  for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),sc=w/pg.getViewport({scale:1}).width,v=pg.getViewport({scale:sc*Math.min(2,devicePixelRatio||1)}),cv=document.createElement('canvas');cv.width=v.width;cv.height=v.height;cv.style.cssText='width:100%;height:auto;display:block;margin:0 auto .6rem;background:#fff;box-shadow:0 1px 6px #0003';box.appendChild(cv);await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise}}
+ else if(ext=='docx')ifr(el,syllDoc(name,await docxToHtml(await bl.arrayBuffer())));
+ else if(/^html?$/.test(ext))ifr(el,syllDoc(name,htmlSan(await bl.text())));
+ else if(ext=='pptx')await deck(el,bl,key);
+ else{const p=document.createElement('pre');p.style.cssText='white-space:pre-wrap;padding:1rem';p.textContent=await bl.text();el.appendChild(p)}}
+function fullView(L,i=0){const o=document.createElement('div');o.id='fv';o.style.cssText='position:fixed;inset:0;z-index:9999;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)';
+ o.innerHTML=`<div class=bar style="margin:0;padding:.5rem .7rem;border-bottom:1px solid var(--line);flex-wrap:nowrap"><button data-v=x>${I('left')}Back</button><b class=t style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center"></b>${L.length>1?`<button data-v=p aria-label=Previous>${I('left')}</button><button data-v=n aria-label=Next>${I('right')}</button>`:''}<button data-v=x aria-label=Close>✕</button></div><div class=b style="flex:1;overflow:auto;min-height:0"></div>`;
+ const t=o.querySelector('.t'),b=o.querySelector('.b');let k=i;
+ const show=async()=>{t.textContent=L[k].name+(L.length>1?` (${k+1}/${L.length})`:'');b.innerHTML='<p class=mut style="padding:1rem">Loading…</p>';try{const bl=await L[k].get();if(!bl)throw 0;await viewInto(b,bl,L[k].name,L[k].key)}catch(e){console.error(e);b.innerHTML='<p class=bad style="padding:1rem">Could not open this file.</p>'}},
+ close=()=>{document.removeEventListener('keydown',kd,true);try{document.fullscreenElement&&document.exitFullscreen()}catch(_){}o.remove()},go=d=>{k=(k+d+L.length)%L.length;show()},
+ kd=e=>{if(document.querySelector('.dkp'))return;if(e.key=='Escape'){e.stopPropagation();close()}else if(L.length>1&&!/INPUT|TEXTAREA/.test(e.target.tagName)&&!e.target.isContentEditable){if(e.key=='ArrowRight')go(1);else if(e.key=='ArrowLeft')go(-1)}};
+ o.onclick=e=>{const v=e.target.closest('[data-v]');if(v)v.dataset.v=='x'?close():go(v.dataset.v=='n'?1:-1)};
+ document.addEventListener('keydown',kd,true);document.body.appendChild(o);try{const r=o.requestFullscreen&&o.requestFullscreen();r&&r.catch&&r.catch(()=>{})}catch(_){}show()}
+function sylAs(){const c=C(),v=$('#sylvw');if(!c||!c.syl||c.syl.html||!v||v.dataset.p)return;v.dataset.p=1;const o=c.syl.orig;fget(o.id,o.r,o.type).then(b=>b?viewInto(v,b,o.name):v.textContent='The file is not on this device yet.')}
+/* ---- slide decks (.pptx): read, edit, present with presenter view ---- */
+async function unzip(ab){const u=new Uint8Array(ab),dv=new DataView(ab),M={};let e=u.length-22;while(e>0&&dv.getUint32(e,true)!=0x06054b50)e--;const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);
+ for(let i=0;i<n;i++){const me=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),nm=new TextDecoder().decode(u.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
+  const ds=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),raw=u.subarray(ds,ds+cs);
+  M[nm]=async()=>me?new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()):raw}
+ return M}
+async function pptParse(ab){const Z=await unzip(ab),T=async n=>Z[n]?new TextDecoder().decode(await Z[n]()):'',X=s=>new DOMParser().parseFromString(s,'application/xml'),G=(e,n)=>e.getElementsByTagName(n)[0],
+ pr=X(await T('ppt/presentation.xml')),sz=G(pr,'p:sldSz'),W=+sz.getAttribute('cx'),H=+sz.getAttribute('cy'),wpt=W/12700,
+ rl=async f=>{const d=X(await T(f.replace(/([^/]+)$/,'_rels/$1.rels'))),m={};[...d.getElementsByTagName('Relationship')].forEach(r=>m[r.getAttribute('Id')]=r.getAttribute('Target'));return m},
+ res=t=>'ppt/'+t.replace(/^\.\.\//,''),
+ txt=(e,dz)=>[...e.getElementsByTagName('a:p')].map(p=>{const pp=G(p,'a:pPr'),al=({ctr:'center',r:'right',just:'justify'})[pp&&pp.getAttribute('algn')]||'left';return{al,r:[...p.getElementsByTagName('a:r')].map(r=>{const q=G(r,'a:rPr'),c=q&&G(q,'a:srgbClr'),z=q&&q.getAttribute('sz');return{t:(G(r,'a:t')||{}).textContent||'',b:!!q&&q.getAttribute('b')=='1',i:!!q&&q.getAttribute('i')=='1',c:c&&c.getAttribute('val'),s:(+z||dz)/wpt}})}}),
+ names=Object.keys(Z).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>a.match(/\d+/)[0]-b.match(/\d+/)[0]),S=[];
+ for(const n of names){const d=X(await T(n)),R=await rl(n),sh=[],tree=G(d,'p:spTree'),bgc=G(d,'p:bg')&&G(G(d,'p:bg'),'a:srgbClr'),
+  an=[...new Set([...d.getElementsByTagName('p:spTgt')].map(x=>x.getAttribute('spid')))];let notes='';
+  for(const t of Object.values(R))if(/notesSlide/.test(t)){const nd=X(await T(res(t)));notes=[...nd.getElementsByTagName('p:sp')].filter(s=>{const h=G(s,'p:ph');return h&&h.getAttribute('type')=='body'}).map(s=>[...s.getElementsByTagName('a:p')].map(p=>[...p.getElementsByTagName('a:t')].map(x=>x.textContent).join('')).join('\n')).join('\n')}
+  for(const e of tree.children){const k=e.localName;if(k!='sp'&&k!='pic')continue;const id=G(e,'p:cNvPr').getAttribute('id'),ph=G(e,'p:ph'),pt=ph&&(ph.getAttribute('type')||'body'),off=G(e,'a:off'),ex=G(e,'a:ext');let o;
+   if(off&&ex)o={x:+off.getAttribute('x')/W*100,y:+off.getAttribute('y')/H*100,w:+ex.getAttribute('cx')/W*100,h:+ex.getAttribute('cy')/H*100};
+   else if(ph)o=/title/i.test(pt)?{x:5,y:6,w:90,h:18}:pt=='subTitle'?{x:10,y:40,w:80,h:20}:{x:5,y:26,w:90,h:64};else continue;
+   o.id=id;const ai=an.indexOf(id);if(ai>=0)o.an=ai;
+   if(k=='pic'){const b=G(e,'a:blip'),t=b&&R[b.getAttribute('r:embed')];if(!t||!Z[res(t)])continue;o.img=URL.createObjectURL(new Blob([await Z[res(t)]()],{type:'image/'+t.split('.').pop().toLowerCase().replace('jpg','jpeg')}))}
+   else{const sp=G(e,'p:spPr'),f=sp&&sp.children?[...sp.children].find(c=>c.localName=='solidFill'):null,c=f&&G(f,'a:srgbClr');if(c)o.bg=c.getAttribute('val');o.t=txt(e,/title/i.test(pt||'')?4000:1800);if(!o.t.some(p=>p.r.length)&&!o.bg)continue}
+   sh.push(o)}
+  S.push({sh,notes,bg:'background:#'+(bgc?bgc.getAttribute('val'):'fff')})}
+ return{S,W,H,wpt}}
+const DKCSS='.sld{position:relative;container-type:inline-size;aspect-ratio:var(--ar);width:100%;overflow:hidden;box-shadow:0 1px 8px #0004;color:#000;font-family:Calibri,Arial,sans-serif}.dsh{box-sizing:border-box}.dsh.sel{outline:2px dashed #0e8f9c}.dtx{outline:none;width:100%}.dkm{padding:.7rem;max-width:62rem;margin:0 auto}.dkp{position:fixed;inset:0;z-index:10000;background:#000;display:grid;place-items:center}.dkp .ps{width:min(100vw,calc(100vh*var(--ar)))}.dkp .sld{box-shadow:none}.dkp [data-an]{transition:opacity .5s}.dkb{position:fixed;right:.6rem;bottom:.6rem;display:flex;gap:.4rem;opacity:.35;z-index:2}.dkb:hover{opacity:1}';
+async function deck(el,bl,key){if(!$('#dkcss')){const s=document.createElement('style');s.id='dkcss';s.textContent=DKCSS;document.head.appendChild(s)}
+ let P;try{P=await pptParse(await bl.arrayBuffer())}catch(e){console.error(e);el.innerHTML='<p class=bad style="padding:1rem">This presentation could not be read. Save it as .pptx and try again.</p>';return}
+ const{S,W,H,wpt}=P,K='eclass.deck.'+key;let ed={};try{ed=JSON.parse(localStorage[K]||'{}')}catch(_){}ed.del=ed.del||{};ed.txt=ed.txt||{};ed.add=ed.add||{};
+ const sv=()=>{if(key)try{localStorage[K]=JSON.stringify(ed)}catch(_){}},
+ shapes=i=>[...S[i].sh.filter(o=>!(ed.del[i]||[]).includes(o.id)).map(o=>ed.txt[i]&&ed.txt[i][o.id]?{...o,t:ed.txt[i][o.id]}:o),...(ed.add[i]||[])],
+ shH=(o,e)=>{const st=`position:absolute;left:${o.x}%;top:${o.y}%;width:${o.w}%;height:${o.h}%;${o.bg?'background:#'+o.bg+';':''}`;
+  if(o.img)return `<div class=dsh data-id="${o.id}" ${o.an!=null?'data-an='+o.an:''} style="${st}"><img src="${o.img}" style="width:100%;height:100%;object-fit:contain" draggable=false></div>`;
+  return `<div class="dsh${e&&sel==o.id?' sel':''}" data-id="${o.id}" ${o.an!=null?'data-an='+o.an:''} style="${st}overflow:hidden"><div class=dtx ${e?'contenteditable=true':''} data-id="${o.id}">${o.t.map(p=>`<p style="margin:0 0 .3em;text-align:${p.al}">${p.r.map(r=>`<span style="${r.b?'font-weight:700;':''}${r.i?'font-style:italic;':''}font-size:${r.s}cqw;${r.c?'color:#'+r.c:''}">${esc(r.t)}</span>`).join('')||'&nbsp;'}</p>`).join('')}</div></div>`},
+ sd=(i,e)=>`<div class=sld style="--ar:${W/H};${S[i].bg}">${shapes(i).map(o=>shH(o,e)).join('')}</div>`;
+ let i=0,edit=0,sel='';
+ el.innerHTML=`<div class="bar" style="margin:0;padding:.5rem;flex-wrap:wrap"><button class=pri data-d=pr>▶ Present</button><button data-d=ed>Edit</button><span class=dke hidden style="display:none;gap:.4rem"><button data-d=ad>+ Text</button><button data-d=dl>Delete</button></span><span class=sp></span><button data-d=pp aria-label=Previous>${I('left')}</button><b class=dkc></b><button data-d=nn aria-label=Next>${I('right')}</button></div><div class=dkm></div><p class=mut style="text-align:center;margin:.2rem">Edits are kept on this device. They are not written back to the .pptx.</p>`;
+ const m=el.querySelector('.dkm'),show=()=>{m.innerHTML=sd(i,edit);el.querySelector('.dkc').textContent=(i+1)+' / '+S.length;el.querySelector('.dke').style.display=edit?'inline-flex':'none';el.querySelector('[data-d=ed]').className=edit?'pri':''};show();
+ m.addEventListener('click',e=>{const s=e.target.closest('.dsh');if(edit&&s){sel=s.dataset.id;m.querySelectorAll('.dsh').forEach(x=>x.classList.toggle('sel',x==s))}});
+ m.addEventListener('focusout',e=>{const x=e.target.closest&&e.target.closest('.dtx');if(!x||!edit)return;const id=x.dataset.id,o=shapes(i).find(q=>String(q.id)==id);if(!o)return;const r0=(o.t[0]&&o.t[0].r[0])||{s:3},al=(o.t[0]||{}).al||'left',t=x.innerText.split('\n').map(l=>({al,r:[{...r0,t:l.replace(/\u00a0/g,' ')}]}));o.t=t;if(!o.isNew)(ed.txt[i]=ed.txt[i]||{})[id]=t;sv()});
+ const pres=()=>{let s=0,pw=null,tm=null;const t0=Date.now(),Q=document.createElement('div');Q.className='dkp';Q.innerHTML='<div class=ps></div><div class=dkb><button data-q=pv>Presenter view</button><button data-q=x>✕ Exit</button></div>';document.body.appendChild(Q);const ps=Q.firstChild,mxs=n=>Math.max(-1,...shapes(n).map(o=>o.an==null?-1:o.an))+1;
+  const sync=()=>{if(!pw||pw.closed)return;const g=n=>pw.document.getElementById(n);g('cur').innerHTML=sd(i,0);g('nx').innerHTML=i<S.length-1?sd(i+1,0):'<p style="color:#999;padding:1rem">End of slides</p>';g('nt').textContent=S[i].notes||'No notes for this slide.';g('ct').textContent='Slide '+(i+1)+' of '+S.length},
+  draw=()=>{ps.innerHTML=sd(i,0);ps.querySelectorAll('[data-an]').forEach(n=>{if(+n.dataset.an>=s)n.style.opacity=0});sync()},
+  adv=d=>{if(d>0){if(s<mxs(i)){ps.querySelectorAll('[data-an="'+s+'"]').forEach(x=>x.style.opacity=1);s++}else if(i<S.length-1){i++;s=0;draw()}else exit()}else if(i>0){i--;s=mxs(i);draw()}},
+  exit=()=>{document.removeEventListener('keydown',kd,true);clearInterval(tm);try{pw&&pw.close()}catch(_){}try{document.fullscreenElement&&document.exitFullscreen()}catch(_){}Q.remove();show()},
+  kd=e=>{if(e.key=='Escape'){e.stopPropagation();exit()}else if([' ','ArrowRight','ArrowDown','PageDown','Enter'].includes(e.key)){e.preventDefault();e.stopPropagation();adv(1)}else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();e.stopPropagation();adv(-1)}else if(e.key=='p'||e.key=='P')pv()},
+  pv=()=>{pw=window.open('','dkpv','width=980,height=620');if(!pw)return toast('Allow pop-ups to open the presenter view.');const d=pw.document;d.open();d.write(`<!doctype html><meta charset=utf-8><title>Presenter view</title><style>${DKCSS}body{margin:0;font:15px system-ui;background:#111;color:#eee;display:grid;grid-template-columns:2fr 1fr;gap:10px;height:100vh;padding:10px;box-sizing:border-box;grid-template-rows:auto 1fr auto}#nt{white-space:pre-wrap;overflow:auto;font-size:1.1rem;line-height:1.5}button{font:inherit;padding:.5rem 1rem}</style><div style="grid-column:1/3;font-size:1.3rem"><b id=ct></b> <span id=tm style="float:right"></span></div><div id=cur></div><div style="min-height:0;overflow:auto"><div id=nx></div><h4>Notes</h4><div id=nt></div></div><div style="grid-column:1/3"><button id=pb>◀ Back</button> <button id=nb>Next ▶</button></div>`);d.close();d.getElementById('pb').onclick=()=>adv(-1);d.getElementById('nb').onclick=()=>adv(1);d.addEventListener('keydown',kd);sync()};
+  Q.addEventListener('click',e=>{const q=e.target.closest('[data-q]');if(q)return q.dataset.q=='x'?exit():pv();adv(1)});
+  let tx=0;Q.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});Q.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){e.preventDefault();adv(dx<0?1:-1)}});
+  document.addEventListener('keydown',kd,true);tm=setInterval(()=>{if(pw&&!pw.closed){const q=Math.floor((Date.now()-t0)/1e3);pw.document.getElementById('tm').textContent=Math.floor(q/60)+':'+String(q%60).padStart(2,'0')}},1e3);
+  try{const r=Q.requestFullscreen&&Q.requestFullscreen();r&&r.catch&&r.catch(()=>{})}catch(_){}draw()};
+ el.addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;const a=b.dataset.d;
+  if(a=='pr')pres();else if(a=='ed'){edit=!edit;show()}else if(a=='pp'){i=Math.max(0,i-1);show()}else if(a=='nn'){i=Math.min(S.length-1,i+1);show()}
+  else if(a=='ad'){(ed.add[i]=ed.add[i]||[]).push({id:'n'+uid(),isNew:1,x:10,y:10,w:50,h:14,t:[{al:'left',r:[{t:'New text',s:4}]}]});sv();show()}
+  else if(a=='dl'){if(!sel)return toast('Tap a text box or picture first.');const A=ed.add[i]||[],j=A.findIndex(o=>String(o.id)==sel);if(j>=0)A.splice(j,1);else(ed.del[i]=ed.del[i]||[]).push(sel);sel='';sv();show()}})}
 /* ---------- Notes: offer to copy new source materials to other classes ---------- */
 let ntTouch=new Set(),ntCls='';
 const ntMark=(c,sid)=>{if(c&&sid){ntCls=c.id;ntTouch.add(sid)}},ntRoot=x=>x.o||x.id,
  ntHas=x=>!!((x.text&&x.text.trim())||(x.files&&x.files.length)||(x.items&&x.items.length)),
  ntCopyOf=(d,t,x)=>secs(d,t).find(y=>ntRoot(y)==ntRoot(x));
 function ntFlush(){if(!ntTouch.size||!ntCls)return;const c=D.classes.find(x=>x.id==ntCls&&!x.d),ids=[...ntTouch];ntTouch=new Set();if(!c)return;
- const items=ids.map(id=>{for(const[t]of TERMS){const x=secs(c,t).find(y=>y.id==id);if(x)return{t,x}}}).filter(q=>q&&ntHas(q.x));
+ const items=ids.map(id=>{for(const[t]of NTERMS){const x=secs(c,t).find(y=>y.id==id);if(x)return{t,x}}}).filter(q=>q&&ntHas(q.x));
  if(!items.length)return;const others=live().filter(x=>x.id!=c.id);
  const need=d=>items.some(({t,x})=>{const cp=ntCopyOf(d,t,x);return !cp||(x.files||[]).some(f=>!(cp.files||[]).some(g=>g.fo==f.id))}),L=others.filter(need);
  if(!L.length)return;setTimeout(()=>ntShare(c,items,L),250)}
@@ -1471,7 +1562,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'addscale':{const k=String.fromCharCode(65+Object.keys(c.scales).length);c.scales[k]=JSON.parse(JSON.stringify(c.scales.A));mark(c);return render()}
  case'revcsv':return revCsv(c,d.pt);
  case'sylpick':{const i=document.querySelector('input[data-sylf]');if(i)i.click();return}
- case'sylnew':return(async()=>{const h=c.syl&&c.syl.html;if(!h)return;const w=window.open('about:blank','_blank');const b=await fget(h.id,h.r,'text/html');if(!b){if(w)w.close();return toast('The converted copy is not on this device yet.')}const u=URL.createObjectURL(new Blob([await b.text()],{type:'text/html'}));if(w)w.location.href=u;else blobSave(b,h.name)})();
+ case'sylnew':{const y=c.syl,h=y&&(y.html||y.orig);if(!h)return;return fullView([{name:h.name,get:()=>fget(h.id,h.r,h.type)}])}
  case'syldl':return(async()=>{const f=c.syl&&c.syl[d.w];if(!f)return;const b=await fget(f.id,f.r,f.type);if(!b)return toast('The file is not on this device yet. Connect to the internet and try again.');blobSave(b,f.name)})();
  case'sylrm':return ask('Remove the syllabus?','The syllabus will be removed from this class only. Other classes keep theirs.','Remove',()=>{const y=c.syl;if(y)[y.orig,y.html].forEach(f=>{if(f){fdel(f.id,f.r);delete sylC[f.id]}});c.syl=null;c.sylOff=1;mark(c);keep()});
  case'aisave':{const v=($('#aikey').value||'').trim();if(!v){if(aiKey())return toast('Key already saved.');return toast('Paste your API key first.')}if(!/^sk-ant-/.test(v))return toast('That does not look like an Anthropic key (it starts with sk-ant-).');localStorage.aikey=v;toast('Key saved on this device.');return render()}
@@ -1503,7 +1594,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'nfopen':case'nfdl':{const x=secOf(c,d.sid),f=x&&(x.files||[]).find(y=>y.id==d.fid);if(!f)return;let bl;if(!f.r&&U&&navigator.onLine)toast('Getting file…');try{bl=await fget(f.id,f.r,f.type)}catch(_){}
   if(!bl)return toast(f.r?(U?'Could not download the file. Check your connection and try again.':'Sign in with Google to open this file on this device.'):'This file has not been uploaded yet. Open the app on the device where it was added and tap Sync.');
   const u=URL.createObjectURL(bl),ty=bl.type||f.type||'';
-  if(d.a=='nfopen'){if(/^(image\/|text\/)/.test(ty)||/\.html?$/i.test(f.name))return viewFile(u,f.name,/\.html?$/i.test(f.name)?'text/html':ty,bl);let w=null;try{w=window.open(u,'_blank')}catch(_){}if(w)return}
+  if(d.a=='nfopen'){URL.revokeObjectURL(u);const V=(x.files||[]).filter(fview);return fullView(V.map(g=>({name:g.name,key:g.id,get:()=>g.id==f.id?Promise.resolve(bl):fget(g.id,g.r,g.type)})),Math.max(0,V.findIndex(g=>g.id==f.id)))}
   return saveBlob(u,f.name)}
  case'nfrm':{const x=secOf(c,d.sid),f=x&&(x.files||[]).find(y=>y.id==d.fid);if(!f)return;return ask('Remove file?','“'+esc(f.name)+'” will be removed from this item.','Remove',()=>{fdel(f.id,f.r);x.files=x.files.filter(y=>y.id!=f.id);mark(c);render()})}
  case'delitem':{const x=secOf(c,d.sid);if(!x)return;x.items=(x.items||[]).filter(y=>y.id!=d.iid);mark(c);return keep()}
