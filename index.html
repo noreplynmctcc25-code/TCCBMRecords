@@ -437,7 +437,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=84,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=85,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* ---------- defaults: taken from the DBME e-class workbook ---------- */
 const R=(a,n,f)=>Array.from({length:n},(_,i)=>f(i)+a);
@@ -567,7 +567,7 @@ function navHtml(c){const DP=isHead()?[['dept','Department','award']]:[],M=c?[['
    return `<div class=crow><button data-v=${k} data-cpid=${ci} data-nk="h:${k}:${ci}" class="cb ${has?'on':''} ${op?'op':''}"><span class=ci>${I(CIC(cp))}${esc(cp.name)} (${pc(cp.w)})</span>${I('right')}</button>${AB(cp,k,ci)}</div><div class="subs sub ${op?'open':''}" data-nk="c:${k}:${ci}"><div class=in>${cp.subs.map(s=>`<button data-v=${k} data-sb=${s.id} data-nk="s:${k}:${s.id}" class="sbn ${on&&comp==s.id?'on':''}">${I(SIC(cp,s))}${esc(s.name)} (${pc(s.w)})</button>`).join('')}</div></div>`}).join('')}<button data-v=${k} data-sb=rev data-nk="s:${k}:rev" class="cb ${on&&comp=='rev'?'on':''}"><span class=ci>${I('file')}Review</span></button><button data-v=${k} data-sb=sum data-nk="s:${k}:sum" class="cb ${on&&comp=='sum'?'on':''}"><span class=ci>${I('chart')}Summary</span></button></div></div>`;
   return `<div class="grp ${ND.includes(k)?'nd':''} ${tm&&on?'open':''} ${pop==k?'pop':''}"><button data-v=${k} data-nk="m:${k}" class="mt ${on?'on':''}">${I(ic)}<span>${l}</span></button>${sb}</div>`});
  a.splice(2,0,`<div class="grp dk"><button data-a=addclass class=mt>${I('plus')}<span>New class</span></button></div><div class="cs dk"><small>Class</small><button data-a=choose class=chs title="Choose class">${I('book')}<span>${c?esc(cname(c)):'Choose class'}</span>${I('right')}</button></div>`);
- if(c){const G2=[['stats','chart','Stats',[['compare','Compare','grid'],['perf','Performance','chart']]],['more','dots','More',[['syl','Syllabus','filec'],['notes','Notes','note'],['grades','Grades','award'],['srec','Student records','mail'],['ai','Assistant','chat'],['set','Rules','sliders']]]];
+ {const G2=[...(c?[['stats','chart','Stats',[['compare','Compare','grid'],['perf','Performance','chart']]]]:[]),['more','dots','More',c?[['syl','Syllabus','filec'],['notes','Notes','note'],['grades','Grades','award'],['srec','Student records','mail'],['ai','Assistant','chat'],['set','Rules','sliders']]:[]]];
   G2.forEach(([id,ic,l,it])=>a.push(`<div class="grp nm2 ${pop==id?'pop':''}"><button data-a=mpop data-val=${id} class="mt ${it.some(x=>x[0]==view)?'on':''}">${I(ic)}<span>${l}</span></button><div class=subs><div class=in>${it.map(([k,n,i2])=>`<button data-v=${k} class="cb ${view==k?'on':''}"><span class=ci>${I(i2)}${n}</span></button>`).join('')}${id=='more'?`<button data-a=upd class=cb><span class=ci>${I('refresh')}Update app</span></button><small class=mut style="display:block;padding:.2rem .8rem">Version ${VER}</small>`:''}</div></div></div>`))}
  a.push(`<div class="navft dk"><button data-a=upd>${I('refresh')}Update app</button><small class=mut>Version ${VER}</small></div>`);
  return a.join('')}
@@ -670,10 +670,11 @@ const nsum=x=>{const a=x.items||[],n=(x.files||[]).length,p=[];
 /* attachments are cached on this device (IndexedDB) and uploaded to Google Drive (f.r = Drive file id) so other devices can download them */
 const FDB=()=>new Promise((res,rej)=>{if(FDB.p)return res(FDB.p);const r=indexedDB.open('eclass-files',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(FDB.p=r.result);r.onerror=()=>rej(r.error)});
 const fput=async(id,b)=>{const d=await FDB();return new Promise((res,rej)=>{const q=d.transaction('f','readwrite');q.objectStore('f').put(b,id);q.oncomplete=res;q.onerror=()=>rej(q.error)})};
-const fget=async(id,r2,ty)=>{const d=await FDB();let b=await new Promise((res,rej)=>{const r=d.transaction('f').objectStore('f').get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const fget=async(id,r2,ty)=>{fget.why='';const d=await FDB();let b=await new Promise((res,rej)=>{const r=d.transaction('f').objectStore('f').get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
  /* not on this device yet: download it from Google Drive and keep a local copy */
- if(!b&&r2&&U&&navigator.onLine){try{await tk();const rs=await dr(G+`drive/v3/files/${r2}?alt=media`);b=await rs.blob();if(ty&&!b.type)b=new Blob([b],{type:ty});await fput(id,b)}catch(e){console.error(e)}}
+ if(!b){if(!r2)fget.why='noremote';else if(!U||!navigator.onLine)fget.why='offline';else{try{await tk();const rs=await dr(G+`drive/v3/files/${r2}?alt=media`);b=await rs.blob();if(ty&&!b.type)b=new Blob([b],{type:ty});await fput(id,b)}catch(e){console.error(e);fget.why=e.auth?'auth':'http'+(e.status||'')}}}
  return b};
+const fwhy=()=>({noremote:'This file was saved only on the device that uploaded it and has not reached Google Drive yet. Open the app on that device, sign in and press Sync now, then try again here.',offline:'You are offline or not signed in. Connect and sign in with Google to download it.',auth:'Your Google sign-in has expired. Press Sync now (or sign in again), then reopen the file.',http404:'The file is on Drive but this Google account or Client ID cannot open it. Use the same Google account and the same Client ID on every device, then re-upload the file once.',http403:'Google Drive refused access to this file. Use the same Google account and Client ID that uploaded it.'}[fget.why]||'The file could not be downloaded from Google Drive. Check your connection and try again.');
 /* upload one attachment to Google Drive (small files: one request, big files: resumable) */
 async function fup(f){const b=await fget(f.id);if(!b)return false;await tk();const ty=f.type||b.type||'application/octet-stream',meta={name:'eclass-'+f.id+'-'+f.name};let j;
  if(b.size<=5242880){const bd='b'+uid();j=await(await dr(G+'upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body:new Blob([`--${bd}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: ${ty}\r\n\r\n`,b,`\r\n--${bd}--`])})).json()}
@@ -683,7 +684,8 @@ async function fup(f){const b=await fget(f.id);if(!b)return false;await tk();con
 /* upload every attachment that is not on Drive yet */
 async function pushFiles(){let n=0;
  for(const c of live())for(const f of[...TERMS.flatMap(([t])=>secs(c,t).flatMap(x=>x.files||[])),...(c.syl?[c.syl.orig,c.syl.html]:[])]){if(!f||f.r)continue;
-  try{st('Uploading '+f.name+'…');if(await fup(f)){c.u=Date.now();D.dirty=1;save();n++}}catch(e){console.error(e);if(e.status==401||e.auth)throw e}}
+  try{st('Uploading '+f.name+'…');if(await fup(f)){c.u=Date.now();D.dirty=1;save();n++}}catch(e){console.error(e);if(e.status==401||e.auth)throw e;pushFiles.bad=(pushFiles.bad||0)+1}}
+ if(pushFiles.bad){toast(pushFiles.bad+' file'+(pushFiles.bad==1?'':'s')+' could not be uploaded to Drive, so other devices cannot open '+(pushFiles.bad==1?'it':'them')+' yet. It will retry on the next sync.');pushFiles.bad=0}
  return n}
 const fdel=async(id,r2)=>{try{const d=await FDB();d.transaction('f','readwrite').objectStore('f').delete(id)}catch(_){}
  if(r2&&U&&tok&&Date.now()<exp&&navigator.onLine)dr(G+'drive/v3/files/'+r2,{method:'DELETE'}).catch(()=>{})};
@@ -950,7 +952,7 @@ async function syllUpload(c,F){if(!F)return;const ext=extOf(F.name);
  try{await fput(orig.id,F)}catch(_){st('');return toast('Could not save the file on this device.')}
  let html=null;if(r.conv=='ok'){const doc=syllDoc(c.meta.course||F.name,r.body),b=new Blob([doc],{type:'text/html'});html={id:uid(),name:F.name.replace(/\.[^.]+$/,'')+'.html',size:b.size,type:'text/html',u:Date.now()};await fput(html.id,b);sylC[html.id]=doc}
  if(old){[old.orig,old.html].forEach(f=>{if(f){fdel(f.id,f.r);delete sylC[f.id]}})}
- c.syl={oid:uid(),lid:old?old.lid:uid(),name:F.name,orig,html,conv:r.conv,msg:r.msg,u:Date.now()};delete c.sylOff;mark(c);st('');
+ c.syl={oid:uid(),lid:old?old.lid:uid(),name:F.name,orig,html,conv:r.conv,msg:r.msg,u:Date.now()};delete c.sylOff;mark(c);st('');if(U&&navigator.onLine)setTimeout(()=>sync(),300);
  toast(r.conv=='ok'||r.conv=='asis'?'Syllabus added':r.msg);keep();
  const n=await syllSweep();if(n)toast(`Also added to ${n} other class${n==1?'':'es'}`)}
 async function syllCopy(src,dst){const cp=async f=>{if(!f)return null;const b=await fget(f.id,f.r,f.type);if(!b)return undefined;const id=uid();await fput(id,b);return{id,name:f.name,size:f.size,type:f.type,u:f.u}};
@@ -976,7 +978,7 @@ function sylV(c){const y=c.syl,sib=live().filter(x=>sameSubj(c,x)),acc='.pdf,.do
  <p class=mut style="margin:.5rem 0 0">${also.length?`Also in: ${also.map(x=>esc(cname(x))).join(', ')}. `:''}${note}</p></div>
  ${y.html?`<div class="card syv"><iframe id=sylfrm class=sylfrm sandbox="allow-popups allow-popups-to-escape-sandbox" title="Syllabus"></iframe></div>`:y.conv=='asis'?`<div class="card syv"><div id=sylvw></div></div>`:''}`}
 async function sylPaint(){sylAs();const c=C(),f=$('#sylfrm');if(!c||!c.syl||!c.syl.html||!f)return;const h=c.syl.html;let t=sylC[h.id];
- if(!t){const b=await fget(h.id,h.r,'text/html');if(!b){f.srcdoc=syllDoc('Syllabus','<p>The converted copy is not on this device yet. Connect to the internet and it will download.</p>');return}t=sylC[h.id]=await b.text()}
+ if(!t){const b=await fget(h.id,h.r,'text/html');if(!b){f.srcdoc=syllDoc('Syllabus','<p>'+esc(fwhy())+'</p>');return}t=sylC[h.id]=await b.text()}
  f.srcdoc=themed(t)}
 /* ---------- v83: themed docs, full view, upload choice, built-in viewers, slide decks ---------- */
 const isDk=()=>{const m=thv('mode');return m=='dark'||m!='light'&&matchMedia('(prefers-color-scheme:dark)').matches},
@@ -1000,7 +1002,7 @@ function fullView(L,i=0){const o=document.createElement('div');o.id='fv';o.style
  kd=e=>{if(document.querySelector('.dkp'))return;if(e.key=='Escape'){e.stopPropagation();close()}else if(L.length>1&&!/INPUT|TEXTAREA/.test(e.target.tagName)&&!e.target.isContentEditable){if(e.key=='ArrowRight')go(1);else if(e.key=='ArrowLeft')go(-1)}};
  o.onclick=e=>{const v=e.target.closest('[data-v]');if(v)v.dataset.v=='x'?close():go(v.dataset.v=='n'?1:-1)};
  document.addEventListener('keydown',kd,true);document.body.appendChild(o);try{const r=o.requestFullscreen&&o.requestFullscreen();r&&r.catch&&r.catch(()=>{})}catch(_){}show()}
-function sylAs(){const c=C(),v=$('#sylvw');if(!c||!c.syl||c.syl.html||!v||v.dataset.p)return;v.dataset.p=1;const o=c.syl.orig;fget(o.id,o.r,o.type).then(b=>b?viewInto(v,b,o.name):v.textContent='The file is not on this device yet.')}
+function sylAs(){const c=C(),v=$('#sylvw');if(!c||!c.syl||c.syl.html||!v||v.dataset.p)return;v.dataset.p=1;const o=c.syl.orig;fget(o.id,o.r,o.type).then(b=>b?viewInto(v,b,o.name):v.textContent=fwhy())}
 /* ---- slide decks (.pptx): read, edit, present with presenter view ---- */
 async function unzip(ab){const u=new Uint8Array(ab),dv=new DataView(ab),M={};let e=u.length-22;while(e>0&&dv.getUint32(e,true)!=0x06054b50)e--;const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);
  for(let i=0;i<n;i++){const me=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),nm=new TextDecoder().decode(u.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;
@@ -1568,7 +1570,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'revcsv':return revCsv(c,d.pt);
  case'sylpick':{const i=document.querySelector('input[data-sylf]');if(i)i.click();return}
  case'sylnew':{const y=c.syl,h=y&&(d.w=='orig'?y.orig:(y.html||y.orig));if(!h)return;return fullView([{name:h.name,get:()=>fget(h.id,h.r,h.type)}])}
- case'syldl':return(async()=>{const f=c.syl&&c.syl[d.w];if(!f)return;const b=await fget(f.id,f.r,f.type);if(!b)return toast('The file is not on this device yet. Connect to the internet and try again.');blobSave(b,f.name)})();
+ case'syldl':return(async()=>{const f=c.syl&&c.syl[d.w];if(!f)return;const b=await fget(f.id,f.r,f.type);if(!b)return toast(fwhy());blobSave(b,f.name)})();
  case'sylrm':return ask('Remove the syllabus?','The syllabus will be removed from this class only. Other classes keep theirs.','Remove',()=>{const y=c.syl;if(y)[y.orig,y.html].forEach(f=>{if(f){fdel(f.id,f.r);delete sylC[f.id]}});c.syl=null;c.sylOff=1;mark(c);keep()});
  case'aisave':{const v=($('#aikey').value||'').trim();if(!v){if(aiKey())return toast('Key already saved.');return toast('Paste your API key first.')}if(!/^sk-ant-/.test(v))return toast('That does not look like an Anthropic key (it starts with sk-ant-).');localStorage.aikey=v;toast('Key saved on this device.');return render()}
  case'aiforget':return ask('Remove the key?','The API key will be removed from this device. You can paste it again later.','Remove',()=>{delete localStorage.aikey;aiH={};render()});
