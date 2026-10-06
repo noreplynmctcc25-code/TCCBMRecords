@@ -424,7 +424,8 @@ td.absn{background:color-mix(in srgb,var(--bad) 12%,var(--card))}td.absn input{b
 .ti{position:relative;display:inline-grid;line-height:0}.tlk{position:absolute;right:-.35rem;bottom:-.3rem;width:.8rem;height:.8rem;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--card,#fff);font-style:normal}.tlk svg{width:.5rem!important;height:.5rem!important;margin:0!important;stroke-width:3}
 .hcr{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}.hcr .ic{margin-bottom:0!important}.lks{display:flex;flex-wrap:wrap;gap:.25rem}.lkc{display:inline-flex;align-items:center;gap:.15rem;font-size:.64rem;font-weight:700;line-height:1;padding:.18rem .36rem;border-radius:999px;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}.lkc svg{width:.7rem;height:.7rem}
 @media(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px){.tlk{right:50%;bottom:50%;transform:translate(50%,50%);width:.95rem;height:.95rem}.tlk svg{width:.6rem!important;height:.6rem!important}.ti>svg{opacity:.4}}
-.cmlock :is(input,select,textarea,button,[data-a],[data-s],[data-it],[contenteditable]){pointer-events:none}.cmlock input:disabled,.cmlock select:disabled,.cmlock textarea:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent;cursor:default}.cmn{margin:.1rem 0 .6rem;gap:.5rem;flex-wrap:wrap}.cmn .chip svg{width:1em;height:1em;vertical-align:-.12em;margin-right:.3em}
+.cmlock :is(input,select,textarea,button,[data-a],[data-s],[data-it],[contenteditable]){pointer-events:none}.cmlock :is([data-a=mode],[data-a=qnext],[data-a=qprev],[data-a=qpick],[data-a=sortstu],[data-a=nmtog],[data-a=hideabs]){pointer-events:auto}
+.cmlock input:disabled,.cmlock select:disabled,.cmlock textarea:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent;cursor:default}.cmn{margin:.1rem 0 .6rem;gap:.5rem;flex-wrap:wrap}.cmn .chip svg{width:1em;height:1em;vertical-align:-.12em;margin-right:.3em}
 .stt .ied,.bar .ied{padding:.4rem .5rem;margin-right:.25rem}
 
 /* v78 */
@@ -514,7 +515,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=124,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=125,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh'].includes(N.view))view=N.view}catch(_){}
@@ -1854,6 +1855,7 @@ document.addEventListener('paste',e=>{const c=C(),el=e.target;if(!c||!el||!el.ma
  if(view=='students'&&x.matches('[data-s],[data-ga]')&&!(R.length==1&&R[0].length==1&&x.tagName=='INPUT'))return pasteStu(c,x,R);
  pasteGrid(c,x,R)});
 document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav,#tp,[data-a=tp],#mdl')){closeTp()}const b=e.target.closest('[data-a],[data-v]');if(!b)return;const d=b.dataset,c=C();
+ if(d.a&&b.closest('.cmlock')&&!['mode','qnext','qprev','qpick','sortstu','nmtog','hideabs'].includes(d.a))return;
  if(d.v){if(d.v=='compare'&&view!='compare')ck='';if(d.v=='home'){cur='';view='home';comp='';gf='';cx=-1;qi=0;pop=null;psid='';nid='';return render()}if(d.cpid!==undefined){if(mob())return;const i=+d.cpid,co=c.terms[d.v].comps[i];if(view==d.v&&co.subs.some(x=>x.id==comp)){cx=cx==i?-1:i;return render()}view=d.v;comp=co.subs[0].id;cx=-1;qi=0;pop=null;return render()}if(d.sb){view=d.v;comp=d.sb;cx=-1;pop=null;qi=0;return render()}if(mob()&&isT(d.v)){const same=view==d.v&&pop==d.v;view=d.v;pop=same?null:d.v;cx=-1;qi=0;return render()}view=d.v;cx=-1;pop=null;return render()}
  const cp=d.t&&c&&c.terms[d.t].comps[d.ci];
  switch(d.a){
