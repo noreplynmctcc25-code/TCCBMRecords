@@ -533,7 +533,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=131,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=132,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -648,29 +648,44 @@ function ia(t,c,n){const{O,R}=c,N=R.length,rk=R.map((r,i)=>[r,i]).sort((a,b)=>b[
   return{o,uc,lc,df,ds,dfL,dsL,rm,dist,om:[cu.at(-1),cl.at(-1)],mis:ds<0&&dist.some(d=>!d.key&&d.u>(dist[ki]?dist[ki].u:0))}})}
 const empty=()=>'<div class=card><p class=mut>Enter answers for at least 2 students (Responses or Scan tab) to see results.</p></div>';
 const PG={A4:[210,297],Letter:[215.9,279.4],Long:[215.9,330.2]};
-function lay(t){const[W,H]=PG[t.paper||'A4'],O=obj(t),idn=t.idm=='box'?(t.idn||8):0,y0=idn?76:62,E=ess(t).length,rh=E?5.8:6.5,maxR=Math.floor((H-y0-14)/rh),lim=W-14;
+function lay(t){const[W,H]=PG[t.paper||'A4'],O=obj(t),idn=t.idm=='box'?(t.idn||8):0,y0=idn?76:62,E=ess(t).length,lim=W-14,X0=16,NEED=E*24;let rh=E?5.8:6.5,maxR=Math.floor((H-y0-14)/rh),pw=7;
  /* per[si] = circles on one line of a section. A Matching row with many choices is wrapped onto two or more lines, but only when the page cannot hold it on one line. */
- const per=t.secs.map(s=>s.t=='essay'?0:s.t=='tf'?2:s.o),pr=o=>Math.max(1,Math.min(per[o.si],o.o.length)),lns=o=>Math.ceil(o.o.length/pr(o)),ih=o=>lns(o)>1?lns(o)*rh+2.2:rh;
+ const per0=t.secs.map(s=>s.t=='essay'?0:s.t=='tf'?2:s.o);let per=[...per0];const pr=o=>Math.max(1,Math.min(per[o.si],o.o.length)),lns=o=>Math.ceil(o.o.length/pr(o)),ih=o=>lns(o)>1?lns(o)*rh+2.2:rh;
  /* each column is only as wide as its own content, so columns sit close together; columns are filled top to bottom (rows = column height in rows) */
- const build=rows=>{let c=0,y=0;const cap=rows*rh+.01,it=[],hd=[];
-  t.secs.forEach((s,si)=>{if(s.t=='essay')return;const os=O.filter(o=>o.si==si),txt=rom(si+1)+'. '+TY[s.t]+' ('+s.n+' item'+(s.n==1?'':'s')+')';
+ /* sections with only two options (True / False) are narrow, so km[si] lets one of them be laid out in several short mini-columns inside one page column. The search below picks whichever k leaves the page narrowest. */
+ const narrow=si=>t.secs[si].t!='essay'&&t.secs[si].t!='match'&&per[si]<=2;
+ const build=(rows,km)=>{let c=0,y=0;const cap=rows*rh+.01,it=[],hd=[];
+  t.secs.forEach((s,si)=>{if(s.t=='essay')return;const os=O.filter(o=>o.si==si),txt=rom(si+1)+'. '+TY[s.t]+' ('+s.n+' item'+(s.n==1?'':'s')+')',k=km&&narrow(si)&&km[si]>1?km[si]:1;
    if(y+rh+(os.length?ih(os[0]):0)>cap){c++;y=0}
    hd.push({c,y,txt,w:txt.length*1.55});y+=rh;
-   os.forEach(o=>{const h=ih(o);if(y+h>cap){c++;y=0}it.push({o,c,y});y+=h})});
+   if(k==1)os.forEach(o=>{const h=ih(o);if(y+h>cap){c++;y=0}it.push({o,c,y});y+=h});
+   else{let i=0;while(i<os.length){const ra=Math.floor((cap-y+.001)/rh);if(ra<1){c++;y=0;continue}
+     const rem=os.length-i,ru=Math.min(ra,Math.ceil(rem/k)),cnt=Math.min(rem,ru*k);
+     for(let j=0;j<cnt;j++)it.push({o:os[i+j],c,y:y+(j%ru)*rh,m:Math.floor(j/ru)});
+     i+=cnt;y+=ru*rh;if(i<os.length){c++;y=0}}}});
   const nc=c+1,cw=Array(nc).fill(0),xs=[];
-  it.forEach(i=>cw[i.c]=Math.max(cw[i.c],7*pr(i.o)+8));hd.forEach(h=>cw[h.c]=Math.max(cw[h.c],h.w));
-  let x=20;cw.forEach((w,k)=>{xs[k]=x;x+=w+3});return{it,hd,xs,end:x-3}};
+  it.forEach(i=>cw[i.c]=Math.max(cw[i.c],(i.m||0)*2+((i.m||0)+1)*(pw*pr(i.o)+7)));hd.forEach(h=>cw[h.c]=Math.max(cw[h.c],h.w));
+  let x=X0;cw.forEach((w,k)=>{xs[k]=x;x+=w+2});return{it,hd,xs,end:x-2}};
+ const nar=t.secs.map((_,si)=>si).filter(narrow),combos=nar.reduce((acc,si)=>acc.flatMap(km=>[1,2,3,4].map(k=>{const n=[...km];n[si]=k;return n})),[[]]);
+ const bestOf=r=>{let b=null;for(const km of combos){const c=build(r,km);if(c.end<=lim&&(!b||c.end<b.end))b=c}return b};
  /* with essays: use the fewest rows that still fit across the page, so objective items fill the top and the lower part is the essay box */
  const place=()=>{let bd=null,es=null;
-  if(E){for(let r=6;r<=maxR;r++){const c=build(r);if(c.end<=lim){const ey=y0+r*rh+4,eh=H-14-ey;if(eh>=38){bd=c;es={y:ey,h:eh}}break}}}
-  if(!bd)for(let r=maxR;r>=6&&!bd;r--){const c=build(r);if(c.end<=lim)bd=c}
+  if(E){for(let r=6;r<=maxR;r++){const c=bestOf(r);if(c){const ey=y0+r*rh+4,eh=H-14-ey;if(eh>=NEED){bd=c;es={y:ey,h:eh}}break}}}
+  if(!bd)for(let r=maxR;r>=6&&!bd;r--){const c=bestOf(r);if(c)bd=c}
   return{bd,es}};
- let{bd,es}=place();
- while(!bd){let k=-1;t.secs.forEach((s,si)=>{if(s.t=='match'&&per[si]>6&&(k<0||per[si]>per[k]))k=si});if(k<0)break;
-  per[k]=Math.ceil(t.secs[k].o/(Math.ceil(t.secs[k].o/per[k])+1));({bd,es}=place())}
+ /* one page only: if the items and essay boxes do not fit, first tighten the space between circles (7 mm down to 6 mm), then the row height (down to 5 mm, so circles stay readable and scannable).
+    Matching rows are only split onto two lines as a last resort. */
+ let bd=null,es=null,ok=false;
+ for(const r0 of E?[5.8,5.4,5.2,5]:[6.5,6,5.6,5.3,5]){
+  rh=r0;maxR=Math.floor((H-y0-14)/rh);
+  for(const q of[7,6.5,6]){pw=q;per=[...per0];({bd,es}=place());if(bd&&(!E||es)){ok=true;break}}
+  if(ok)break}
+ if(!ok){pw=6;rh=E?5:5;maxR=Math.floor((H-y0-14)/rh);per=[...per0];({bd,es}=place());
+  while(!bd){let k=-1;t.secs.forEach((s,si)=>{if(s.t=='match'&&per[si]>6&&(k<0||per[si]>per[k]))k=si});if(k<0)break;
+   per[k]=Math.ceil(t.secs[k].o/(Math.ceil(t.secs[k].o/per[k])+1));({bd,es}=place())}}
  if(!bd)bd=build(maxR);
- const items=bd.it.map(i=>{const bx=bd.xs[i.c],y=y0+i.y+3,p=pr(i.o);return{o:i.o,x:bx,y,b:i.o.o.map((l,j)=>({l,x:bx+8+(j%p)*7+3.5,y:y+Math.floor(j/p)*rh}))}}),heads=bd.hd.map(h=>({x:bd.xs[h.c],y:y0+h.y+3,txt:h.txt}));
- return{W,H,n:O.length,cap:Math.floor(maxR*(lim-20)/(7*Math.max(2,...O.map(o=>o.o.length))+11)),over:bd.end>lim,wrap:t.secs.some((x,si)=>x.t=='match'&&per[si]<x.o),items,heads,idn,idy:62,ess:es}}
+ const items=bd.it.map(i=>{const bx=bd.xs[i.c]+(i.m||0)*(pw*pr(i.o)+9),y=y0+i.y+3,p=pr(i.o);return{o:i.o,x:bx,y,b:i.o.o.map((l,j)=>({l,x:bx+8+(j%p)*pw+3.5,y:y+Math.floor(j/p)*rh}))}}),heads=bd.hd.map(h=>({x:bd.xs[h.c],y:y0+h.y+3,txt:h.txt}));
+ return{W,H,n:O.length,cap:Math.floor(maxR*(lim-X0)/(7*Math.max(2,...O.map(o=>o.o.length))+9)),over:bd.end>lim||(E>0&&!es),ovE:E>0&&!es&&bd.end<=lim,rh,wrap:t.secs.some((x,si)=>x.t=='match'&&per[si]<x.o),items,heads,idn,idy:62,ess:es}}
 function sheetHTML(t){const l=lay(t),{W,H}=l,m=(x,y,w,h)=>`left:${x}mm;top:${y}mm;width:${w}mm;height:${h}mm`,bub=b=>`<i style="left:${b.x}mm;top:${b.y}mm">${b.l}</i>`,E=ess(t);
  const fid=[[10,10,12],[W-10,10,8],[W-10,H-10,8],[10,H-10,8]].map(([x,y,z])=>`<b class=f style="${m(x-z/2,y-z/2,z,z)}"></b>`).join('');
  const nb=[24,36].map((y,r)=>`<div class=tx style="left:20mm;top:${y-3.4}mm;font:bold 2.8mm Arial">${r?'First name':'Last name'}</div>`+[...Array(24)].map((_,i)=>`<div class=bx style="${m(20+i*7,y,7,8)}"></div>`).join('')).join('');
@@ -682,13 +697,13 @@ function sheetHTML(t){const l=lay(t),{W,H}=l,m=(x,y,w,h)=>`left:${x}mm;top:${y}m
 ${l.idn?`<div class=tx style="left:20mm;top:56.5mm;font-size:2.6mm">Student number (optional): one digit per box</div>`+[...Array(l.idn)].map((_,i)=>`<div class=bx style="${m(20+i*7,l.idy,7,8)}"></div>`).join(''):''}
 ${l.heads.map(x=>`<div class=tx style="left:${x.x}mm;top:${x.y-1.9}mm;font:bold 3mm Arial">${esc(x.txt)}</div>`).join('')}
 ${l.items.map(it=>`<div class=tx style="left:${it.x}mm;top:${it.y-1.8}mm;width:6.5mm;text-align:right;font-size:3mm">${it.o.no}</div>`+it.b.map(bub).join('')).join('')}</div>`;
- const es=l.ess,k1=es?Math.min(E.length,Math.max(1,Math.floor(es.h/28))):0,bh=k1?es.h/k1:0;
+ const es=l.ess,k1=es?E.length:0,bh=k1?es.h/k1:0;
  if(k1)h=h.slice(0,-6)+E.slice(0,k1).map((e,k)=>`<div class=tx style="left:20mm;top:${es.y+k*bh}mm;font:bold 2.9mm Arial">${tl(e)}: Essay, item ${e.no} (${e.p} points)</div><div class=bx style="${m(20,es.y+k*bh+5,W-40,bh-7)};background:repeating-linear-gradient(#fff 0 6.5mm,#bbb 6.5mm 7mm)"></div>`).join('')+'</div>';
  const R=E.slice(k1),per=Math.max(1,Math.floor((H-30)/75));
  for(let p=0;p<R.length;p+=per)h+=`<div class=sheet style="width:${W}mm;height:${H-1}mm;page-break-before:always"><div class=tx style="left:20mm;top:12mm;font:bold 4.5mm Arial">${esc(t.name)}: essay${p||k1?' (continued)':''}</div>${R.slice(p,p+per).map((e,k)=>`<div class=tx style="left:20mm;top:${22+k*75}mm;font-size:3.2mm">${tl(e)}, item ${e.no} (${e.p} points)</div><div class=bx style="${m(20,27+k*75,W-40,62)};background:repeating-linear-gradient(#fff 0 6.5mm,#bbb 6.5mm 7mm)"></div>`).join('')}</div>`
  return h}
 const vSheet=t=>{const l=lay(t);return `<div class=card><h2>Printable answer sheet</h2><div class=row><button class=pri data-xa=psheet>Print answer sheet</button></div><p class="mut sm">Print at 100% scale (not "fit to page"), in black, on plain white paper. If the black squares do not print, turn on "Background graphics" in the print dialog.</p>
-${l.over?`<p class=bad>This test has ${l.n} items but one sheet holds ${l.cap} rows including the Test headings. Reduce the items or options.</p>`:`<p class="mut sm">${l.n} items on one ${t.paper||'A4'} page, grouped under Test I, Test II and so on. ${l.wrap?'Matching rows with many choices are printed on two lines per item so everything fits. ':''}${ess(t).length?(l.ess?'The essay box is in the lower part of the page. ':'The essay space is on page 2. '):''}Students print their name in the boxes${t.idm=='box'?' and may write a '+(t.idn||8)+'-digit student number in the boxes':''}.</p>`}
+${l.over?`<p class=bad>${l.ovE?'The items and the essay boxes do not fit together on one page. Reduce the number of items or essay questions, or choose Long paper.':`This test has ${l.n} items but one sheet holds ${l.cap} rows including the Test headings. Reduce the items or options.`}</p>`:`<p class="mut sm">${l.n} items on one ${t.paper||'A4'} page, grouped under Test I, Test II and so on. ${l.wrap?'Matching rows with many choices are printed on two lines per item so everything fits. ':''}${ess(t).length?(l.ess?'The essay box is in the lower part of the page. ':'The essay space is on page 2. '):''}Students print their name in the boxes${t.idm=='box'?' and may write a '+(t.idn||8)+'-digit student number in the boxes':''}.</p>`}
 <div class=pv data-w=${l.W} data-h=${l.H}><div style="transform:scale(.4);transform-origin:0 0">${sheetHTML(t)}</div></div></div>`};
 /* scanner: find the four corner squares, straighten the page, self-align to the printed circles, then measure each bubble */
 function hom(S,D){const A=[];S.forEach(([x,y],i)=>{const[X,Y]=D[i];A.push([x,y,1,0,0,0,-X*x,-X*y,X],[0,0,0,x,y,1,-Y*x,-Y*y,Y])});
@@ -1061,7 +1076,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-xa]'
  if(a=='csvI'){const c=calc(t),n=Math.max(1,Math.round(c.R.length*t.gp/100));csv([['Item','Test','Key','UG','LG','Df','Df level','Ds','Ds level','Remark'],...ia(t,c,n).filter(z=>!z.drop).map(z=>[z.o.no,tl(z.o),z.o.k,z.uc,z.lc,z.df,z.dfL[1],z.ds,z.dsL[1],z.rm])],slug(t.name)+' - item analysis.csv');return}
  if(a=='csvM'){const c=calc(t);csv([['Item','Test','Key',...c.R.map(r=>r.s.name),'Right'],...c.O.map((o,i)=>{const ok=c.R.filter(r=>o.k&&r.c[i]).length;return[o.no,tl(o),o.k,...c.R.map(r=>{const a=r.res[i];return !o.k||!c.live[i]||r.c[i]?a:a+' (key '+o.k+')'}),o.k&&c.live[i]?ok+'/'+c.R.length:'']}),['Objective','','',...c.R.map(r=>r.obj)],['Essay','','',...c.R.map(r=>r.ess)],['Total','','',...c.R.map(r=>r.tot)]],slug(t.name)+' - check matrix.csv');return}
  if(a=='ros'){const nk=s=>nn(s).sort().join(' ');(($('#ros')||{}).value||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(l=>{const p=l.split(/[\t,]/).map(z=>z.trim());if(p.length<2)return;const k=nk(p.slice(1).join(' ')),s=t.st.find(z=>nk(z.name.replace(',',' '))==k);if(s){s.sid=p[0];const cs=ctx.c.students.find(z=>z.id==s.id);if(cs)cs.sno=p[0]}});ctx.c.u=Date.now();fin();return}
- if(a=='psheet'){const l=lay(t);if(l.over){ctx.toast('Too many items for one sheet ('+l.n+' of '+l.cap+').');return}let p=document.getElementById('tbps');if(!p){p=document.createElement('div');p.id='tbps';document.body.appendChild(p)}p.innerHTML=`<style>@page{size:${l.W}mm ${l.H}mm;margin:0}</style>`+sheetHTML(t);document.body.classList.add('tbp');window.print();return}
+ if(a=='psheet'){const l=lay(t);if(l.over){ctx.toast(l.ovE?'The items and essay boxes do not fit on one page. Reduce the items or essay questions.':'Too many items for one sheet ('+l.n+' of '+l.cap+').');return}let p=document.getElementById('tbps');if(!p){p=document.createElement('div');p.id='tbps';document.body.appendChild(p)}p.innerHTML=`<style>@page{size:${l.W}mm ${l.H}mm;margin:0}</style>`+sheetHTML(t);document.body.classList.add('tbp');window.print();return}
  if(a=='print'){window.print();return}
  if(a=='scan'){const fs=[...($('#fl')||{files:[]}).files];if(!fs.length){ctx.toast('Choose one or more sheet images or a PDF first.');return}
   try{$('#sst').textContent='Preparing files…';const jobs=await expandFiles(fs);const total=jobs.length;if(!total){ctx.toast('No pages found.');return}
