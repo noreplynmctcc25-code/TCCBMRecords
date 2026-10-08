@@ -1140,6 +1140,8 @@ body.pvo{overflow:hidden}
 @media(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px){.pvh{gap:.4rem;padding:.5rem}.pvt{flex:1 1 100%}.pvs button{padding:.35rem .5rem;font-size:.8rem}.pvb{padding:.5rem}}
 
 /* v153 grades toolbar + preview */
+.pvhint{transition:opacity .4s ease}.pvhint.off{opacity:0}
+
 #pvw .pvb{background:#2b3240}
 
 .grtb{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.grtb::-webkit-scrollbar{display:none}.grtb button{flex:none}
@@ -1155,7 +1157,7 @@ body.pvo{overflow:hidden}
 .pvs button.on{background:var(--pri)!important;color:var(--onp,#fff)!important;box-shadow:0 1px 3px rgba(0,0,0,.2)!important}
 .pvx{width:2.4rem;height:2.4rem;padding:0!important;justify-content:center;border-radius:12px}
 .pvb{flex:1;overflow:auto;padding:1.25rem;cursor:grab;touch-action:pan-x pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.pvb.drag{cursor:grabbing;user-select:none}
-.pvz{width:max-content;margin:0 auto;transform-origin:0 0}
+.pvz{margin:0 auto;position:relative;overflow:visible}.pvz>.pvp{position:absolute;left:0;top:0;width:max-content;transform-origin:0 0}
 .pvp section,.pvp .pg{border-radius:2px;box-shadow:0 6px 28px rgba(0,0,0,.45)!important;margin:0 auto 1.25rem!important}
 .pvzi{position:absolute;left:50%;top:4.6rem;transform:translateX(-50%);padding:.35rem .75rem;border-radius:999px;background:rgba(15,23,42,.82);color:#fff;font-weight:700;font-size:.85rem;opacity:0;transition:opacity .25s;pointer-events:none;z-index:3}.pvzi.on{opacity:1}
 .pvhint{position:absolute;left:50%;bottom:.9rem;transform:translateX(-50%);margin:0;padding:.3rem .8rem;border-radius:999px;background:rgba(15,23,42,.6);color:#e2e8f0;font-size:.74rem;pointer-events:none;white-space:nowrap}
@@ -1177,7 +1179,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=154,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=155,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -1997,7 +1999,7 @@ const pvRes=()=>{if(document.getElementById('pvw')&&PV.z=='fit')pvApply()};
 function pvClose(){const o=document.getElementById('pvw');if(o)o.remove();document.body.classList.remove('pvo');document.removeEventListener('keydown',pvKey,true);removeEventListener('resize',pvRes)}
 function pvFit(){const o=document.getElementById('pvw'),b=o&&o.querySelector('.pvb'),p=o&&o.querySelector('.pvp section, .pvp .pg');if(!b||!p)return 1;return Math.max(.2,Math.min(1.6,(b.clientWidth-40)/(p.offsetWidth||1)))}
 const pvCur=()=>PV.z=='fit'?pvFit():PV.z;
-function pvApply(){const o=document.getElementById('pvw');if(!o)return;const z=pvCur();o.querySelector('.pvz').style.zoom=z;const i=o.querySelector('.pvzi');i.textContent=Math.round(z*100)+'%'+(PV.z=='fit'?' · Fit':'');i.classList.add('on');clearTimeout(pvApply.t);pvApply.t=setTimeout(()=>i.classList.remove('on'),900)}
+function pvApply(){const o=document.getElementById('pvw');if(!o)return;const z=pvCur(),zz=o.querySelector('.pvz'),pp=o.querySelector('.pvp');/* scale with a transform (no nested CSS zoom, which mis-measures long pages) and size the box to match */pp.style.transform='scale('+z+')';zz.style.width=pp.offsetWidth*z+'px';zz.style.height=pp.offsetHeight*z+'px';const i=o.querySelector('.pvzi');i.textContent=Math.round(z*100)+'%'+(PV.z=='fit'?' · Fit':'');i.classList.add('on');clearTimeout(pvApply.t);pvApply.t=setTimeout(()=>i.classList.remove('on'),900)}
 /* zoom around a screen point so the spot under the fingers/cursor stays put */
 function pvZoom(nz,cx,cy){const o=document.getElementById('pvw'),b=o&&o.querySelector('.pvb');if(!b)return;const oz=pvCur();if(nz=='fit'){PV.z='fit';return pvApply()}nz=Math.min(4,Math.max(.2,nz));const r=b.getBoundingClientRect(),px=(cx??r.left+r.width/2)-r.left,py=(cy??r.top+r.height/2)-r.top,ax=(b.scrollLeft+px)/oz,ay=(b.scrollTop+py)/oz;PV.z=nz;pvApply();b.scrollLeft=ax*nz-px;b.scrollTop=ay*nz-py}
 function pvBind(b){
@@ -2012,8 +2014,10 @@ function pvBind(b){
  b.addEventListener('dblclick',e=>pvZoom(PV.z=='fit'?Math.max(1,pvFit()*1.6):'fit',e.clientX,e.clientY))}
 function pvDraw(re){const c=C(),o=document.getElementById('pvw');if(!c||!o)return;const per=(TERMS.find(x=>x[0]==PV.t)||[,''])[1];
  o.innerHTML=`<div class=pvh><div class=pvt><b>${PV.k=='gs'?'Grade sheet':'Class record'} · ${esc(per)}</b><small>${esc(cname(c))} · ${esc(prnName(c,PV.t,PV.k))}.pdf</small></div><div class=pvc><label class=pvdoc><span class=sr>Document</span><select data-pvsel aria-label="Document">${[['rec','Class record'],['gs','Grade sheet']].map(([k,l])=>`<option value=${k} ${PV.k==k?'selected':''}>${l}</option>`).join('')}</select></label><div class=pvs role=tablist aria-label="Grading period">${TERMS.map(([k,l])=>`<button data-pvt=${k} class="${PV.t==k?'on':''}" role=tab aria-selected=${PV.t==k}>${l}</button>`).join('')}</div><button class=pvx data-pvx aria-label="Close preview" title="Close (Esc)">${I('x')}</button></div></div><div class=pvb><div class=pvz><div class=pvp>${PV.k=='gs'?gsHtml(c,PV.t):recHtml(c,PV.t)}</div></div></div><div class=pvzi aria-live=polite></div><p class=pvhint>${mob()?'Pinch to zoom · double-tap to fit':'Scroll or pinch to zoom · drag to move · double-click to fit'}</p>`;
- const p=o.querySelector('.pvp');p.querySelectorAll('.pr-rec .fitw').forEach(w=>{const tb=w.querySelector('table.rt2');if(!tb)return;tb.style.zoom=1;const av=w.clientWidth,tw=tb.offsetWidth;if(tw>av)tb.style.zoom=(av/tw*.96).toFixed(4)});try{fitGs(p)}catch(_){}
- pvBind(o.querySelector('.pvb'));pvApply();if(re)o.querySelector('.pvb').scrollTop=0}
+ const p=o.querySelector('.pvp'),fit=()=>{const z=o.querySelector('.pvz'),oz=z.style.zoom;z.style.zoom=1;p.querySelectorAll('.pr-rec .fitw').forEach(w=>{const tb=w.querySelector('table.rt2');if(!tb)return;tb.style.zoom=1;const av=w.clientWidth,tw=tb.offsetWidth;if(tw>av)tb.style.zoom=(av/tw*.96).toFixed(4)});try{fitGs(p)}catch(_){}z.style.zoom=oz};fit();
+ /* fit again once the logos have loaded, like printing does, so long class lists are not cut off */
+ const refit=()=>{if(o.isConnected&&o.contains(p)){fit();pvApply()}};Promise.all([...p.querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r}))).then(()=>document.fonts&&document.fonts.ready).then(refit);setTimeout(refit,450);
+ pvBind(o.querySelector('.pvb'));pvApply();if(re)o.querySelector('.pvb').scrollTop=0;const h=o.querySelector('.pvhint');setTimeout(()=>h&&h.classList.add('off'),3500)}
 function tbHas(t){return(t.st||[]).some(x=>/[^\s-]/.test(String(x.a||''))||(x.e||[]).some(v=>v!=null&&v!==''))}
 function tbConfirm(h,m,ok,fn){const o=dlg(`<h3>${h}</h3><p>${m}</p><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${ok}</button></div>`,'am');o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-x]');if(b&&b.dataset.x=='1'){closeMdl(o);setTimeout(fn,200)}else if(b||e.target===o)closeMdl(o)}}
 function tbPostAll(c,t){if(!tbObj(t).length&&!t.secs.some(s=>s.t=='essay'))return toast('Set up the test first.');tbQ=tbSecSel(c).slice();tbQT=t;tbNextPost()}
@@ -2173,7 +2177,7 @@ function grades(c,sid,z){const o={};let pv=null;TERMS.forEach(([t],i)=>{const T=
 /* ---------- state ---------- */
 const C=()=>D.classes.find(c=>c.id==cur&&!c.d),live=()=>D.classes.filter(c=>!c.d),save=()=>{try{localStorage[K]=JSON.stringify(D);save.f=0}catch(e){console.error(e);if(!save.f){save.f=1;toast('Storage is full. Changes may not be saved on this device. Tap Sync now, or free up space.')}}if(window.MEMSTORE&&!save.m){save.m=1;toast('This browser blocks storage. Changes will be lost when you close the app. Sync to Google Drive.')}};
 const mark=c=>{if(c){try{dropGuard(c)}catch(_){}if(lockFix(c)){const n=Date.now();if(n-(mark.lf||0)>1500){mark.lf=n;toast('That period is committed (locked). Unlock it to make changes.');setTimeout(keep,0)}}c.u=Date.now();if(isT(view))(c.tu??={})[view]=c.u}D.dirty=1;save();if(U&&st.m!='Syncing…')st(navigator.onLine?'Pending sync':'Offline — saved on this device');clearTimeout(mark.t);mark.t=setTimeout(()=>sync(),4000)};
-const nm=s=>`${s.last||''}, ${s.first||''} ${s.mi||''}`.trim(),f=(v,d=1)=>v==null?'—':v.toFixed(d);
+const nm=s=>`${s.last||''}, ${s.first||''} ${s.mi||''}`.trim(),f=(v,d=1)=>v==null?'—':(Math.round((v+Math.sign(v)*Math.abs(v)*1e-12)*10**d)/10**d).toFixed(d);
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2500)};
 const st=m=>{const e=$('#st');if(e)e.textContent=m;st.m=m},isT=v=>TERMS.some(t=>t[0]==v);
 const mob=()=>matchMedia('(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px)').matches;
@@ -3133,7 +3137,9 @@ function gsHtml(c,t){const m=c.meta,ti=TERMS.findIndex(x=>x[0]==t),last=t=='fina
 const pgs=k=>{let e=$('#pgs');if(!e){e=document.createElement('style');e.id='pgs';document.head.appendChild(e)}e.textContent=k=='gs'?'@page{size:8.5in 13in;margin:.5in}':'@page{size:13in 8.5in;margin:.4in}'};
 /* grade sheet: shrink to fit one 8.5 x 13 page (12in of height inside the margins), keeping the 7.5in width */
 function fitGs(p){p.querySelectorAll('.pr-gs').forEach(sec=>{const w=sec.querySelector('.fitw'),AV=11.9*96;if(!w)return;let z=1;w.style.zoom=1;w.style.width='7.5in';
- for(let i=0;i<6;i++){const h=w.getBoundingClientRect().height;if(h<=AV)break;z=Math.max(.4,z*AV/h*.99);w.style.zoom=z.toFixed(4);w.style.width=(7.5/z).toFixed(3)+'in'}})}
+ for(let i=0;i<6;i++){const h=w.getBoundingClientRect().height;if(h<=AV)break;z=Math.max(.4,z*AV/h*.99);w.style.zoom=z.toFixed(4);w.style.width=(7.5/z).toFixed(3)+'in'}
+ /* then check the real layout: shrink a little more until nothing spills past the page (long class lists) */
+ for(let i=0;i<14&&sec.scrollHeight>sec.clientHeight+1;i++){z=Math.max(.35,z*.97);w.style.zoom=z.toFixed(4);w.style.width=(7.5/z).toFixed(3)+'in'}})}
 async function printHtml(h,k,ttl){pgs(k);const p=$('#pa'),otl=document.title;if(ttl)document.title=ttl;p.innerHTML=h;p.classList.add('m');
  await Promise.all([...p.querySelectorAll('img')].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
  p.querySelectorAll('.pr-rec .fitw').forEach(w=>{const tb=w.querySelector('table.rt2');tb.style.zoom=1;const av=w.clientWidth,tw=tb.offsetWidth;if(tw>av)tb.style.zoom=(av/tw*.96).toFixed(4)});
