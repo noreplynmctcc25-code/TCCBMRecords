@@ -1135,7 +1135,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=148,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=149,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -1735,7 +1735,7 @@ return{summ,derive,bind,view,after,obj,calc,ia,ess,lay,sheetHTML,norm,pending:()
 /* v128: Tests tab, phase 1 (test setup and answer key linked to a class, grading period, component, column and date) */
 const TBTY={mc:'Multiple choice',tf:'True / False',match:'Matching',essay:'Essay (hand-scored)'},TBL='ABCDEFGHIJKLMNOPQRSTUVWXYZ',TBMAX={mc:5,match:26},TBR=['I','II','III','IV','V','VI','VII','VIII','IX','X'],tbRom=n=>TBR[n-1]||String(n),tbNorm=s=>String(s||'').toUpperCase().replace(/[\s,]/g,'');
 let tbAnl='resp',tbCid='',tbSel='',tbTab='setup',tbSecs=null,tbNewX=null,tbQ=[],tbQT=null;
-const tbCls=()=>{const L=live().filter(x=>!x.arch);if(tbSel){const o=L.find(x=>(x.tests||[]).some(t=>t.id==tbSel&&!t.d));if(o)return o}return L.find(x=>x.id==tbCid)||C()||L[0]||null},tbList=c=>(c.tests||[]).filter(t=>!t.d),
+const tbCls=()=>{const sc=tbScope();if(sc){const g=tbGrpOf(sc).cls;if(tbSel){const o=g.find(x=>(x.tests||[]).some(t=>t.id==tbSel&&!t.d));if(o)return o}return g.find(x=>x.id==tbCid)||sc}const L=live().filter(x=>!x.arch);if(tbSel){const o=L.find(x=>(x.tests||[]).some(t=>t.id==tbSel&&!t.d));if(o)return o}return L.find(x=>x.id==tbCid)||C()||L[0]||null},tbList=c=>(c.tests||[]).filter(t=>!t.d),
  tbObj=t=>{let n=0;const r=[];t.secs.forEach((s,si)=>{const k=tbNorm(s.k);for(let i=0;i<s.n;i++){n++;if(s.t!='essay')r.push({no:n,si,pi:i,o:s.t=='tf'?['T','F']:[...TBL.slice(0,s.o)],p:s.p,k:k[i]&&k[i]!='-'?k[i]:''})}});return r},
  tbTotal=t=>t.secs.reduce((a,s)=>a+s.n*s.p,0),tbCount=t=>t.secs.reduce((a,s)=>a+s.n,0),tbNm=s=>`${s.last||''}, ${s.first||''}${s.mi?' '+s.mi:''}`,
  tbSubs=(c,k)=>{const o=[];c.terms[k].comps.forEach(cp=>cp.subs.forEach(s=>{if(s.att||isPart(s))return;o.push({cp:cp.id,s,l:cp.subs.length>1?cp.name+' › '+s.name:cp.name})}));return o},
@@ -1745,7 +1745,9 @@ const tbCls=()=>{const L=live().filter(x=>!x.arch);if(tbSel){const o=L.find(x=>(
  tbTgOf=(c,t)=>{if(t.tg)return t.tg;const x=tbSubs(c,t.term).find(z=>z.s.id==t.sub);return x?(x.cp=='me'?'exam':x.cp=='mp'&&/^summative/i.test(x.s.name)?'sum':''):''},
  tbSubFor=(c,t)=>{if(!c.terms[t.term])return null;const L=tbSubs(c,t.term);if(t.tg){const x=tbTg(c,t.term).find(z=>z.tg==t.tg);return x?L.find(z=>z.s.id==x.s.id)||null:null}return L.find(z=>z.s.id==t.sub)||null},
  tbLabel=(c,t)=>{const s=c.terms[t.term]&&tbSubFor(c,t);return(TERMS.find(z=>z[0]==t.term)||[,''])[1]+' · '+(s?(s.s&&s.s.name||s.l):'Component removed')};
-const tbGrps=()=>{const m=new Map();live().filter(x=>!x.arch).slice().sort((a,b)=>cname(a).localeCompare(cname(b))).forEach(c=>{const k=(ckey(c)||'id:'+c.id)+'|'+aOf(c)+'|'+sOf(c);(m.get(k)||m.set(k,{k,cls:[]}).get(k)).cls.push(c)});return[...m.values()]},
+const tbScope=()=>{const c=cur&&C();return c&&!c.arch?c:null},
+ tbGrps=()=>{const A=tbGrpsAll(),sc=tbScope();if(sc){const g=A.find(x=>x.cls.some(y=>y.id==sc.id));if(g)return[g]}return A},
+ tbGrpsAll=()=>{const m=new Map();live().filter(x=>!x.arch).slice().sort((a,b)=>cname(a).localeCompare(cname(b))).forEach(c=>{const k=(ckey(c)||'id:'+c.id)+'|'+aOf(c)+'|'+sOf(c);(m.get(k)||m.set(k,{k,cls:[]}).get(k)).cls.push(c)});return[...m.values()]},
  tbGrpOf=c=>tbGrps().find(g=>g.cls.some(x=>x.id==c.id))||{k:'id:'+c.id,cls:[c]},
  tbAll=c=>tbGrpOf(c).cls.flatMap(x=>tbList(x)),
  tbGrpLab=g=>{const m=g.cls[0].meta||{};return (m.subj||'Course')+(m.title?' — '+m.title:'')},
@@ -1945,7 +1947,7 @@ function testsV(){return'<div class=tbw>'+tbV0()+'</div>'}
 function tbV0(){const c=tbCls();if(!c)return`<div class="card empty"><span class="ic big">${I('quiz')}</span><h3>No classes yet</h3><p class=mut>Create a class first. Tests belong to a course and cover all of its sections.</p></div>`;
  const g=tbGrpOf(c),LO=g.cls.flatMap(x=>tbList(x).map(t=>({c:x,t}))),L=LO.map(z=>z.t),t=L.find(x=>x.id==tbSel);
  const m0=g.cls[0].meta||{},cd=m0.subj||'Course',fl=[m0.subj,m0.title].filter(Boolean).join(' — ')||'Course',sx=g.cls.length>1?g.cls.length+' sections ('+g.cls.map(x=>x.meta.section||'—').join(', ')+')':(m0.section?'Section '+m0.section:''),
-  head=`<div class="card tbh"><div class=bar><div class=tbcl>${I('book')}<div class=tbcw>${tbPk('course','set',cd)}<small class=tbcd>${esc(fl)}${sx?' · '+esc(sx):''}</small></div></div><button class="pri tbadd" data-a=tbnew title="New test" aria-label="New test">${I('plus')}Test</button></div></div>`;
+  head=`<div class="card tbh"><div class=bar><div class=tbcl>${I('book')}<div class=tbcw>${tbScope()?`<b class=tbcc>${esc(cd)}</b>`:tbPk('course','set',cd)}<small class=tbcd>${esc(fl)}${sx?' · '+esc(sx):''}${tbScope()?' · Showing this class’s subject only':''}</small></div></div><button class="pri tbadd" data-a=tbnew title="New test" aria-label="New test">${I('plus')}Test</button></div></div>`;
  const headS=`<div class="card tbh tbhs"><div class=tbcl>${I('book')}<div class=tbcw><b class=tbcc>${esc(cd)}</b>${m0.title?`<span class=tbctl>${esc(m0.title)}</span>`:''}${sx?`<small class=tbcd>${esc(sx)}</small>`:''}</div></div></div>`;
  const LF=LO.filter(z=>TF=='all'||(TF=='posted'?!!z.t.posted:TF=='np'?!z.t.posted:TF=='t:'+z.t.term));
  if(!t)return head+(L.length?sfBar('tb','Search tests','tbfilt',tbFLab())+`<div class=tbl data-sqc=tb>${LF.map(z=>tbRow(z.c,z.t)).join('')}</div><p class="mut sfe" data-sqe=tb ${LF.length?'hidden':''}>${LF.length?'No tests match your search.':'No tests in this filter.'}</p>`:`<div class="card empty"><span class="ic big">${I('quiz')}</span><h3>No tests yet</h3><p class=mut>Create a test for this course, link it to a grading period and to Summative or Major exam, and set up its answer key.</p><button class=pri data-a=tbnew>${I('plus')}Test</button></div>`);
