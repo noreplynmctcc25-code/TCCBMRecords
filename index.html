@@ -1032,7 +1032,7 @@ body.tpo header{z-index:50!important}body.tpo::before{content:"";position:fixed;
 /* group sets */
 .gsn{flex-wrap:nowrap}.gsn input{flex:1;min-width:0;max-width:20rem}
 .gslk{display:flex;align-items:center;gap:.4rem;margin:.2rem 0 .6rem}.gslk .i{width:.9rem;height:.9rem}
-.gsg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),1fr));gap:.6rem;margin-top:.7rem;padding:.7rem;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--pri) 4%,var(--card))}
+.grpg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),1fr));gap:.6rem;margin-top:.7rem;padding:.7rem;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--pri) 4%,var(--card))}
 .gsgc small{display:block;font-size:.7rem;font-weight:700;color:var(--mut);margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.04em}
 .gsgr{display:flex;gap:.4rem}.gsgr input{flex:1;min-width:0}.gsgr button{flex:none;justify-content:center}
 
@@ -1179,7 +1179,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=155,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=156,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -2424,7 +2424,7 @@ function gsetCard(c){const A=GS(c),e=es(c),ge=gsEd==c.id,dis=ge?'':'disabled';
  ${ge?`<div class="bar gsn"><input id=gsname placeholder="New set name, e.g. Prelim groups"><button class=pri data-a=addgset title="New group set" aria-label="New group set">${I('plus')}Group set</button></div>`:`<p class="gslk mut sm">${I('lock')}Tap <b>Edit all</b> above to add, rename or remove groups.</p>`}
  ${A.length?`<div class=gts>${A.map(x=>`<button data-a=pickgset data-id=${x.id} class="${e&&x.id==e.id?'pri':''}">${esc(x.name)}<small class=gtag>${x.groups.length}</small></button>`).join('')}</div>`:''}
  ${e?`<div class=gsb><div class=form><label>Set name<input data-gsn value="${esc(e.name)}" ${dis}></label><div><label>Used for</label><div class=ckr>${TERMS.map(([t,l])=>`<label class=ck><input type=checkbox data-gst=${t} ${(e.t||[]).includes(t)?'checked':''} ${dis}>${l}</label>`).join('')}</div></div></div>
- ${ge?`<div class=gsg><div class=gsgc><small>Add one group</small><div class=gsgr><input id=gname placeholder="Group name or number"><button data-a=addgrp>${I('plus')}Add</button></div></div><div class=gsgc><small>Or create several</small><div class=gsgr><input id=gnum type=number min=1 max=50 placeholder="How many?" inputmode=numeric><button data-a=numgrp>Create</button></div></div><div class=gsgc><small>Assign students</small><div class=gsgr><button data-a=rnd title="Randomly assign students to groups">${I('shuffle')}Randomize</button></div></div></div>`:''}
+ ${ge?`<div class=grpg><div class=gsgc><small>Add one group</small><div class=gsgr><input id=gname placeholder="Group name or number"><button data-a=addgrp>${I('plus')}Add</button></div></div><div class=gsgc><small>Or create several</small><div class=gsgr><input id=gnum type=number min=1 max=50 placeholder="How many?" inputmode=numeric><button data-a=numgrp>Create</button></div></div><div class=gsgc><small>Assign students</small><div class=gsgr><button data-a=rnd title="Randomly assign students to groups">${I('shuffle')}Randomize</button></div></div></div>`:''}
  <div class=gl>${e.groups.map((g,i)=>`<div class=gi><input data-gn=${i} value="${esc(g)}" aria-label="Group name" ${dis}><small class=mut>${c.students.filter(u=>ug(e,u)==g).length}</small>${ge?`<button class=dng data-a=delgrp data-i=${i} title="Remove group" aria-label="Remove group">${I('trash')}</button>`:''}</div>`).join('')||'<span class=mut>No groups in this set yet.</span>'}</div>
  <p class=mut style="margin:.7rem 0 .2rem">Assign students to groups in the Students list below: every group set adds a column there.</p>
  <div class=bar>${ge?`<button data-a=clrgset>Clear assignments</button><button data-a=dupgset>${I('layers')}Duplicate set</button><span class=sp></span><button class=dng data-a=delgset>${I('trash')}Delete set</button>`:''}</div>
