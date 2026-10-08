@@ -1192,7 +1192,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=159,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=161,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -2046,6 +2046,72 @@ function pvDraw(re){const c=C(),o=document.getElementById('pvw');if(!c||!o)retur
  try{const q=matchMedia('(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px)');q.addEventListener?q.addEventListener('change',chk):q.addListener(chk)}catch(_){}
  addEventListener('resize',later);addEventListener('orientationchange',later);addEventListener('pageshow',later);addEventListener('load',()=>{chk();setTimeout(chk,400);setTimeout(chk,1200)});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)later()});try{visualViewport&&visualViewport.addEventListener('resize',later)}catch(_){}})();
+
+/* v160: export the official e-class workbook. The school's template (templates/eclass-dbme.xlsx) is opened as-is and only
+   its input cells are filled in, so sheets, fonts, borders, protection, formulas and the Grade Equivalent list stay intact. */
+const EC={tpl:'templates/eclass-dbme.xlsx',max:60,first:19,clRow:3,
+ cols:{att:['F','G','H','I','J','K'],cw:['P','Q','R','S','T','U'],mp:['Z'],me:['AD']},wcell:{att:'O16',cw:'Y16',mp:'AC16',me:'AG16'},hcell:{att:'F14',cw:'P14',mp:'Z14',me:'AD14'},
+ sign:{PRELIM:{head:'F',dean:'R',pres:'Z'},MIDTERM:{head:'K',dean:'V',pres:'AE'},FINAL:{head:'K',dean:'U',pres:'AD'}}};
+const crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0};
+async function zStream(b,mode,dec){const s=new Blob([b]).stream().pipeThrough(dec?new DecompressionStream(mode):new CompressionStream(mode));return new Uint8Array(await new Response(s).arrayBuffer())}
+async function zipRead(buf){const u=new Uint8Array(buf),dv=new DataView(buf);let e=u.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<0)throw new Error('Not a zip file');
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const out=[],td=new TextDecoder();
+ for(let i=0;i<n;i++){const m=dv.getUint16(p+10,true),crc=dv.getUint32(p+16,true),cs=dv.getUint32(p+20,true),us=dv.getUint32(p+24,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true),name=td.decode(u.subarray(p+46,p+46+nl));
+  const ln=dv.getUint16(lo+26,true),le=dv.getUint16(lo+28,true),data=u.slice(lo+30+ln+le,lo+30+ln+le+cs);out.push({name,m,crc,cs,us,data});p+=46+nl+el+cl}
+ for(const f of out)f.get=async()=>f.m===0?f.data:await zStream(f.data,'deflate-raw',1);return out}
+async function zipWrite(files){const te=new TextEncoder(),parts=[],cd=[];let off=0;
+ for(const f of files){let raw=f.raw,data=f.data,m=f.m,crc=f.crc,us=f.us;if(raw){crc=crc32(raw);us=raw.length;try{data=await zStream(raw,'deflate-raw',0);m=8}catch(_){data=raw;m=0}}
+  const nb=te.encode(f.name),h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,m,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,us,true);h.setUint16(26,nb.length,true);
+  parts.push(new Uint8Array(h.buffer),nb,data);const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,m,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,us,true);c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+  cd.push(new Uint8Array(c.buffer),nb);off+=30+nb.length+data.length}
+ const cs=cd.reduce((a,b)=>a+b.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cd,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const ecNS='http://schemas.openxmlformats.org/spreadsheetml/2006/main',ecCol=r=>r.replace(/\d+/g,''),ecNum=c=>c.split('').reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0);
+function ecSet(doc,ref,v){const rn=+ref.replace(/\D/g,''),sd=doc.getElementsByTagName('sheetData')[0];let row=[...sd.getElementsByTagName('row')].find(r=>+r.getAttribute('r')==rn);
+ if(!row){row=doc.createElementNS(ecNS,'row');row.setAttribute('r',rn);const nx=[...sd.getElementsByTagName('row')].find(r=>+r.getAttribute('r')>rn);sd.insertBefore(row,nx||null)}
+ let c=[...row.getElementsByTagName('c')].find(x=>x.getAttribute('r')==ref);
+ if(!c){c=doc.createElementNS(ecNS,'c');c.setAttribute('r',ref);const k=ecNum(ecCol(ref)),nx=[...row.getElementsByTagName('c')].find(x=>ecNum(ecCol(x.getAttribute('r')))>k);row.insertBefore(c,nx||null)}
+ while(c.firstChild)c.removeChild(c.firstChild);c.removeAttribute('t');
+ if(v===''||v==null)return;if(typeof v=='number'&&isFinite(v)){const e=doc.createElementNS(ecNS,'v');e.textContent=String(Math.round(v*1e6)/1e6);c.appendChild(e);return}
+ c.setAttribute('t','inlineStr');const is=doc.createElementNS(ecNS,'is'),t=doc.createElementNS(ecNS,'t');t.setAttribute('xml:space','preserve');t.textContent=String(v);is.appendChild(t);c.appendChild(is)}
+/* read the column layout of a term sheet from its header row 16 (FINAL has 5 CW columns, PRELIM/MIDTERM have 6) */
+function ecLayout(ws,sst){const row=[...ws.getElementsByTagName('row')].find(r=>r.getAttribute('r')=='16');const L={att:[],cw:[],mp:[],me:[],ge:[]};if(!row)return L;
+ [...row.getElementsByTagName('c')].forEach(c=>{const ref=c.getAttribute('r'),t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0],x=t=='s'&&v?sst[+v.textContent]:t=='inlineStr'?c.textContent:(v?v.textContent:''),k=String(x||'').trim().toUpperCase(),col=ecCol(ref);
+  if(/^A\d+$/.test(k))L.att.push(col);else if(/^CW\d+$/.test(k))L.cw.push(col);else if(k=='MP')L.mp.push(col);else if(k=='ST')L.me.push(col);else if(k=='GE')L.ge.push(col)});
+ const nxt=col=>{const n=ecNum(col)+1;let s='',x=n;while(x>0){const m=(x-1)%26;s=String.fromCharCode(65+m)+s;x=Math.floor((x-1)/26)}return s};L.w=L.ge.map(nxt);return L}
+function ecStyle(ws,ref,from){const f=[...ws.getElementsByTagName('c')].find(x=>x.getAttribute('r')==from),t=[...ws.getElementsByTagName('c')].find(x=>x.getAttribute('r')==ref);if(f&&t&&f.getAttribute('s'))t.setAttribute('s',f.getAttribute('s'))}
+/* fit any number of app columns into the template's fixed slots: extras are combined into the last slot (points and maximum added), so TO and %EQ stay exact */
+function ecPack(cols,n){if(cols.length<=n)return cols;const A=cols.slice(0,n-1),R=cols.slice(n-1);A.push({lab:'+',mx:sum(R.map(x=>+x.mx||0)),val:u=>{const v=R.map(x=>x.val(u));return v.every(x=>x===''||x==null)?'':sum(v.map(x=>+x||0))}});return A}
+async function ecExport(c){if(!c)return;const L=c.students;if(!L.length)return toast('Add students first');if(typeof DecompressionStream=='undefined')return toast('This browser cannot build the workbook. Please update Chrome, Safari or Edge.');
+ st('Preparing the e-class workbook…');try{
+  const r=await fetch(EC.tpl,{cache:'no-cache'});if(!r.ok)throw new Error('The e-class template file ('+EC.tpl+') was not found on the site.');
+  const Z=await zipRead(await r.arrayBuffer()),td=new TextDecoder(),te=new TextEncoder(),get=async n=>td.decode(await Z.find(f=>f.name==n).get());
+  const sstD=Z.find(f=>f.name=='xl/sharedStrings.xml')?new DOMParser().parseFromString(await get('xl/sharedStrings.xml'),'application/xml'):null,sst=sstD?[...sstD.getElementsByTagName('si')].map(si=>[...si.getElementsByTagName('t')].map(t=>t.textContent).join('')):[];
+  const wb=new DOMParser().parseFromString(await get('xl/workbook.xml'),'application/xml'),rel=new DOMParser().parseFromString(await get('xl/_rels/workbook.xml.rels'),'application/xml');
+  const path=nm=>{const sh=[...wb.getElementsByTagName('sheet')].find(x=>x.getAttribute('name').trim()==nm);if(!sh)return null;const id=sh.getAttribute('r:id')||sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');const t=[...rel.getElementsByTagName('Relationship')].find(x=>x.getAttribute('Id')==id).getAttribute('Target');return 'xl/'+t.replace(/^\/?xl\//,'').replace(/^\//,'')};
+  const ed={},open=async nm=>{const p=path(nm);if(!p)return null;if(!ed[p])ed[p]=new DOMParser().parseFromString(await get(p),'application/xml');return ed[p]};
+  const m=c.meta||{},N=Math.min(L.length,EC.max);
+  /* Class List */
+  const cl=await open('Class List');
+  for(let i=0;i<EC.max;i++){const u=L[i],r=EC.clRow+i;ecSet(cl,'B'+r,u?String(u.last||'').toUpperCase():'');ecSet(cl,'D'+r,u?String(u.first||'').toUpperCase():'');ecSet(cl,'E'+r,u?String(u.mi||''):'');ecSet(cl,'G'+r,u?(u.prog||m.course||''):'')}
+  ecSet(cl,'J6',[sOf(c),aOf(c)?'A.Y. '+aOf(c):''].filter(Boolean).join(', '));ecSet(cl,'J7',m.dept||'');ecSet(cl,'J8',m.instructor||'');ecSet(cl,'J9',m.subj||'');ecSet(cl,'J10',m.title||'');ecSet(cl,'J11',m.sched||'');ecSet(cl,'J12',m.course?(m.course+' '+(m.year||'')+(m.section?' - '+m.section:'')).replace(/\s+/g,' ').trim():(m.section||''));
+  /* PRELIM / MIDTERM / FINAL */
+  const SN={prelim:'PRELIM',midterm:'MIDTERM',final:'FINAL'};
+  for(const [t] of TERMS){const ws=await open(SN[t]);if(!ws||!c.terms[t])continue;recHtml(c,t);const cs=recHtml.cs||[],LY=ecLayout(ws,sst);
+   ['att','cw','mp','me'].forEach((id,gi)=>{const S=LY[id];if(!S.length)return;const q=cs.find(x=>x.cp.id==id),cols=q?ecPack(q.cols,S.length):[];
+    S.forEach((col,k)=>{const x=cols[k];ecSet(ws,col+'17',x&&x.mx!==''?+x.mx:'');for(let i=0;i<EC.max;i++){const u=L[i];let v=x&&u?x.val(u):'';if(v!==''&&v!=null&&!isNaN(+v))v=+v;else v='';ecSet(ws,col+(EC.first+i),v)}});
+    if(q){if(LY.w[gi])ecSet(ws,LY.w[gi]+'16',(+q.cp.w||0)/100);const hc=S[0]+'14',nm={att:'ATTENDANCE',cw:'PARTICIPATION and OTHER COURSEWORK',mp:'MAJOR PERFORMANCE',me:'MAJOR EXAM'}[id];ecSet(ws,hc,nm+' \n('+(+q.cp.w||0)+'%)')}});
+   const sg=EC.sign[SN[t]];if(sg){/* signatories exactly as on the printed class record */
+     ecSet(ws,sg.head+'83',m.head===OLDHEAD?HEAD:(m.head??HEAD));ecSet(ws,sg.head+'84','Head, '+(m.dept||''));ecSet(ws,sg.pres+'83',m.pres??PRES);ecSet(ws,sg.pres+'84','College President');
+     if(!m.nd){[['81','Checked by: '],['83',m.dean??DEAN],['84',m.deanpos??DEANPOS]].forEach(([r,v])=>{ecSet(ws,sg.dean+r,v);ecStyle(ws,sg.dean+r,sg.head+r)})}else['81','83','84'].forEach(r=>ecSet(ws,sg.dean+r,''))}}
+  /* recalculate every formula when the file is opened */
+  const cp=wb.getElementsByTagName('calcPr')[0];if(cp){cp.setAttribute('fullCalcOnLoad','1')}
+  const xs=new XMLSerializer(),hd='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n',ser=d=>hd+xs.serializeToString(d).replace(/^<\?xml[^>]*\?>\s*/,'');
+  const files=Z.map(f=>{if(ed[f.name])return{name:f.name,raw:te.encode(ser(ed[f.name]))};if(f.name=='xl/workbook.xml')return{name:f.name,raw:te.encode(ser(wb))};return f});
+  const blob=await zipWrite(files),nm=prnName(c,'all','x').replace(/^Class Record and Grade Sheet /,'').replace(/ All Periods$/,'');
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='E-class Record '+nm+'.xlsx';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000);
+  st('');toast(L.length>EC.max?`Exported the first ${EC.max} students (the template holds ${EC.max}).`:'E-class workbook exported.')}catch(er){st('');console.error(er);toast('Could not export: '+(er.message||er))}}
 function tbHas(t){return(t.st||[]).some(x=>/[^\s-]/.test(String(x.a||''))||(x.e||[]).some(v=>v!=null&&v!==''))}
 function tbConfirm(h,m,ok,fn){const o=dlg(`<h3>${h}</h3><p>${m}</p><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${ok}</button></div>`,'am');o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-x]');if(b&&b.dataset.x=='1'){closeMdl(o);setTimeout(fn,200)}else if(b||e.target===o)closeMdl(o)}}
 function tbPostAll(c,t){if(!tbObj(t).length&&!t.secs.some(s=>s.t=='essay'))return toast('Set up the test first.');tbQ=tbSecSel(c).slice();tbQT=t;tbNextPost()}
@@ -3064,7 +3130,7 @@ function sumV(c,t){const T=c.terms[t],i=TERMS.findIndex(x=>x[0]==t),tot=sum(T.co
  return `<p class="${tot==100?'ok':'bad'}">${tot==100?'Component weights total 100%.':'Component weights total '+tot+'% — fix this under Rules & weights.'} Term grade = ${T.own}% of this term's score${pr?` + ${T.prev}% of the previous term's grade`:''}.</p>
  <div class="wrap gw"><table class="nmt${nmFull?' full':''}"><tr><th class=nm>Student ${nmB()}</th>${T.comps.map(x=>`<th>${esc(x.name)}<br>GE × ${x.w}%</th>`).join('')}<th>Term score</th><th>Term grade</th>${last?'<th>Remarks</th>':''}</tr>${c.students.map((s,r)=>{const g=grades(c,s.id,1);return `<tr>${nmC(s,r)}${T.comps.map(cp=>{const x=cmp(c,t,s.id,cp,1);return `<td>${f(x.g)} → ${f(x.w,2)}</td>`}).join('')}<td class=c>${f(g[t].x)}</td><td class=c>${f(g[t].g)}</td>${last?`<td>${g.rem?`<span class="chip ${g.rem=='PASSED'?'ok':'bad'}">${g.rem}</span>`:'—'}</td>`:''}</tr>`}).join('')}</table></div>`}
 function gradV(c){
- return `<div class="bar grtb"><button class=pri data-a=csv title="Export CSV" aria-label="Export CSV">${I('download')}<span class=gxl>Export </span>CSV</button><button data-a=backup>${I('download')}Backup</button><button data-a=sortstu title="Sort students" aria-label="Sort students">${I('sort')}</button><button data-a=pview data-pt=${pvDefT(c)} data-k=rec title="Preview class record and grade sheet" aria-label="Preview">${I('filec')}Preview</button></div>
+ return `<div class="bar grtb"><button class=pri data-a=csv title="Export CSV" aria-label="Export CSV">${I('download')}<span class=gxl>Export </span>CSV</button><button data-a=eclass title="Export the official e-class workbook (.xlsx) with this class's entries" aria-label="Export e-class workbook">${I('download')}E-class</button><button data-a=backup>${I('download')}Backup</button><button data-a=sortstu title="Sort students" aria-label="Sort students">${I('sort')}</button><button data-a=pview data-pt=${pvDefT(c)} data-k=rec title="Preview class record and grade sheet" aria-label="Preview">${I('filec')}Preview</button></div>
  <div class=card><h2>${I('printer')}Print</h2><p class=mut style="margin:.2rem 0 .6rem">Prints in the same layout as your e-class workbook on folio paper (8.5 × 13 in): the class record with every column, and the collegiate grade sheet. In the print window choose “Save as PDF” to keep a file.</p>
  <div class="wrap free"><table><tr><th style="text-align:left">Period</th><th>Class record</th><th>Grade sheet</th><th>Both</th><th>Preview</th></tr>${TERMS.map(([t,l])=>`<tr><td style="text-align:left"><b>${l}</b></td>${['rec','gs','both'].map(k=>`<td><button data-a=prn data-pt=${t} data-k=${k} title="Print" aria-label="Print ${l} ${k=='rec'?'class record':k=='gs'?'grade sheet':'both'}">${I('printer')}</button></td>`).join('')}<td><button data-a=pview data-pt=${t} data-k=rec title="Preview" aria-label="Preview ${l}">${I('filec')}</button></td></tr>`).join('')}</table></div>
  </div>
@@ -3128,7 +3194,7 @@ function recHtml(c,t){const T=c.terms[t],m=c.meta,ti=TERMS.findIndex(x=>x[0]==t)
   const lab=cp.id=='mp'?'MP':cp.id=='me'?'ST':'TOT';
   if(cp.subs.length==1){const s=cp.subs[0];return[{lab,mx:smax(s)||'',val:u=>rawc(u,s)}]}
   return[{lab,mx:cp.subs.some(s=>mx(s)>0)?100:'',val:u=>{const q=cmp(c,t,u.id,cp,1);return q.p==null?'':q.p}}]},
- cs=T.comps.map(cp=>{const cols=colsOf(cp),wt=(cp.id=='cw'||(cp.id=='mp'&&cp.subs.length>1))&&!cp.gross;return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:1,cols,to:cp.id=='att'||cp.id=='cw'||(wt&&cols.length>1)||cp.subs.every(s=>s.att),tm:wt?sum(cols.map(x=>x.mx)):sum(cp.subs.map(smax))}});
+ cs=T.comps.map(cp=>{const cols=colsOf(cp),wt=(cp.id=='cw'||(cp.id=='mp'&&cp.subs.length>1))&&!cp.gross;return{cp,wt,dg:cp.id=='cw'||cp.id=='mp'||cp.id=='me'?0:2,eq:1,cols,to:cp.id=='att'||cp.id=='cw'||(wt&&cols.length>1)||cp.subs.every(s=>s.att),tm:wt?sum(cols.map(x=>x.mx)):sum(cp.subs.map(smax))}});recHtml.cs=cs;
  let h1='<th rowspan=2 colspan=5 class=nmh>NAME</th>',h2='',r4='<td>#</td><td class=nb>FAMILY NAME</td><td class=w></td><td class=nb>FIRST NAME</td><td>M.I.</td>';
  cs.forEach(({cp,cols,to,tm,dg})=>{const ttl=cp.id=='cw'&&cp.name=='Course works'?'PARTICIPATION and OTHER COURSEWORK':cp.name.toUpperCase();
   h1+=`<th colspan=${cols.length+(to?4:3)} class=ch>${esc(ttl)}<br>(${+cp.w}%)</th>`;
@@ -3609,6 +3675,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'tbmail':case'tbnew':case'tbfilt':case'tbopen':case'tbback':case'tbtab':case'tbaddsec':case'tbrmsec':case'tbdel':case'tbpost':return tbAct(d.a,b);
  case'cxp':return xpExport();
  case'cimp':return xpPick();
+ case'eclass':return ecExport(c);
  case'csv':{const q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['Student','Prelim','Midterm','Final','Remarks'],...c.students.map(s=>{const g=grades(c,s.id);return[nm(s),f(g.prelim.g),f(g.midterm.g),f(g.final.g),g.rem]})];return dl(rows.map(r=>r.map(q).join(',')).join('\n'),`${c.meta.subj}-grades.csv`,'text/csv')}
  case'backup':return dl(JSON.stringify({classes:D.classes}),'eclass-backup.json','application/json');
  case'addgset':{if(gsEd!=c.id)return grpLock();const G=GS(c),n=(($('#gsname')||{}).value||'').trim()||'Group set '+(G.length+1),e={id:uid(),name:n,t:[],groups:[],asg:{}};G.push(e);ges=e.id;mark(c);return render()}
