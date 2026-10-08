@@ -1,4 +1,4 @@
-const V='eclass-v158',A=['./','index.html','manifest.json','logo.png','city-seal.jpg','icon-192.png','icon-512.png','schools/tcc.png','inter.woff2'];
+const V='eclass-v159',A=['./','index.html','manifest.json','logo.png','city-seal.jpg','icon-192.png','icon-512.png','schools/tcc.png','inter.woff2'];
 const O=['mammoth.min.js','pdf.min.js','pdf.worker.min.js'];
 const T=5000; /* network timeout (ms) before falling back to the cache */
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(A).then(()=>Promise.allSettled(O.map(u=>c.add(u))))));self.skipWaiting()});
