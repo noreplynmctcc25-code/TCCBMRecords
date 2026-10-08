@@ -1177,7 +1177,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=153,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=154,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -1186,12 +1186,12 @@ const navSave=()=>{try{if(U||localStorage.guest)localStorage['eclass.nav']=JSON.
 /* v114: floating pen button on the mobile home tab */
 function fabClose(p){p=p||document.getElementById('pf');if(!p)return;p.classList.remove('open');const b=p.querySelector('.pfb');b&&b.setAttribute('aria-expanded','false')}
 function fabFill(p){const L=liveS(),f=L[0],cs=f?L.filter(x=>aOf(x)==aOf(f)&&sOf(x)==sOf(f)):[],R=(a,ic,b,sm,x='',cl='')=>`<button class="pfr ${cl}" data-pf=${a} ${x}><span class=pfi>${I(ic)}</span><span class=pft><b>${esc(b)}</b>${sm?`<small>${esc(sm)}</small>`:''}</span></button>`;
- p.querySelector('.pfm').innerHTML=`<div class=pfh>Quick actions</div>${R('task','cal','Add personal task','Appears in your calendar')}${cs.length?`<div class=pfs>Active classes · ${esc([sOf(f),aOf(f)&&'A.Y. '+aOf(f)].filter(Boolean).join(' · '))}</div>${cs.map(x=>R('open','book',cname(x),x.meta.title||'','data-id='+x.id)).join('')}`:''}<div class=pfs>Create</div>${R('newtest','quiz','New test','Answer key, sheets and item analysis')}${R('new','plus','New class','','','pfn')}`}
+ p.querySelector('.pfm').innerHTML=`<div class=pfh>Quick actions</div>${R('task','cal','Add personal task','Appears in your calendar')}${cs.length?`<div class=pfs>Active classes · ${esc([sOf(f),aOf(f)&&'A.Y. '+aOf(f)].filter(Boolean).join(' · '))}</div>${cs.map(x=>R('open','book',cname(x),x.meta.title||'','data-id='+x.id)).join('')}`:''}<div class=pfs>Create</div>${R('newdiary','pencil','New diary entry','Log what happened in class')}${R('newasg','task','New assignment','Shows on the calendar when it has a due date')}${R('newtest','quiz','New test','Answer key, sheets and item analysis')}${R('new','plus','New class','','','pfn')}`}
 function fabSync(){let p=document.getElementById('pf');if(!p){p=document.createElement('div');p.id='pf';p.className='pf';p.innerHTML=`<div class=pfbk data-pf=close></div><div class=pfm></div><button class=pfb data-pf=tg aria-label="Quick actions" aria-expanded=false>${I('pencil').replace('class=i','class="i ip"')}${I('x').replace('class=i','class="i ix"')}</button>`;document.body.appendChild(p)}
  const show=!!(U||localStorage.guest)&&((view=='home'&&!C())||view=='cal'||view=='compare')&&mob();p.classList.toggle('on',show);if(!show)fabClose(p)}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-pf]');if(!b)return;const p=document.getElementById('pf'),a=b.dataset.pf;
  if(a=='tg'){if(p.classList.contains('open'))fabClose(p);else{fabFill(p);b.setAttribute('aria-expanded','true');requestAnimationFrame(()=>requestAnimationFrame(()=>p.classList.add('open')))}return}
- fabClose(p);if(a=='close')return;setTimeout(()=>{if(a=='task')taskDlg();else if(a=='new')classForm();else if(a=='newtest'){view='tests';cx=-1;pop=null;render();setTimeout(()=>{try{tbNew()}catch(_){}},60)}else if(a=='open'){cur=b.dataset.id;gf='';view='students';render()}},200)});
+ fabClose(p);if(a=='close')return;setTimeout(()=>{if(a=='task')taskDlg();else if(a=='new')classForm();else if(a=='newdiary'||a=='newasg'){view='diary';pop=null;render();setTimeout(()=>{try{dyAct('dyadd',{dataset:a=='newasg'?{k:'assignment'}:{}})}catch(_){}},60)}else if(a=='newtest'){view='tests';cx=-1;pop=null;render();setTimeout(()=>{try{tbNew()}catch(_){}},60)}else if(a=='open'){cur=b.dataset.id;gf='';view='students';render()}},200)});
 document.addEventListener('keydown',e=>{if(e.key=='Escape')fabClose()});addEventListener('resize',()=>fabSync());
 
 /* v115: export / import of one class (spreadsheet or full backup) */
@@ -1269,7 +1269,9 @@ const rom=n=>['I','II','III','IV','V','VI','VII','VIII','IX','X'][n-1]||String(n
 const $=s=>(document.querySelector('.tbx')||document).querySelector(s),L='ABCDEFGHIJKLMNOPQRSTUVWXYZ',MAXO={mc:5,match:26},TY={mc:'Multiple Choice',tf:'True / False',match:'Matching',essay:'Essay'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sum=a=>a.reduce((x,y)=>x+y,0),mean=a=>sum(a)/a.length,num=(v,d=0)=>{v=+v;return isFinite(v)?v:d},r2=v=>Math.round(v*100)/100;
-const fx=(v,d=2)=>v==null||isNaN(v)?'–':(+v).toFixed(d),uid=()=>Math.random().toString(36).slice(2,10);
+const rhu=(v,d)=>{const p=10**d,x=+v;return Math.round((x+Math.sign(x)*Math.abs(x)*1e-12)*p)/p};
+/* half-up rounding like Excel's display (1.085 -> 1.09), avoiding binary float drift */
+const fx=(v,d=2)=>v==null||isNaN(v)?'–':rhu(v,d).toFixed(d),uid=()=>Math.random().toString(36).slice(2,10);
 const sd=(a,pop)=>{const m=mean(a);return Math.sqrt(sum(a.map(v=>(v-m)**2))/(a.length-(pop?0:1)))};
 const pctl=(a,p)=>{const s=[...a].sort((x,y)=>x-y),h=(s.length-1)*p,l=Math.floor(h);return s[l]+(h-l)*((s[l+1]??s[l])-s[l])};
 const modes=a=>{const c={};a.forEach(v=>c[v]=(c[v]||0)+1);const m=Math.max(...Object.values(c));return m<2?[]:Object.keys(c).filter(k=>c[k]==m).map(Number)};
@@ -3069,7 +3071,8 @@ function termSet(c,t,l){const T=c.terms[t],i0=TERMS.findIndex(x=>x[0]==t);
 function updChk(){const c=C();document.querySelectorAll('.chk').forEach(e=>{const[t,ci]=e.dataset.chk.split('|'),T=c.terms[t];let s=ci==null?sum(T.comps.map(x=>x.w)):sum(T.comps[ci].subs.map(x=>x.w));s=+s.toFixed(2);const ok=Math.round(s)==100;let tx='Total '+s+'%';if(!ok){if(ci!=null&&s>0)tx+=' — not 100%, so the weights are recomputed to 100%: '+T.comps[ci].subs.map(x=>x.name+' '+(+(x.w/s*100).toFixed(2))+'%').join(', ');else tx+=' — should be 100%'}e.textContent=tx;e.className='chk '+(ok?'ok':ci!=null&&s>0?'mut':'bad')});
  document.querySelectorAll('.eff').forEach(e=>{const[t,ci,si]=e.dataset.eff.split('|'),s=c.terms[t].comps[ci].subs[si],m=mx(s),r=+s.red||0;e.textContent=s.att?'Attendance points are set above.':!m?'No total entered yet in the grid.':r>0?`Total ${m} counts as ${+(m*(1-r/100)).toFixed(2)} after the ${r}% reduction.`:`Total ${m}.`})}
 /* ---------- printing: same layout as the e-class workbook ---------- */
-const fx=(v,d)=>v==null||v===''||isNaN(v)?'':(+v).toFixed(d),tn=(v,d)=>v==null||v===''||isNaN(v)?'':String(+(+v).toFixed(d));
+const rhuG=(v,d)=>{const p=10**d,x=+v;return Math.round((x+Math.sign(x)*Math.abs(x)*1e-12)*p)/p};
+const fx=(v,d)=>v==null||v===''||isNaN(v)?'':rhuG(v,d).toFixed(d),tn=(v,d)=>v==null||v===''||isNaN(v)?'':String(rhuG(v,d));
 const TN={prelim:['Prelim','P r e l i m','PRELIM'],midterm:['Midterm','M i d t e r m','MIDTERM'],final:['Final','F i n a l','FINAL']};
 const frac=p=>{p=+p||0;if(p%1)return p+'%';const q=(a,b)=>b?q(b,a%b):a,d=q(p,100)||1;return (p/d)+'/'+(100/d)};
 const r1=g=>Math.round(g*10+1e-9)/10,fnlG=(c,g)=>g==null?null:(c.hi?g:r1(g)>c.pass?5:g),remOf=(c,g)=>g==null?'':(c.hi?r1(g)+1e-9>=c.pass:r1(g)-1e-9<=c.pass)?'PASSED':'FAILED';
