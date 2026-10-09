@@ -1255,7 +1255,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=168,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=169,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -2206,7 +2206,8 @@ const ecCell=(ws,ref)=>[...ws.getElementsByTagName('c')].find(x=>x.getAttribute(
 /* entries display as whole numbers (format "0"); the exact value is kept, so the template's formulas compute exactly as before */
 let ecXf=null;function ecWhole(ws,ref){if(!ecXf)return;const c=ecCell(ws,ref);if(!c)return;const o=c.getAttribute('s')||'0';if(!ecXf.map[o]){const X=ecXf.xfs[+o];if(!X)return;const n=X.cloneNode(true);n.setAttribute('numFmtId','1');n.setAttribute('applyNumberFormat','1');ecXf.box.appendChild(n);ecXf.map[o]=String(ecXf.xfs.length);ecXf.xfs.push(n);ecXf.box.setAttribute('count',String(ecXf.xfs.length))}c.setAttribute('s',ecXf.map[o])}
 /* v168: lock or unlock one cell. The template's sheets are protected, so a locked cell cannot be edited in Excel */
-function ecProt(ws,ref,lock){if(!ecXf)return;const c=ecCell(ws,ref);if(!c)return;const o=c.getAttribute('s')||'0',k=o+(lock?'L':'U'),pm=ecXf.pm||(ecXf.pm={});
+let ecOpen=false;/* v169: set for one export when the teacher chooses editable scores; locked cells then keep the template's own setting */
+function ecProt(ws,ref,lock){if(!ecXf||(lock&&ecOpen))return;const c=ecCell(ws,ref);if(!c)return;const o=c.getAttribute('s')||'0',k=o+(lock?'L':'U'),pm=ecXf.pm||(ecXf.pm={});
  if(pm[k]===undefined){const X=ecXf.xfs[+o];if(!X)return;const p0=X.getElementsByTagName('protection')[0],isL=!(p0&&p0.getAttribute('locked')=='0');
   if(isL==!!lock)pm[k]=o;else{const n=X.cloneNode(true);let p=n.getElementsByTagName('protection')[0];if(!p){p=n.ownerDocument.createElementNS(ecNS,'protection');const ex=n.getElementsByTagName('extLst')[0];n.insertBefore(p,ex||null)}p.setAttribute('locked',lock?'1':'0');n.setAttribute('applyProtection','1');ecXf.box.appendChild(n);pm[k]=String(ecXf.xfs.length);ecXf.xfs.push(n);ecXf.box.setAttribute('count',String(ecXf.xfs.length))}}
  c.setAttribute('s',pm[k])}
@@ -2228,7 +2229,7 @@ function ecHideRows(ws,a,b){if(a>b)return;const sd=ws.getElementsByTagName('shee
 function ecStyle(ws,ref,from){const f=[...ws.getElementsByTagName('c')].find(x=>x.getAttribute('r')==from),t=[...ws.getElementsByTagName('c')].find(x=>x.getAttribute('r')==ref);if(f&&t&&f.getAttribute('s'))t.setAttribute('s',f.getAttribute('s'))}
 /* fit any number of app columns into the template's fixed slots: extras are combined into the last slot (points and maximum added), so TO and %EQ stay exact */
 function ecPack(cols,n){if(cols.length<=n)return cols;const A=cols.slice(0,n-1),R=cols.slice(n-1);A.push({lab:'+',mx:sum(R.map(x=>+x.mx||0)),val:u=>{const v=R.map(x=>x.val(u));return v.every(x=>x===''||x==null)?'':sum(v.map(x=>+x||0))}});return A}
-async function ecExport(c){if(!c)return;const L=c.students;if(!L.length)return toast('Add students first');if(typeof DecompressionStream=='undefined')return toast('This browser cannot build the workbook. Please update Chrome, Safari or Edge.');
+async function ecExport(c,open){if(!c)return;ecOpen=!!open;const L=c.students;if(!L.length)return toast('Add students first');if(typeof DecompressionStream=='undefined')return toast('This browser cannot build the workbook. Please update Chrome, Safari or Edge.');
  st('Preparing the e-class workbook…');try{
   const r=await fetch(EC.tpl,{cache:'no-cache'});if(!r.ok)throw new Error('The e-class template file ('+EC.tpl+') was not found on the site.');
   const Z=await zipRead(await r.arrayBuffer()),td=new TextDecoder(),te=new TextEncoder(),get=async n=>td.decode(await Z.find(f=>f.name==n).get());
@@ -2271,6 +2272,12 @@ async function ecExport(c){if(!c)return;const L=c.students;if(!L.length)return t
   st('');toast(L.length>EC.max?`Exported the first ${EC.max} students (the template holds ${EC.max}).`:'E-class workbook exported.')}catch(er){st('');console.error(er);toast('Could not export: '+(er.message||er))}}
 
 const hpos=m=>m.headpos||'Department Head';
+/* v169: choose whether the exported scores can be edited in Excel */
+function ecAsk(c){if(!c)return;const o=dlg(`<h3>Export e-class workbook</h3><p class=mut>Choose whether scores can be changed in Excel. Names of the instructor and signatories can be edited either way.</p>
+ <button class=ao data-ek=0><span class=ic>${I('lock')}</span><span><b>Scores locked</b><small>Recommended. To change a score, edit it in Gradu and export again.</small></span></button>
+ <button class=ao data-ek=1><span class=ic>${I('pencil')}</span><span><b>Scores editable</b><small>Score cells can be edited in Excel. Changes made there are not saved back to Gradu.</small></span></button>
+ <div class=bar><button data-x=0>Cancel</button></div>`,'am');
+ o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-ek]');if(b){const op=b.dataset.ek=='1';closeMdl(o);setTimeout(()=>ecExport(c,op),200);return}if(e.target.closest('[data-x]')||e.target===o)closeMdl(o)}}
 
 /* v164: on phones the Gradu bar (logo, theme, sync, sign-out) stays pinned while scrolling; the class selector row scrolls away */
 function hbarSync(){const h=document.querySelector('header:not(#hbar)');let b=document.getElementById('hbar');if(!h)return;
@@ -3872,7 +3879,7 @@ document.addEventListener('click',async e=>{if((pop||tp)&&!e.target.closest('nav
  case'tbcls':case'tbmore':case'tbmail':case'tbnew':case'tbfilt':case'tbopen':case'tbback':case'tbtab':case'tbaddsec':case'tbrmsec':case'tbdel':case'tbpost':return tbAct(d.a,b);
  case'cxp':return xpExport();
  case'cimp':return xpPick();
- case'eclass':return ecExport(c);
+ case'eclass':return ecAsk(c);
  case'csv':{const q=v=>'"'+String(v).replace(/"/g,'""')+'"',rows=[['Student','Prelim','Midterm','Final','Remarks'],...c.students.map(s=>{const g=grades(c,s.id);return[nm(s),f(g.prelim.g),f(g.midterm.g),f(g.final.g),g.rem]})];return dl(rows.map(r=>r.map(q).join(',')).join('\n'),`${c.meta.subj}-grades.csv`,'text/csv')}
  case'backup':return dl(JSON.stringify({classes:D.classes}),'eclass-backup.json','application/json');
  case'addgset':{if(gsEd!=c.id)return grpLock();const G=GS(c),n=(($('#gsname')||{}).value||'').trim()||'Group set '+(G.length+1),e={id:uid(),name:n,t:[],groups:[],asg:{}};G.push(e);ges=e.id;mark(c);return render()}
