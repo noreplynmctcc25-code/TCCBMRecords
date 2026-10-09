@@ -1209,6 +1209,15 @@ body.pvo{overflow:hidden}
 @media(max-width:899px),(hover:none) and (pointer:coarse) and (max-height:540px){
  #hbar{display:flex;position:fixed;top:0;left:0;right:0;z-index:36;margin:0;padding-bottom:.55rem!important;transform:translateY(-105%);transition:transform .22s var(--ios,ease);box-shadow:0 4px 14px rgba(0,0,0,.18)}
  #hbar.on{transform:none}
+
+ #hbar .hbl{display:flex;flex-direction:column;align-items:center;gap:.1rem;flex:none}
+ #hbar .hbst{font-size:.5rem;line-height:1;opacity:.85;white-space:nowrap;max-width:5.5rem;overflow:hidden;text-overflow:ellipsis;text-align:center}
+ #hbar .hbst:empty{display:none}
+ #hbar .hbav{width:1.7rem;height:1.7rem;border-radius:50%;flex:none;margin-left:.35rem;object-fit:cover;box-shadow:0 0 0 2px color-mix(in srgb,currentColor 35%,transparent)}
+ #hbar{flex-wrap:nowrap!important;align-items:center!important;gap:.4rem}#hbar .brand{flex:1 1 auto;min-width:0}#hbar .sp{display:none}
+ #hbar .hr{display:flex;align-items:center;flex:none;margin:0!important;padding:0!important;width:auto!important}#hbar .hr .hb{display:flex;gap:.35rem;flex-wrap:nowrap}
+ #hbar .hbst{text-transform:none;letter-spacing:0}
+ #hbar .gsub{display:none}
  body.hbo #cb{top:var(--hbh,3.6rem)}
  body.hbo .tbst,body.hbo .ntst{top:calc(var(--hbh,3.6rem) + var(--cbh,2.1rem))}
  body.hbo .dygh{top:calc(var(--hbh,3.6rem) + var(--cbh,0px))}
@@ -1225,7 +1234,7 @@ const I=n=>`<svg class=i><use href="#i-${n}"/></svg>`;
 const K='eclass.v2',FN='DBME-eclass-records.json',SC='openid email profile https://www.googleapis.com/auth/drive.file';
 const $=(s,e=document)=>e.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4),sum=a=>a.reduce((x,y)=>x+(+y||0),0);
-const VER=164,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
+const VER=165,TERMS=[['prelim','Prelim'],['midterm','Midterm'],['final','Final']],NTERMS=[['general','General'],...TERMS];
 let D=JSON.parse(localStorage[K]||'null')||{classes:[]},cur='',view='home',comp='',tp=0,pop=null,U=localStorage.user||'',fid=localStorage.fid||'',tok=localStorage.tok,exp=+localStorage.exp||0,auth=0;D.dirty=D.dirty||0;
 /* v108: reopen on the same screen (class, tab and column) after a refresh or restart */
 try{const N=JSON.parse(localStorage['eclass.nav']||'null');if(N&&N.cur&&D.classes.some(x=>x.id==N.cur&&!x.d)){cur=N.cur;view=N.view||'students';comp=N.comp||''}else if(N&&!N.cur&&['compare','cal','dept','dsh','tests'].includes(N.view))view=N.view}catch(_){}
@@ -2229,9 +2238,14 @@ const hpos=m=>m.headpos||'Department Head';
 function hbarSync(){const h=document.querySelector('header:not(#hbar)');let b=document.getElementById('hbar');if(!h)return;
  if(!mob()){if(b)b.remove();document.body.classList.remove('hbo');return}
  if(!b){b=document.createElement('header');b.id='hbar';document.body.appendChild(b)}
- b.innerHTML=h.innerHTML;b.querySelectorAll('.hc,#tp').forEach(x=>x.remove());b.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));hbarScroll()}
+ b.innerHTML=h.innerHTML;b.querySelectorAll('.hc,#tp').forEach(x=>x.remove());b.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+ /* pinned layout: school logo with tiny sync status under it · Gradu · user picture (no name) · buttons */
+ const br=b.querySelector('.brand'),sl=br&&br.querySelector('.sclg'),hl=b.querySelector('.hl'),av=hl&&hl.querySelector('img,.avs');
+ if(sl){const w=document.createElement('span');w.className='hbl';sl.replaceWith(w);w.appendChild(sl);const t=document.createElement('small');t.className='hbst';w.appendChild(t)}
+ if(av&&br){av.classList.add('hbav');br.appendChild(av)}if(hl)hl.remove();hbarScroll()}
 function hbarScroll(){const b=document.getElementById('hbar'),h=document.querySelector('header:not(#hbar)');if(!b||!h)return;const br=h.querySelector('.brand'),lim=br?br.offsetTop+br.offsetHeight-2:40,on=scrollY>lim;
- if(on!==b.classList.contains('on')){b.classList.toggle('on',on);document.body.classList.toggle('hbo',on)}if(on)document.documentElement.style.setProperty('--hbh',b.offsetHeight+'px')}
+ if(on!==b.classList.contains('on')){b.classList.toggle('on',on);document.body.classList.toggle('hbo',on)}if(on){document.documentElement.style.setProperty('--hbh',b.offsetHeight+'px');const t=b.querySelector('.hbst'),o=document.getElementById('st');if(t&&o&&t.textContent!==o.textContent)t.textContent=o.textContent}}
+setInterval(()=>{const b=document.getElementById('hbar');if(b&&b.classList.contains('on'))hbarScroll()},2000);
 addEventListener('scroll',()=>{try{hbarScroll()}catch(_){}},{passive:true});addEventListener('resize',()=>{try{hbarSync()}catch(_){}});
 function tbHas(t){return(t.st||[]).some(x=>/[^\s-]/.test(String(x.a||''))||(x.e||[]).some(v=>v!=null&&v!==''))}
 function tbConfirm(h,m,ok,fn){const o=dlg(`<h3>${h}</h3><p>${m}</p><div class=bar><button data-x=0>Cancel</button><button class=pri data-x=1>${ok}</button></div>`,'am');o.onclick=e=>{if(o.classList.contains('out'))return;const b=e.target.closest('[data-x]');if(b&&b.dataset.x=='1'){closeMdl(o);setTimeout(fn,200)}else if(b||e.target===o)closeMdl(o)}}
